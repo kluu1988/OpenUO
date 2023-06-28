@@ -39,14 +39,15 @@ using ClassicUO.Input;
 using ClassicUO.Assets;
 using ClassicUO.Renderer;
 using ClassicUO.Resources;
+using ClassicUO.Utility;
 using SDL2;
 
 namespace ClassicUO.Game.UI.Controls
 {
     internal class MacroControl : Control
     {
-        private static readonly string[] _allHotkeysNames = Enum.GetNames(typeof(MacroType));
-        private static readonly string[] _allSubHotkeysNames = Enum.GetNames(typeof(MacroSubType));
+        private static readonly string[] _allHotkeysNames = Enum.GetNames(typeof(MacroType)).CamelSpace();
+        private static readonly string[] _allSubHotkeysNames = Enum.GetNames(typeof(MacroSubType)).CamelSpace();
         private readonly DataBox _databox;
         private readonly HotkeyBox _hotkeyBox;
 
@@ -432,6 +433,7 @@ namespace ClassicUO.Game.UI.Controls
                 switch (obj.SubMenuType)
                 {
                     case 1:
+                    {
                         int count = 0;
                         int offset = 0;
                         Macro.GetBoundByCode(obj.Code, ref count, ref offset);
@@ -443,20 +445,12 @@ namespace ClassicUO.Game.UI.Controls
                             names[i] = _allSubHotkeysNames[i + offset];
                         }
 
-                        Combobox sub = new Combobox
-                        (
-                            20,
-                            Height,
-                            180,
-                            names,
-                            (int) obj.SubCode - offset,
-                            300
-                        );
+                        Combobox sub = new Combobox(20, Height, 180, names, (int)obj.SubCode - offset, 300);
 
                         sub.OnOptionSelected += (senderr, ee) =>
                         {
                             Macro.GetBoundByCode(obj.Code, ref count, ref offset);
-                            MacroSubType subType = (MacroSubType) (offset + ee);
+                            MacroSubType subType = (MacroSubType)(offset + ee);
                             obj.SubCode = subType;
                         };
 
@@ -466,6 +460,7 @@ namespace ClassicUO.Game.UI.Controls
 
 
                         break;
+                    }
 
                     case 2:
 
@@ -510,7 +505,188 @@ namespace ClassicUO.Game.UI.Controls
                         Height += background.Height;
 
                         break;
+                    
+
+                    case 3:
+                        {
+                            int count = 0;
+                            int offset = 0;
+                            Macro.GetBoundByCode(obj.Code, ref count, ref offset);
+
+                            string[] names = new string[count];
+
+                            for (int i = 0; i < count; i++)
+                            {
+                                names[i] = _allSubHotkeysNames[i + offset];
+                            }
+
+                            Combobox sub = new Combobox
+                            (
+                                20, Height, 180, names,
+                                (int)obj.SubCode - offset, 300
+                            );
+
+                            sub.OnOptionSelected += (senderr, ee) =>
+                            {
+                                Macro.GetBoundByCode(obj.Code, ref count, ref offset);
+                                MacroSubType subType = (MacroSubType)(offset + ee);
+                                obj.SubCode = subType;
+                            };
+
+                            Add(sub);
+
+                            Height += sub.Height;
+
+                            int countz = 0;
+                            int offsetz = 0;
+                            Macro.GetSecondaryBoundByCode(obj.Code, ref countz, ref offsetz);
+
+                            names = new string[countz];
+
+                            for (int i = 0; i < countz; i++)
+                            {
+                                names[i] = _allSubHotkeysNames[i + offsetz + 1];
+                            }
+
+                            sub = new Combobox
+                            (
+                                20,
+                                Height,
+                                180,
+                                names,
+                                (int)obj.SubSubCode - offsetz,
+                                300
+                            );
+
+                            sub.OnOptionSelected += (senderr, eez) =>
+                            {
+                                Macro.GetSecondaryBoundByCode(obj.Code, ref countz, ref offsetz);
+                                MacroSubType subType = (MacroSubType)(offsetz + eez);
+                                obj.SubSubCode = subType;
+                            };
+
+                            Add(sub);
+
+                            Height += sub.Height;
+
+
+                            break;
+                        }
+
+                    case 4:
+                        {
+                            //Completely custom list..
+
+                            int count = 0;
+                            int offset = 0;
+                            ///Macro.GetBoundByCode(obj.Code, ref count, ref offset);
+
+                            /*string[] names = new string[count];
+
+                            for (int i = 0; i < count; i++)
+                            {
+                                names[i] = _allSubHotkeysNames[i + offset];
+                            }*/
+
+                            string[] names = null;
+                            string[] subNames = null;
+
+                            switch (obj.Code)
+                            {
+                                case MacroType.UsePotion:
+                                    {
+                                        names = new string[World.Settings.Potions.Count];
+
+                                        for (int i = 0; i < World.Settings.Potions.Count; i++)
+                                        {
+                                            names[i] = World.Settings.Potions[i].Name;
+                                        }
+
+                                        break;
+                                    }
+
+                                case MacroType.SallosTargeting:
+                                    {
+                                        names = new string[]
+                                        {
+                                            "Find", "Target", "Acquire"
+                                        };
+
+                                        break;
+                                    }
+
+                                case MacroType.ActiveAbilitiesBySlot:
+                                {
+                                    names = new string[10];
+                                    subNames = new string[10];
+                                    
+                                    for (int i = 0; i < 10; i++)
+                                    {
+                                        names[i] = $"Slot {(i + 1)}";
+                                        subNames[i] = $"Ability {(i + 1)}";
+                                    }
+
+                                    break;
+                                }
+                            }
+
+                            int index = 0;
+
+                            for (int i = 0; i < World.Settings.Potions.Count; i++)
+                            {
+                                if (World.Settings.Potions[i].ID == (int)obj.SubCode)
+                                {
+                                    index = i;
+
+                                    break;
+                                }
+                            }
+
+
+                            Combobox sub = new Combobox
+                            (
+                                20, Height, 180, names,
+                                index, 300
+                            );
+
+                            sub.OnOptionSelected += (senderr, ee) =>
+                            {
+                                obj.SubCode = (MacroSubType)World.Settings.Potions[ee].ID;
+                            };
+
+                            Add(sub);
+
+                            Height += sub.Height;
+
+                            if (subNames != null)
+                            {
+
+                                sub = new Combobox
+                                (
+                                    20,
+                                    Height,
+                                    180,
+                                    subNames,
+                                    (int)obj.SubSubCode,
+                                    300
+                                );
+
+                                sub.OnOptionSelected += (senderr, ee) =>
+                                {
+                                    Macro.GetSecondaryBoundByCode(obj.Code, ref count, ref offset);
+                                    MacroSubType subType = (MacroSubType)(offset + ee);
+                                    obj.SubSubCode = subType;
+                                };
+
+                                Add(sub);
+
+                                Height += sub.Height;
+                            }
+
+                            break;
+                        }
                 }
+                
 
                 _control._databox.ReArrangeChildren();
             }

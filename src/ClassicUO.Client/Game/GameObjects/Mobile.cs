@@ -136,6 +136,22 @@ namespace ClassicUO.Game.GameObjects
         private ushort _animationRepeateMode = 1;
         private ushort _animationRepeatModeCount = 1;
 
+        public int _movementWalkOverride = -1;
+        public int _movementRunOverride = -1;
+
+        //TODO: Enhance with settings packet
+        public int RunningMoveSpeed => _movementRunOverride == -1 ? 
+            (IsMounted ? 
+                World.Settings.MovementSettings.MoveSpeedRunningMounted : 
+                World.Settings.MovementSettings.MoveSpeedRunningUnmounted) 
+            : _movementRunOverride;
+        public int WalkingMoveSpeed => _movementWalkOverride == -1 ? 
+            (IsMounted ? 
+                World.Settings.MovementSettings.MoveSpeedWalkingMounted : 
+                World.Settings.MovementSettings.MoveSpeedWalkingUnmounted) 
+            : _movementWalkOverride;
+
+        public int TurnDelay => World.Settings.MovementSettings.TurnDelay;
         public Mobile(uint serial) : base(serial)
         {
             LastAnimationChangeTime = Time.Ticks;

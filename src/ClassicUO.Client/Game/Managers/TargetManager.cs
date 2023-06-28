@@ -30,6 +30,7 @@
 
 #endregion
 
+using System.Collections.Generic;
 using ClassicUO.Configuration;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
@@ -52,7 +53,9 @@ namespace ClassicUO.Game.Managers
         Grab,
         SetGrabBag,
         HueCommandTarget,
-        IgnorePlayerTarget
+        IgnorePlayerTarget,
+        FriendTarget,
+        Dummy
     }
 
     internal class CursorType
@@ -127,6 +130,35 @@ namespace ClassicUO.Game.Managers
             Z = sbyte.MinValue;
         }
     }
+    
+    
+    internal class StoredTarget
+    {
+        public CursorTarget TargetingState { get; private set; }
+        public uint TargetCursorID { get; private set; }
+        public MultiTargetInfo MultiTargetInfo { get; private set; }
+        public TargetType TargetingType { get; private set; }
+        public bool IsAoE { get; private set; }
+        public object AoERange { get; private set; }
+        public int AoEType { get; private set; }
+        public uint Preview { get; private set; }
+        public ushort PreviewHue { get; private set; }
+
+        public StoredTarget(CursorTarget targetingState, uint targetCursorID, MultiTargetInfo multiTargetInfo, 
+                            TargetType targetingType, bool isAoE, object AOERange, int AOEType, uint preview,
+                            ushort previewHue)
+        {
+            TargetingState = targetingState;
+            TargetCursorID = targetCursorID;
+            MultiTargetInfo = multiTargetInfo;
+            TargetingType = targetingType;
+            IsAoE = isAoE;
+            AoERange = AOERange;
+            AoEType = AOEType;
+            Preview = preview;
+            PreviewHue = previewHue;
+        }
+    }
 
     internal static class TargetManager
     {
@@ -136,7 +168,7 @@ namespace ClassicUO.Game.Managers
         public static uint LastAttack, SelectedTarget;
 
         public static readonly LastTargetInfo LastTargetInfo = new LastTargetInfo();
-
+        public static readonly LastTargetInfo LastBeneficialTargetInfo = new LastTargetInfo();
 
         public static MultiTargetInfo MultiTargetInfo { get; private set; }
 
@@ -145,8 +177,48 @@ namespace ClassicUO.Game.Managers
         public static bool IsTargeting { get; private set; }
 
         public static TargetType TargetingType { get; private set; }
+        public static object ExtraDetails { get; private set; }
+        public static bool IsAoE { get; private set; }
+        public static int AoEType { get; private set; }
+        public static uint Preview { get; private set; }
+        public static ushort PreviewHue { get; private set; }
 
-        private static void ClearTargetingWithoutTargetCancelPacket()
+        public static List<StoredTarget> StoredTargets { get; set; } = new List<StoredTarget>();
+
+        public static void StoreTarget()
+        {
+            if (IsTargeting)
+            {
+                StoredTargets.Add(
+                    new StoredTarget(TargetingState, _targetCursorId, MultiTargetInfo, 
+                                     TargetingType, IsAoE, ExtraDetails, AoEType, Preview, PreviewHue));
+                ClearTargetingWithoutTargetCancelPacket(false);
+            }
+            
+        }
+
+        public static void RestoreTarget()
+        {
+            if (StoredTargets.Count > 0)
+            {
+                var targ = StoredTargets[0];
+                StoredTargets.RemoveAt(0);
+
+                TargetingState = targ.TargetingState;
+                _targetCursorId = targ.TargetCursorID;
+                TargetingType = targ.TargetingType;
+                MultiTargetInfo = targ.MultiTargetInfo;
+                IsAoE = targ.IsAoE;
+                ExtraDetails = targ.AoERange;
+                AoEType = targ.AoEType;
+                Preview = targ.Preview;
+                PreviewHue = targ.PreviewHue;
+                
+                IsTargeting = targ.TargetingType < TargetType.Cancel;
+            }
+        }
+
+        private static void ClearTargetingWithoutTargetCancelPacket(bool restore = true)
         {
             if (TargetingState == CursorTarget.MultiPlacement)
             {
@@ -156,6 +228,15 @@ namespace ClassicUO.Game.Managers
             }
 
             IsTargeting = false;
+            
+            IsAoE = false;
+            ExtraDetails = 0;
+            AoEType = 0;
+            Preview = 0;
+            PreviewHue = 0;
+            
+            if (restore)
+                RestoreTarget();
         }
 
         public static void Reset()
@@ -246,7 +327,10 @@ namespace ClassicUO.Game.Managers
             );
         }
 
-
+        public static bool SplitLastTargets => World.Settings.ClientOptionsFlags.AllowSplitTargetsOptions && 
+                                                  ProfileManager.CurrentProfile != null && 
+                                                  ProfileManager.CurrentProfile.SplitLastTarget;
+        
         public static void Target(uint serial)
         {
             if (!IsTargeting)
@@ -267,10 +351,14 @@ namespace ClassicUO.Game.Managers
                     case CursorTarget.Object:
                     case CursorTarget.HueCommandTarget:
                     case CursorTarget.SetTargetClientSide:
+                    case CursorTarget.Dummy:
 
                         if (entity != World.Player)
                         {
-                            LastTargetInfo.SetEntity(serial);
+                            if (SplitLastTargets && TargetingType == TargetType.Beneficial)
+                                LastBeneficialTargetInfo.SetEntity(serial);
+                            else
+                                LastTargetInfo.SetEntity(serial);
                         }
 
                         if (SerialHelper.IsMobile(serial) && serial != World.Player && (World.Player.NotorietyFlag == NotorietyFlag.Innocent || World.Player.NotorietyFlag == NotorietyFlag.Ally))
@@ -324,7 +412,7 @@ namespace ClassicUO.Game.Managers
                             }
                         }
 
-                        if (TargetingState != CursorTarget.SetTargetClientSide)
+                        if (TargetingState != CursorTarget.SetTargetClientSide && TargetingState != CursorTarget.Dummy)
                         {
                             _lastDataBuffer[0] = 0x6C;
 
@@ -404,7 +492,31 @@ namespace ClassicUO.Game.Managers
                         }
                         CancelTarget();
                         return;
+                    
+                    case CursorTarget.FriendTarget:
+                        if (SelectedObject.Object is Entity mEntity)
+                        {
+                            FriendManager.AddFriendTarget(mEntity);
+                        }
+                        CancelTarget();
+                        return;
                 }
+            }
+            else if (World.Settings.ClientOptionsFlags.AllowOffscreenTargeting &&
+                     ProfileManager.CurrentProfile != null && ProfileManager.CurrentProfile.OffscreenTargeting)
+            {
+                if (World.Settings.ClientOptionsFlags.AllowSplitTargetsOptions && 
+                    SplitLastTargets && TargetingType == TargetType.Beneficial)
+                {
+                    LastBeneficialTargetInfo.SetEntity(serial);
+                    World.Player.AddMessage(MessageType.Label, "beneficial last target set", TextType.CLIENT);
+                }
+                else
+                {
+                    LastTargetInfo.SetEntity(serial);
+                    World.Player.AddMessage(MessageType.Label, "last target set", TextType.CLIENT);
+                }
+
             }
         }
 

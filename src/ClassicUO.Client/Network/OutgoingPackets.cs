@@ -1130,6 +1130,84 @@ namespace ClassicUO.Network
             socket.Send(writer.BufferWritten);
             writer.Dispose();
         }
+        
+        
+        public static void Send_CastSpellWithTarget(this NetClient socket, int idx, uint target)
+        {
+            const byte ID = 0xBF;
+
+
+            int length = PacketsTable.GetPacketLength(ID);
+
+            StackDataWriter writer = new StackDataWriter(length < 0 ? 64 : length);
+
+            writer.WriteUInt8(ID);
+
+            if (length < 0)
+            {
+                writer.WriteZero(2);
+            }
+
+            writer.WriteUInt16BE(0x2D);
+            //writer.WriteUInt16BE(0x1C);
+            //writer.WriteUInt16BE(0x02);
+            writer.WriteUInt16BE((ushort)idx);
+            writer.WriteUInt32BE(target);
+
+
+            if (length < 0)
+            {
+                writer.Seek(1, SeekOrigin.Begin);
+                writer.WriteUInt16BE((ushort)writer.BytesWritten);
+            }
+            else
+            {
+                writer.WriteZero(length - writer.BytesWritten);
+            }
+
+            socket.Send(writer.BufferWritten);
+            writer.Dispose();
+        }
+
+        public static void Send_CastSpellWithTarget(this NetClient socket, int idx, uint target, uint benTarget)
+        {
+            const byte ID = 0xBF;
+
+
+            int length = PacketsTable.GetPacketLength(ID);
+
+            StackDataWriter writer = new StackDataWriter(length < 0 ? 64 : length);
+
+            writer.WriteUInt8(ID);
+
+            if (length < 0)
+            {
+                writer.WriteZero(2);
+            }
+
+            writer.WriteUInt16BE(0x2F);
+            //writer.WriteUInt16BE(0x1C);
+            //writer.WriteUInt16BE(0x02);
+            writer.WriteUInt16BE((ushort)idx);
+            writer.WriteUInt32BE(target);
+
+            writer.WriteUInt32BE(benTarget);
+
+            if (length < 0)
+            {
+                writer.Seek(1, SeekOrigin.Begin);
+                writer.WriteUInt16BE((ushort)writer.BytesWritten);
+            }
+            else
+            {
+                writer.WriteZero(length - writer.BytesWritten);
+            }
+
+            socket.Send(writer.BufferWritten);
+            writer.Dispose();
+        }
+
+
 
         public static void Send_CastSpellFromBook(this NetClient socket, int idx, uint serial)
         {
@@ -1226,6 +1304,72 @@ namespace ClassicUO.Network
             socket.Send(writer.BufferWritten);
             writer.Dispose();
         }
+        
+        public static void Send_DrinkPotion(this NetClient socket, int potionID)
+        {
+            const byte ID = 0xDD; //featured command
+
+            int length = PacketsTable.GetPacketLength(ID);
+
+            StackDataWriter writer = new StackDataWriter(length < 0 ? 64 : length);
+
+            writer.WriteUInt8(ID);
+
+            if (length < 0)
+            {
+                writer.WriteZero(2);
+            }
+
+            writer.WriteInt16BE(0xAA);
+            writer.WriteInt32BE(potionID);
+
+            if (length < 0)
+            {
+                writer.Seek(1, SeekOrigin.Begin);
+                writer.WriteUInt16BE((ushort)writer.BytesWritten);
+            }
+            else
+            {
+                writer.WriteZero(length - writer.BytesWritten);
+            }
+
+            socket.Send(writer.BufferWritten);
+            writer.Dispose();
+        }
+        
+        public static void Send_UseActiveBySlot(this NetClient socket, int slot, int ability)
+        {
+            const byte ID = 0xDD; //featured command
+
+            int length = PacketsTable.GetPacketLength(ID);
+
+            StackDataWriter writer = new StackDataWriter(length < 0 ? 64 : length);
+
+            writer.WriteUInt8(ID);
+
+            if (length < 0)
+            {
+                writer.WriteZero(2);
+            }
+
+            writer.WriteInt16BE(0xAB);
+            writer.WriteInt16BE((short)(slot));
+            writer.WriteInt16BE((short)(ability ));
+
+            if (length < 0)
+            {
+                writer.Seek(1, SeekOrigin.Begin);
+                writer.WriteUInt16BE((ushort)writer.BytesWritten);
+            }
+            else
+            {
+                writer.WriteZero(length - writer.BytesWritten);
+            }
+
+            socket.Send(writer.BufferWritten);
+            writer.Dispose();
+        }
+
 
         public static void Send_OpenSpellBook(this NetClient socket, byte type)
         {

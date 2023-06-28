@@ -1231,7 +1231,7 @@ namespace ClassicUO.Network
                 sourceX, sourceY, sourceZ,
                 destX, destY, destZ,
                 5, 5000,
-                true,
+                0,
                 false,
                 false,
                 GraphicEffectBlendMode.Normal
@@ -2407,7 +2407,7 @@ namespace ClassicUO.Network
                 targetZ,
                 speed,
                 duration,
-                fixedDirection,
+                (short) (fixedDirection == false ? -1 : 0),
                 doesExplode,
                 false,
                 blendmode

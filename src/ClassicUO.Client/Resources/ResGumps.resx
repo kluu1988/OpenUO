@@ -333,6 +333,18 @@
   <data name="SmoothBoat" xml:space="preserve">
     <value>Smooth boat movements</value>
   </data>
+  <data name="FastTurn" xml:space="preserve">
+    <value>Fast turn movements</value>
+  </data>
+  <data name="ShowLastTarget" xml:space="preserve">
+    <value>Show Last Target</value>
+  </data>
+  <data name="OffScreenTargeting" xml:space="preserve">
+    <value>Offscreen Targeting</value>
+  </data>
+  <data name="SplitLastTarget" xml:space="preserve">
+    <value>Split Beneficial and Other Last Targets</value>
+  </data>
   <data name="SmoothDoors" xml:space="preserve">
     <value>Smooth doors</value>
   </data>
@@ -482,6 +494,9 @@
   </data>
   <data name="AnimatedWaterEffect" xml:space="preserve">
     <value>Animated water effect</value>
+  </data>
+  <data name="NoWalkingAnimation" xml:space="preserve">
+    <value>No Walking Animation</value>
   </data>
   <data name="UseXBREffectBETA" xml:space="preserve">
     <value>Use xBR effect [BETA]</value>
@@ -774,6 +789,13 @@ when amount is or exceeds</value>
   <data name="TimeLeft" xml:space="preserve">
     <value>{0}
 Time left: {1:00}:{2:00}:{3:00}</value>
+  </data>
+  <data name="TimeLeftWithDays" xml:space="preserve">
+    <value>{0}
+Time left: {1:0}d {2:00}:{3:00}:{4:00}</value>
+  </data>
+  <data name="Span0Days" xml:space="preserve">
+    <value>+{0}d</value>
   </data>
   <data name="Span0Hours" xml:space="preserve">
     <value>+{0}hr</value>
@@ -1496,6 +1518,58 @@ Client version: '{0}'</value>
     <value>Ignore List</value>
   </data>
   <data name="IgnoreListName" xml:space="preserve">
+    <value>Character name</value>
+  </data>
+  <data name="AddToFriendListExist" xml:space="preserve">
+    <value>Character {0} already exist in the list.</value>
+  </data>
+  <data name="AddToFriendListNotMobile" xml:space="preserve">
+    <value>Cannot add that.</value>
+  </data>
+  <data name="AddToFriendListSuccess" xml:space="preserve">
+    <value>Added {0} to friend list.</value>
+  </data>
+  <data name="FriendListAddButton" xml:space="preserve">
+    <value>Add person to friend list</value>
+  </data>
+  <data name="FriendListManager" xml:space="preserve">
+    <value>Friend List</value>
+  </data>
+
+  <data name="About" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="AboutOne" xml:space="preserve">
+    <value>This is the official UOForever game client.</value>
+  </data>
+  <data name="AboutTwo" xml:space="preserve">
+    <value>Derived from the amazing work on the ClassicUO Client.</value>
+  </data>
+  <data name="AboutThree" xml:space="preserve">
+    <value>Supported by the the UOForever Staff</value>
+  </data>
+  <data name="AboutSupport" xml:space="preserve">
+    <value>Get Support</value>
+  </data>
+  <data name="AboutSupportLink" xml:space="preserve">
+    <value>https://discord.uoforever.com</value>
+  </data>
+  <data name="AboutClassicUOOne" xml:space="preserve">
+    <value>Many thanks to Karasho and all of the ClassicUO Developers.</value>
+  </data>
+  <data name="AboutClassicUOTwo" xml:space="preserve">
+    <value>You can support the project that made this possible!</value>
+  </data>
+  <data name="AboutClassicUOSupport" xml:space="preserve">
+    <value>Support ClassicUO</value>
+  </data>
+  <data name="ResetAbilitiesGumpPosition" xml:space="preserve">
+    <value>Reset the Abilities Menu Position</value>
+  </data>
+  <data name="AboutClassicUOSupportLink" xml:space="preserve">
+    <value>https://www.classicuo.eu/support.php</value>
+  </data>
+  <data name="FriendListName" xml:space="preserve">
     <value>Character name</value>
   </data>
   <data name="AddMarker" xml:space="preserve">

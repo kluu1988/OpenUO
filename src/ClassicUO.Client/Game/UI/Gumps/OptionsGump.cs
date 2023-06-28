@@ -135,6 +135,32 @@ namespace ClassicUO.Game.UI.Gumps
         private HSliderBar _lightBar;
         private Checkbox _buffBarTime, _uiButtonsSingleClick, _queryBeforAttackCheckbox, _queryBeforeBeneficialCheckbox, _spellColoringCheckbox, _spellFormatCheckbox, _enableFastSpellsAssign;
 
+        private Checkbox _ShowLastTarget;
+        private Checkbox _SplitLastTarget;
+        private Checkbox _OffscreenTargeting;
+        
+        //Rolling Text
+
+        private Checkbox _RollingOverheadHitPointChanges;
+        private Checkbox _RollingOverheadHitPointOverride;
+        private ClickableColorBox _RollingOverheadHitPointOverrideLoss, _RollingOverheadHitPointOverrideGain;
+
+        private Checkbox _RollingOverheadStaminaChanges;
+        private Checkbox _RollingOverheadStaminaOverride;
+        private ClickableColorBox _RollingOverheadStaminaOverrideLoss, _RollingOverheadStaminaOverrideGain;
+
+        private Checkbox _RollingOverheadManaChanges;
+        private Checkbox _RollingOverheadManaOverride;
+        private ClickableColorBox _RollingOverheadManaOverrideLoss, _RollingOverheadManaOverrideGain;
+
+        private Checkbox _RollingOverheadStatChanges;
+        private Checkbox _RollingOverheadStatOverride;
+        private ClickableColorBox _RollingOverheadStatOverrideLoss, _RollingOverheadStatOverrideGain;
+
+        private Checkbox _RollingOverheadOther;
+        private Checkbox _RollingOverheadOtherOverride;
+        private ClickableColorBox _RollingOverheadOtherOverrideLoss, _RollingOverheadOtherOverrideGain;
+        
         // macro
         private MacroControl _macroControl;
         private Checkbox _overrideAllFonts;
@@ -165,10 +191,11 @@ namespace ClassicUO.Game.UI.Gumps
         private Checkbox _dragSelectAsAnchor;
 
         // video
-        private Checkbox _use_old_status_gump, _windowBorderless, _enableDeathScreen, _enableBlackWhiteEffect, _altLights, _enableLight, _enableShadows, _enableShadowsStatics, _auraMouse, _runMouseInSeparateThread, _useColoredLights, _darkNights, _partyAura, _hideChatGradient, _animatedWaterEffect;
+        private Checkbox _use_old_status_gump, _windowBorderless, _enableDeathScreen, _enableBlackWhiteEffect, _altLights, _enableLight, _enableShadows, _enableShadowsStatics, _auraMouse, _noWalkingAnimation, _runMouseInSeparateThread, _useColoredLights, _darkNights, _partyAura, _hideChatGradient, _animatedWaterEffect;
         private Combobox _lightLevelType;
         private Checkbox _use_smooth_boat_movement;
         private HSliderBar _terrainShadowLevel;
+        private Checkbox _use_fast_turn_movement;
 
         private Checkbox _use_tooltip;
         private Checkbox _useStandardSkillsGump, _showMobileNameIncoming, _showCorpseNameIncoming;
@@ -366,6 +393,24 @@ namespace ClassicUO.Game.UI.Gumps
                     ButtonParameter = (int)Buttons.OpenIgnoreList
                 }
             );
+
+            if (World.Settings.ClientOptionsFlags.FriendManagerOptions)
+            {
+                Add
+                (
+                    new NiceButton(
+                        10, 
+                        10 + 30 * i++,
+                        140, 
+                        25, 
+                        ButtonAction.Activate, 
+                        ResGumps.FriendListManager)
+                    {
+                        ButtonParameter = (int)Buttons.OpenFriendList
+                    }
+                );
+            }
+
 
             Add
             (
@@ -688,6 +733,18 @@ namespace ClassicUO.Game.UI.Gumps
             );
 
             _use_smooth_boat_movement.IsVisible = Client.Version >= ClientVersion.CV_7090;
+            
+            section.Add
+            (
+                _use_fast_turn_movement = AddCheckBox
+                (
+                    null,
+                    ResGumps.FastTurn,
+                    _currentProfile.UseFastTurnMovement,
+                    startX,
+                    startY
+                )
+            );
 
 
             SettingsSection section2 = AddSettingsSection(box, "Mobiles");
@@ -1859,6 +1916,18 @@ namespace ClassicUO.Game.UI.Gumps
                 )
             );
 
+            if (World.Settings.ClientOptionsFlags.NoWalkAnimationOption)
+            {
+                section4.Add(
+                    _noWalkingAnimation = AddCheckBox(
+                        null, 
+                        ResGumps.NoWalkingAnimation, 
+                        _currentProfile.NoWalkingAnimation, 
+                        startX, 
+                        startY
+                        ));
+            }
+
 
             SettingsSection section5 = AddSettingsSection(box, "Shadows");
             section5.Y = section4.Bounds.Bottom + 40;
@@ -2698,6 +2767,19 @@ namespace ClassicUO.Game.UI.Gumps
 
             startY += _uiButtonsSingleClick.Height + 2;
 
+            if (World.Settings.ClientOptionsFlags.AllowSelectedMobileDisplay)
+            {
+                _ShowLastTarget = AddCheckBox(
+                    rightArea, 
+                    ResGumps.ShowLastTarget, 
+                    _currentProfile.ShowLastTarget, 
+                    startX, 
+                    startY
+                    );
+
+                startY += _ShowLastTarget.Height + 2;
+            }
+
             _buffBarTime = AddCheckBox
             (
                 rightArea,
@@ -2707,7 +2789,35 @@ namespace ClassicUO.Game.UI.Gumps
                 startY
             );
 
+
             startY += _buffBarTime.Height + 2;
+
+            if (World.Settings.ClientOptionsFlags.AllowSplitTargetsOptions)
+            {
+                _SplitLastTarget = AddCheckBox(
+                    rightArea, 
+                    ResGumps.SplitLastTarget, 
+                    _currentProfile.SplitLastTarget, 
+                    startX, 
+                    startY
+                    );
+
+                startY += _SplitLastTarget.Height + 2;
+            }
+
+            if (World.Settings.ClientOptionsFlags.AllowOffscreenTargeting)
+            {
+                _OffscreenTargeting = AddCheckBox(
+                    rightArea, 
+                    ResGumps.OffScreenTargeting, 
+                    _currentProfile.OffscreenTargeting, 
+                    startX,
+                    startY
+                    );
+
+
+                startY += _OffscreenTargeting.Height + 2;
+            }
 
             _enableFastSpellsAssign = AddCheckBox
             (
@@ -3445,6 +3555,12 @@ namespace ClassicUO.Game.UI.Gumps
                     // Open new
                     UIManager.Add(new IgnoreManagerGump());
                     break;
+                case Buttons.OpenFriendList:
+                    // If other IgnoreManagerGump exist - Dispose it
+                    UIManager.GetGump<FriendManagerGump>()?.Dispose();
+                    // Open new
+                    UIManager.Add(new FriendManagerGump());
+                    break;
             }
         }
 
@@ -3787,6 +3903,7 @@ namespace ClassicUO.Game.UI.Gumps
             _currentProfile.UseObjectsFading = _objectsFading.IsChecked;
             _currentProfile.TextFading = _textFading.IsChecked;
             _currentProfile.UseSmoothBoatMovement = _use_smooth_boat_movement.IsChecked;
+            _currentProfile.UseFastTurnMovement = _use_fast_turn_movement.IsChecked;
 
             if (_currentProfile.ShowHouseContent != _showHouseContent.IsChecked)
             {
@@ -3962,6 +4079,8 @@ namespace ClassicUO.Game.UI.Gumps
             _currentProfile.AuraUnderFeetType = _auraType.SelectedIndex;
 
             Client.Game.IsMouseVisible = Settings.GlobalSettings.RunMouseInASeparateThread = _runMouseInSeparateThread.IsChecked;
+            if (World.Settings.ClientOptionsFlags.NoWalkAnimationOption)
+                _currentProfile.NoWalkingAnimation = _noWalkingAnimation.IsChecked;
 
             _currentProfile.AuraOnMouse = _auraMouse.IsChecked;
             _currentProfile.AnimatedWaterEffect = _animatedWaterEffect.IsChecked;
@@ -3995,6 +4114,12 @@ namespace ClassicUO.Game.UI.Gumps
             _currentProfile.CastSpellsByOneClick = _uiButtonsSingleClick.IsChecked;
             _currentProfile.BuffBarTime = _buffBarTime.IsChecked;
             _currentProfile.FastSpellsAssign = _enableFastSpellsAssign.IsChecked;
+            if (World.Settings.ClientOptionsFlags.AllowOffscreenTargeting)
+                _currentProfile.OffscreenTargeting = _OffscreenTargeting.IsChecked;
+            if (World.Settings.ClientOptionsFlags.AllowSplitTargetsOptions)
+                _currentProfile.SplitLastTarget = _SplitLastTarget.IsChecked;
+            if (World.Settings.ClientOptionsFlags.AllowSelectedMobileDisplay)
+                _currentProfile.ShowLastTarget = _ShowLastTarget.IsChecked;
 
             _currentProfile.BeneficHue = _beneficColorPickerBox.Hue;
             _currentProfile.HarmfulHue = _harmfulColorPickerBox.Hue;
@@ -4478,7 +4603,8 @@ namespace ClassicUO.Game.UI.Gumps
             EnemyColor,
             MurdererColor,
 
-            OpenIgnoreList,
+            OpenIgnoreList, 
+            OpenFriendList,
             NewMacro,
             DeleteMacro,
 
