@@ -19,7 +19,7 @@ Features such as custom file formats **must** be detected through client side de
 
 Features added through custom packets **must** be enabled or disabled through a handshake with the server.
 
-PRs will only be accepted if they come along with a PR on one of the accepted emulators. The emulator side PR must include basic functionality to operator your new feature. It will not require your full implementation as there is a reasonable expection that server side code is private.
+PRs will only be accepted if they come along with a PR on one of the accepted emulators. The emulator side PR must include basic functionality to operator your new feature. It will not require your full implementation as there is a reasonable expectation that server side code is private.
 
 The client is currently under heavy development but is functional. The code is based on the [FNA-XNA](https://fna-xna.github.io/) framework. C# is chosen because there is a large community of developers working on Ultima Online server emulators in C#, because FNA-XNA exists and seems reasonably suitable for creating this type of game.
 
