@@ -47,7 +47,8 @@ namespace ClassicUO.Game.UI.Controls
     internal class MacroControl : Control
     {
         private static readonly string[] _allHotkeysNames = Enum.GetNames(typeof(MacroType)).CamelSpace();
-        private static readonly string[] _allSubHotkeysNames = Enum.GetNames(typeof(MacroSubType)).CamelSpace();
+        private static readonly Array _allHotkeysValues = Enum.GetValues(typeof(MacroType));
+        //private static readonly string[] _allSubHotkeysNames = Enum.GetNames(typeof(MacroSubType)).CamelSpace();
         private readonly DataBox _databox;
         private readonly HotkeyBox _hotkeyBox;
 
@@ -397,6 +398,16 @@ namespace ClassicUO.Game.UI.Controls
             {
                 _control = control;
                 _items = items;
+                int index = 0;
+
+                for (int i = 0; i < items.Length; i++)
+                {
+                    if ((MacroType)_allHotkeysValues.GetValue(i) == obj.Code)
+                    {
+                        index = i;
+                        break;
+                    }
+                }
 
                 Combobox mainBox = new Combobox
                 (
@@ -404,7 +415,7 @@ namespace ClassicUO.Game.UI.Controls
                     0,
                     200,
                     _items,
-                    (int) obj.Code
+                    index
                 )
                 {
                     Tag = obj
@@ -442,7 +453,8 @@ namespace ClassicUO.Game.UI.Controls
 
                         for (int i = 0; i < count; i++)
                         {
-                            names[i] = _allSubHotkeysNames[i + offset];
+                            //names[i] = _allSubHotkeysNames[i + offset];
+                            names[i] = ((MacroSubType)(i + offset)).ToString().CamelSpace();
                         }
 
                         Combobox sub = new Combobox(20, Height, 180, names, (int)obj.SubCode - offset, 300);
@@ -463,7 +475,7 @@ namespace ClassicUO.Game.UI.Controls
                     }
 
                     case 2:
-
+                    {
                         ResizePic background = new ResizePic(0x0BB8)
                         {
                             X = 16,
@@ -474,14 +486,7 @@ namespace ClassicUO.Game.UI.Controls
 
                         Add(background);
 
-                        StbTextBox textbox = new StbTextBox
-                        (
-                            0xFF,
-                            80,
-                            236,
-                            true,
-                            FontStyle.BlackBorder
-                        )
+                        StbTextBox textbox = new StbTextBox(0xFF, 80, 236, true, FontStyle.BlackBorder)
                         {
                             X = background.X + 4,
                             Y = background.Y + 4,
@@ -489,13 +494,13 @@ namespace ClassicUO.Game.UI.Controls
                             Height = background.Height - 4
                         };
 
-                        textbox.SetText(obj.HasString() ? ((MacroObjectString) obj).Text : string.Empty);
+                        textbox.SetText(obj.HasString() ? ((MacroObjectString)obj).Text : string.Empty);
 
                         textbox.TextChanged += (sss, eee) =>
                         {
                             if (obj.HasString())
                             {
-                                ((MacroObjectString) obj).Text = ((StbTextBox) sss).Text;
+                                ((MacroObjectString)obj).Text = ((StbTextBox)sss).Text;
                             }
                         };
 
@@ -505,8 +510,7 @@ namespace ClassicUO.Game.UI.Controls
                         Height += background.Height;
 
                         break;
-                    
-
+                    }
                     case 3:
                         {
                             int count = 0;
@@ -517,7 +521,7 @@ namespace ClassicUO.Game.UI.Controls
 
                             for (int i = 0; i < count; i++)
                             {
-                                names[i] = _allSubHotkeysNames[i + offset];
+                                names[i] = ((MacroSubType)(i + offset)).ToString().CamelSpace(); //_allSubHotkeysNames[i + offset];
                             }
 
                             Combobox sub = new Combobox
@@ -545,7 +549,7 @@ namespace ClassicUO.Game.UI.Controls
 
                             for (int i = 0; i < countz; i++)
                             {
-                                names[i] = _allSubHotkeysNames[i + offsetz + 1];
+                                names[i] = ((MacroSubType)(i + offsetz)).ToString().CamelSpace(); //_allSubHotkeysNames[i + offsetz + 1];
                             }
 
                             sub = new Combobox
@@ -593,7 +597,7 @@ namespace ClassicUO.Game.UI.Controls
 
                             switch (obj.Code)
                             {
-                                case MacroType.UsePotion:
+                                case MacroType.UsePotionEnhanced:
                                     {
                                         names = new string[World.Settings.Potions.Count];
 
@@ -630,9 +634,9 @@ namespace ClassicUO.Game.UI.Controls
                                 }
                             }
 
-                            int index = 0;
+                            int index = (int)obj.SubCode;
 
-                            for (int i = 0; i < World.Settings.Potions.Count; i++)
+                           /*for (int i = 0; i < World.Settings.Potions.Count; i++)
                             {
                                 if (World.Settings.Potions[i].ID == (int)obj.SubCode)
                                 {
@@ -640,7 +644,10 @@ namespace ClassicUO.Game.UI.Controls
 
                                     break;
                                 }
-                            }
+                            }*/
+
+                            if (names == null || names.Length == 0)
+                                names = new string[1] { "Invalid Options" };
 
 
                             Combobox sub = new Combobox
@@ -651,7 +658,7 @@ namespace ClassicUO.Game.UI.Controls
 
                             sub.OnOptionSelected += (senderr, ee) =>
                             {
-                                obj.SubCode = (MacroSubType)World.Settings.Potions[ee].ID;
+                                obj.SubCode = (MacroSubType)ee;
                             };
 
                             Add(sub);
@@ -692,8 +699,9 @@ namespace ClassicUO.Game.UI.Controls
             }
 
 
-            private void BoxOnOnOptionSelected(object sender, int e)
+            private void BoxOnOnOptionSelected(object sender, int val)
             {
+                var e = (MacroType)_allHotkeysValues.GetValue(val);
                 WantUpdateSize = true;
 
                 Combobox box = (Combobox) sender;

@@ -973,7 +973,7 @@ namespace ClassicUO.Game.Managers
                                     spell -= 23;
                                 }
                             }
-                            if (World.Settings.MacroFlags.EnhancedSpellMacros || macro.SubSubCode <= MacroSubType.TargetNone)
+                            if (!World.Settings.MacroFlags.EnhancedSpellMacros || macro.SubSubCode <= MacroSubType.TargetNone)
                                 GameActions.CastSpell(spell);
                             else if (macro.SubSubCode == MacroSubType.TargetLast)
                             {
@@ -2342,6 +2342,7 @@ namespace ClassicUO.Game.Managers
         {
             Code = code;
             SubCode = sub;
+            SubSubCode = subsub;
 
             switch (code)
             {
@@ -2395,6 +2396,7 @@ namespace ClassicUO.Game.Managers
 
                 case MacroType.SallosTargeting:
                 case MacroType.UsePotionEnhanced:
+                case MacroType.ActiveAbilitiesBySlot:
                     SubMenuType = 4;
                     break;
 
@@ -2743,7 +2745,7 @@ namespace ClassicUO.Game.Managers
         INVALID_0,
         INVALID_1,
         INVALID_2,
-        INVALID_3,
+        //INVALID_3,
 
 
         ConfusionBlastPotion = 215,

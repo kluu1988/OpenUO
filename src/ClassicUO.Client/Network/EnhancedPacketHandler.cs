@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Reflection;
+using ClassicUO.Assets;
 using ClassicUO.Configuration;
 using ClassicUO.Game;
 using ClassicUO.Game.Data.OpenUO;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.IO;
+using ClassicUO.Utility;
 
 namespace ClassicUO.Network;
 
@@ -16,6 +18,7 @@ internal class EnhancedPacketHandler
     {
         Handler.Add(0x1, SettingsPacket);
         Handler.Add(0x2, DefaultMovementSpeedPacket);
+        Handler.Add(0x3, EnhancedPotionMacrosPacket);
     }
     
     private static void PacketTemplate(ref StackDataReader p)
@@ -32,6 +35,44 @@ internal class EnhancedPacketHandler
         }
     }
 
+    private static void EnhancedPotionMacrosPacket(ref StackDataReader p)
+    {
+        int version = p.ReadUInt16BE();
+
+        switch (version)
+        {
+            case 0:
+            {
+                ushort count = p.ReadUInt16BE();
+                for (int i = 0; i < count; i++)
+                {
+                    ushort id = p.ReadUInt16BE();
+                    int cliloc = p.ReadInt32BE();
+                    World.Settings.Potions.Add(new PotionDefinition()
+                    {
+                        ID = id,
+                        Name = StringHelper.CapitalizeAllWords(ClilocLoader.Instance.Translate(cliloc))
+                    });
+                }
+                
+                count = p.ReadUInt16BE();
+                for (int i = 0; i < count; i++)
+                {
+                    ushort id = p.ReadUInt16BE();
+                    ushort len = p.ReadUInt16BE();
+                    string name = p.ReadASCII(len);
+                    World.Settings.Potions.Add(new PotionDefinition()
+                    {
+                        ID = id,
+                        Name = StringHelper.CapitalizeAllWords(name)
+                    });
+                }
+                break;
+            }
+            default: InvalidVersionReceived( ref p ); break;
+        }
+    }
+    
     private static void DefaultMovementSpeedPacket(ref StackDataReader p)
     {
         int version = p.ReadUInt16BE();

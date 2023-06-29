@@ -176,6 +176,17 @@ namespace ClassicUO.Utility
 
             return strings;
         }
+        
+        public static string CamelSpace(this string s)
+        {
+            for (int i = 0; i < s.Length; i++)
+            {
+                s = Regex.Replace(s, @"\B[A-Z]", m => " " + m);
+            }
+
+            return s;
+        }
+
 
 
         public static string CapitalizeAllWords(string str)
