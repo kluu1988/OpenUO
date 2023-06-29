@@ -151,7 +151,11 @@ namespace ClassicUO.Game.GameObjects
                 World.Settings.MovementSettings.MoveSpeedWalkingUnmounted) 
             : _movementWalkOverride;
 
-        public int TurnDelay => World.Settings.MovementSettings.TurnDelay;
+        // (ushort)(ProfileManager.CurrentProfile.UseFastTurnMovement ? World.Player.TurnDelay : Constants.TURN_DELAY);
+        public ushort TurnDelay => 
+            World.Settings.ClientOptionFlags.FastTurnOption ? 
+                (ProfileManager.CurrentProfile.UseFastTurnMovement ? World.Settings.MovementSettings.TurnDelay : (ushort)100) 
+                : World.Settings.MovementSettings.TurnDelay;
         public Mobile(uint serial) : base(serial)
         {
             LastAnimationChangeTime = Time.Ticks;

@@ -25,4 +25,17 @@ internal class SettingGeneralFlags
     /// </summary>
     [OptionID(3)]
     public bool EnhancedBuffInformation;
+    
+    
+    /// <summary>
+    /// Remove the info button from the menu bar.
+    /// </summary>
+    [OptionID(4)]
+    public bool RemoveInfoFromMenuBar;
+
+    /// <summary>
+    /// Remove the chat button from the menu bar.
+    /// </summary>
+    [OptionID(5)]
+    public bool RemoveChatFromMenuBar;
 }

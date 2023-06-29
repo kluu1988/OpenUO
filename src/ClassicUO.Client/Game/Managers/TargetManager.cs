@@ -327,7 +327,7 @@ namespace ClassicUO.Game.Managers
             );
         }
 
-        public static bool SplitLastTargets => World.Settings.ClientOptionsFlags.AllowSplitTargetsOptions && 
+        public static bool SplitLastTargets => World.Settings.ClientOptionFlags.AllowSplitTargetsOptions && 
                                                   ProfileManager.CurrentProfile != null && 
                                                   ProfileManager.CurrentProfile.SplitLastTarget;
         
@@ -502,10 +502,10 @@ namespace ClassicUO.Game.Managers
                         return;
                 }
             }
-            else if (World.Settings.ClientOptionsFlags.AllowOffscreenTargeting &&
+            else if (World.Settings.ClientOptionFlags.AllowOffscreenTargeting &&
                      ProfileManager.CurrentProfile != null && ProfileManager.CurrentProfile.OffscreenTargeting)
             {
-                if (World.Settings.ClientOptionsFlags.AllowSplitTargetsOptions && 
+                if (World.Settings.ClientOptionFlags.AllowSplitTargetsOptions && 
                     SplitLastTargets && TargetingType == TargetType.Beneficial)
                 {
                     LastBeneficialTargetInfo.SetEntity(serial);

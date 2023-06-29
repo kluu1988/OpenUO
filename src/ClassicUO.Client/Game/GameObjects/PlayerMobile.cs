@@ -1579,7 +1579,7 @@ namespace ClassicUO.Game.GameObjects
             }
 
             sbyte oldZ = z;
-            ushort walkTime = (ushort)(ProfileManager.CurrentProfile.UseFastTurnMovement ? World.Player.TurnDelay : Constants.TURN_DELAY);
+            ushort walkTime = World.Player.TurnDelay;
 
             if ((oldDirection & Direction.Mask) == (direction & Direction.Mask))
             {

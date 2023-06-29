@@ -1,6 +1,6 @@
 ﻿namespace ClassicUO.Game.Data.OpenUO;
 
-internal class SettingOptionsFlags
+internal class SettingOptionFlags
 {
     /// <summary>
     /// Rolling Text Options showing up in the option menu, with this disabled you will still be able to send rolling text
@@ -42,6 +42,14 @@ internal class SettingOptionsFlags
     /// <summary>
     /// Allow Players the option to disable Walking Animations
     /// </summary>
-    [OptionID(50000)]
+    [OptionID(6)]
     public bool NoWalkAnimationOption;
+    
+    
+    /// <summary>
+    /// Allow Players to toggle whether they are using fast turning or not.
+    /// If this option is disabled players will always turn at the global limit.
+    /// </summary>
+    [OptionID(7)]
+    public bool FastTurnOption;
 }

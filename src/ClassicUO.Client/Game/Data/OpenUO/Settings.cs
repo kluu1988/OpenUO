@@ -41,8 +41,8 @@ namespace ClassicUO.Game.Data
     internal class OpenUOSettings
     {
         public SettingGeneralFlags GeneralFlags = new SettingGeneralFlags();
-        public SettingOptionsFlags ClientOptionsFlags = new SettingOptionsFlags();
-        public SettingsMacrosFlags MacrosFlags = new SettingsMacrosFlags();
+        public SettingOptionFlags ClientOptionFlags = new SettingOptionFlags();
+        public SettingsMacrosFlags MacroFlags = new SettingsMacrosFlags();
 
         public List<PotionDefinition> Potions = new List<PotionDefinition>();
 

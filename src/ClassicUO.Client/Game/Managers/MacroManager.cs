@@ -973,7 +973,7 @@ namespace ClassicUO.Game.Managers
                                     spell -= 23;
                                 }
                             }
-                            if (World.Settings.MacrosFlags.EnhancedSpellMacros || macro.SubSubCode <= MacroSubType.TargetNone)
+                            if (World.Settings.MacroFlags.EnhancedSpellMacros || macro.SubSubCode <= MacroSubType.TargetNone)
                                 GameActions.CastSpell(spell);
                             else if (macro.SubSubCode == MacroSubType.TargetLast)
                             {
@@ -1062,7 +1062,7 @@ namespace ClassicUO.Game.Managers
                         {
                             TargetManager.TargetLast();
                         }
-                        else if (World.Settings.ClientOptionsFlags.AllowSplitTargetsOptions && 
+                        else if (World.Settings.ClientOptionFlags.AllowSplitTargetsOptions && 
                                  ProfileManager.CurrentProfile != null && ProfileManager.CurrentProfile.SplitLastTarget &&
                                  TargetManager.TargetingType == TargetType.Beneficial && TargetManager.LastBeneficialTargetInfo.IsEntity)
                         {
@@ -2353,7 +2353,7 @@ namespace ClassicUO.Game.Managers
                 case MacroType.UseSkill:
                 case MacroType.ArmDisarm:
                 case MacroType.InvokeVirtue:
-                case MacroType.CastSpell when !World.Settings.MacrosFlags.EnhancedSpellMacros:
+                case MacroType.CastSpell when !World.Settings.MacroFlags.EnhancedSpellMacros:
                 case MacroType.SelectNext:
                 case MacroType.SelectPrevious:
                 case MacroType.SelectNearest:
@@ -2387,7 +2387,7 @@ namespace ClassicUO.Game.Managers
 
                     break;
                 
-                case MacroType.CastSpell when World.Settings.MacrosFlags.EnhancedSpellMacros:
+                case MacroType.CastSpell when World.Settings.MacroFlags.EnhancedSpellMacros:
                     SubMenuType = 3;
 
                     break;

@@ -180,7 +180,9 @@ namespace ClassicUO.Game.GameObjects
             ushort graphic = GetGraphicForAnimation();
             byte animGroup = GetGroupForAnimation(this, graphic, true);
             byte animIndex = AnimIndex;
-            if (ProfileManager.CurrentProfile.NoWalkingAnimation && (IsWalking || Time.Ticks - LastStepTime < 1000))
+            if (World.Settings.ClientOptionFlags.NoWalkAnimationOption && 
+                ProfileManager.CurrentProfile.NoWalkingAnimation && 
+                (IsWalking || Time.Ticks - LastStepTime < 1000))
                 animIndex = 0;
             
             Item mount = FindItemByLayer(Layer.Mount);

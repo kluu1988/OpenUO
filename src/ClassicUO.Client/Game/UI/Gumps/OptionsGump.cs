@@ -394,7 +394,7 @@ namespace ClassicUO.Game.UI.Gumps
                 }
             );
 
-            if (World.Settings.ClientOptionsFlags.FriendManagerOptions)
+            if (World.Settings.ClientOptionFlags.FriendManagerOptions)
             {
                 Add
                 (
@@ -733,18 +733,18 @@ namespace ClassicUO.Game.UI.Gumps
             );
 
             _use_smooth_boat_movement.IsVisible = Client.Version >= ClientVersion.CV_7090;
-            
-            section.Add
-            (
-                _use_fast_turn_movement = AddCheckBox
-                (
-                    null,
-                    ResGumps.FastTurn,
-                    _currentProfile.UseFastTurnMovement,
-                    startX,
-                    startY
-                )
-            );
+
+            if (World.Settings.ClientOptionFlags.FastTurnOption)
+            {
+                section.Add(
+                    _use_fast_turn_movement = AddCheckBox(
+                        null, 
+                        ResGumps.FastTurn, 
+                        _currentProfile.UseFastTurnMovement, 
+                        startX, 
+                        startY
+                        ));
+            }
 
 
             SettingsSection section2 = AddSettingsSection(box, "Mobiles");
@@ -1916,7 +1916,7 @@ namespace ClassicUO.Game.UI.Gumps
                 )
             );
 
-            if (World.Settings.ClientOptionsFlags.NoWalkAnimationOption)
+            if (World.Settings.ClientOptionFlags.NoWalkAnimationOption)
             {
                 section4.Add(
                     _noWalkingAnimation = AddCheckBox(
@@ -2767,7 +2767,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             startY += _uiButtonsSingleClick.Height + 2;
 
-            if (World.Settings.ClientOptionsFlags.AllowSelectedMobileDisplay)
+            if (World.Settings.ClientOptionFlags.AllowSelectedMobileDisplay)
             {
                 _ShowLastTarget = AddCheckBox(
                     rightArea, 
@@ -2792,7 +2792,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             startY += _buffBarTime.Height + 2;
 
-            if (World.Settings.ClientOptionsFlags.AllowSplitTargetsOptions)
+            if (World.Settings.ClientOptionFlags.AllowSplitTargetsOptions)
             {
                 _SplitLastTarget = AddCheckBox(
                     rightArea, 
@@ -2805,7 +2805,7 @@ namespace ClassicUO.Game.UI.Gumps
                 startY += _SplitLastTarget.Height + 2;
             }
 
-            if (World.Settings.ClientOptionsFlags.AllowOffscreenTargeting)
+            if (World.Settings.ClientOptionFlags.AllowOffscreenTargeting)
             {
                 _OffscreenTargeting = AddCheckBox(
                     rightArea, 
@@ -3903,7 +3903,8 @@ namespace ClassicUO.Game.UI.Gumps
             _currentProfile.UseObjectsFading = _objectsFading.IsChecked;
             _currentProfile.TextFading = _textFading.IsChecked;
             _currentProfile.UseSmoothBoatMovement = _use_smooth_boat_movement.IsChecked;
-            _currentProfile.UseFastTurnMovement = _use_fast_turn_movement.IsChecked;
+            if (World.Settings.ClientOptionFlags.FastTurnOption)
+                _currentProfile.UseFastTurnMovement = _use_fast_turn_movement.IsChecked;
 
             if (_currentProfile.ShowHouseContent != _showHouseContent.IsChecked)
             {
@@ -4079,7 +4080,7 @@ namespace ClassicUO.Game.UI.Gumps
             _currentProfile.AuraUnderFeetType = _auraType.SelectedIndex;
 
             Client.Game.IsMouseVisible = Settings.GlobalSettings.RunMouseInASeparateThread = _runMouseInSeparateThread.IsChecked;
-            if (World.Settings.ClientOptionsFlags.NoWalkAnimationOption)
+            if (World.Settings.ClientOptionFlags.NoWalkAnimationOption)
                 _currentProfile.NoWalkingAnimation = _noWalkingAnimation.IsChecked;
 
             _currentProfile.AuraOnMouse = _auraMouse.IsChecked;
@@ -4114,11 +4115,11 @@ namespace ClassicUO.Game.UI.Gumps
             _currentProfile.CastSpellsByOneClick = _uiButtonsSingleClick.IsChecked;
             _currentProfile.BuffBarTime = _buffBarTime.IsChecked;
             _currentProfile.FastSpellsAssign = _enableFastSpellsAssign.IsChecked;
-            if (World.Settings.ClientOptionsFlags.AllowOffscreenTargeting)
+            if (World.Settings.ClientOptionFlags.AllowOffscreenTargeting)
                 _currentProfile.OffscreenTargeting = _OffscreenTargeting.IsChecked;
-            if (World.Settings.ClientOptionsFlags.AllowSplitTargetsOptions)
+            if (World.Settings.ClientOptionFlags.AllowSplitTargetsOptions)
                 _currentProfile.SplitLastTarget = _SplitLastTarget.IsChecked;
-            if (World.Settings.ClientOptionsFlags.AllowSelectedMobileDisplay)
+            if (World.Settings.ClientOptionFlags.AllowSelectedMobileDisplay)
                 _currentProfile.ShowLastTarget = _ShowLastTarget.IsChecked;
 
             _currentProfile.BeneficHue = _beneficColorPickerBox.Hue;
