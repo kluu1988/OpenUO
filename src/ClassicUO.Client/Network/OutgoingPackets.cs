@@ -1171,21 +1171,22 @@ namespace ClassicUO.Network
 
         public static void Send_CastSpellWithTarget(this NetClient socket, int idx, uint target, uint benTarget)
         {
-            const byte ID = 0xBF;
+            const byte ID = 0xC3;
 
 
             int length = PacketsTable.GetPacketLength(ID);
 
             StackDataWriter writer = new StackDataWriter(length < 0 ? 64 : length);
 
-            writer.WriteUInt8(ID);
+            writer.WriteUInt8(ID); // OpenUOEnhanced
 
             if (length < 0)
             {
                 writer.WriteZero(2);
             }
 
-            writer.WriteUInt16BE(0x2F);
+            writer.WriteUInt16BE(0x1); //packetID
+            writer.WriteUInt16BE(0); // version
             //writer.WriteUInt16BE(0x1C);
             //writer.WriteUInt16BE(0x02);
             writer.WriteUInt16BE((ushort)idx);
@@ -1206,6 +1207,75 @@ namespace ClassicUO.Network
             socket.Send(writer.BufferWritten);
             writer.Dispose();
         }
+        
+        
+        public static void Send_DrinkPotion(this NetClient socket, int potionID)
+        {
+            const byte ID = 0xC3;
+
+            int length = PacketsTable.GetPacketLength(ID);
+
+            StackDataWriter writer = new StackDataWriter(length < 0 ? 64 : length);
+
+            writer.WriteUInt8(ID); // OpenUOEnhanced
+
+            if (length < 0)
+            {
+                writer.WriteZero(2);
+            }
+
+            writer.WriteUInt16BE(0x2); //packetID
+            writer.WriteUInt16BE(0);   // version
+            writer.WriteUInt16BE((ushort)potionID);
+
+            if (length < 0)
+            {
+                writer.Seek(1, SeekOrigin.Begin);
+                writer.WriteUInt16BE((ushort)writer.BytesWritten);
+            }
+            else
+            {
+                writer.WriteZero(length - writer.BytesWritten);
+            }
+
+            socket.Send(writer.BufferWritten);
+            writer.Dispose();
+        }
+        
+        public static void Send_UseActiveBySlot(this NetClient socket, int slot, int ability)
+        {
+            const byte ID = 0xC3;
+
+            int length = PacketsTable.GetPacketLength(ID);
+
+            StackDataWriter writer = new StackDataWriter(length < 0 ? 64 : length);
+
+            writer.WriteUInt8(ID); // OpenUOEnhanced
+
+            if (length < 0)
+            {
+                writer.WriteZero(2);
+            }
+
+            writer.WriteUInt16BE(0x3); //packetID
+            writer.WriteUInt16BE(0);   // version
+            writer.WriteInt16BE((short)(slot));
+            writer.WriteInt16BE((short)(ability ));
+
+            if (length < 0)
+            {
+                writer.Seek(1, SeekOrigin.Begin);
+                writer.WriteUInt16BE((ushort)writer.BytesWritten);
+            }
+            else
+            {
+                writer.WriteZero(length - writer.BytesWritten);
+            }
+
+            socket.Send(writer.BufferWritten);
+            writer.Dispose();
+        }
+
 
 
 
@@ -1305,71 +1375,6 @@ namespace ClassicUO.Network
             writer.Dispose();
         }
         
-        public static void Send_DrinkPotion(this NetClient socket, int potionID)
-        {
-            const byte ID = 0xDD; //featured command
-
-            int length = PacketsTable.GetPacketLength(ID);
-
-            StackDataWriter writer = new StackDataWriter(length < 0 ? 64 : length);
-
-            writer.WriteUInt8(ID);
-
-            if (length < 0)
-            {
-                writer.WriteZero(2);
-            }
-
-            writer.WriteInt16BE(0xAA);
-            writer.WriteInt32BE(potionID);
-
-            if (length < 0)
-            {
-                writer.Seek(1, SeekOrigin.Begin);
-                writer.WriteUInt16BE((ushort)writer.BytesWritten);
-            }
-            else
-            {
-                writer.WriteZero(length - writer.BytesWritten);
-            }
-
-            socket.Send(writer.BufferWritten);
-            writer.Dispose();
-        }
-        
-        public static void Send_UseActiveBySlot(this NetClient socket, int slot, int ability)
-        {
-            const byte ID = 0xDD; //featured command
-
-            int length = PacketsTable.GetPacketLength(ID);
-
-            StackDataWriter writer = new StackDataWriter(length < 0 ? 64 : length);
-
-            writer.WriteUInt8(ID);
-
-            if (length < 0)
-            {
-                writer.WriteZero(2);
-            }
-
-            writer.WriteInt16BE(0xAB);
-            writer.WriteInt16BE((short)(slot));
-            writer.WriteInt16BE((short)(ability ));
-
-            if (length < 0)
-            {
-                writer.Seek(1, SeekOrigin.Begin);
-                writer.WriteUInt16BE((ushort)writer.BytesWritten);
-            }
-            else
-            {
-                writer.WriteZero(length - writer.BytesWritten);
-            }
-
-            socket.Send(writer.BufferWritten);
-            writer.Dispose();
-        }
-
 
         public static void Send_OpenSpellBook(this NetClient socket, byte type)
         {

@@ -35,10 +35,8 @@ internal class EnhancedPacketHandler
         }
     }
 
-    private static void EnhancedPotionMacrosPacket(ref StackDataReader p)
+    private static void EnhancedPotionMacrosPacket(ref StackDataReader p, int version)
     {
-        int version = p.ReadUInt16BE();
-
         switch (version)
         {
             case 0:
@@ -73,10 +71,8 @@ internal class EnhancedPacketHandler
         }
     }
     
-    private static void DefaultMovementSpeedPacket(ref StackDataReader p)
+    private static void DefaultMovementSpeedPacket(ref StackDataReader p, int version)
     {
-        int version = p.ReadUInt16BE();
-
         switch (version)
         {
             case 0:
@@ -92,10 +88,8 @@ internal class EnhancedPacketHandler
         }
     }
 
-    private static void SettingsPacket(ref StackDataReader p)
+    private static void SettingsPacket(ref StackDataReader p, int version)
     {
-        int version = p.ReadUInt16BE();
-
         switch (version)
         {
             case 0:
@@ -187,19 +181,22 @@ internal class EnhancedPacketHandler
     
     public static void OpenUOEnhancedRx(ref StackDataReader p)
     {
-        Handler.HandlePacket(p.ReadUInt16BE(), ref p);
+        ushort id = p.ReadUInt16BE();
+        ushort ver = p.ReadUInt16BE();
+        Handler.HandlePacket(id, ref p, ver);
     }
     
+    public delegate void EnhancedOnPacketBufferReader(ref StackDataReader p, int version);
     public static EnhancedPacketHandler Handler { get; } = new EnhancedPacketHandler();
     
-    public void Add(ushort id, PacketHandlers.OnPacketBufferReader handler)
+    public void Add(ushort id, EnhancedOnPacketBufferReader handler)
         => _handlers[id] = handler;
 
-    public void HandlePacket(ushort packetID, ref StackDataReader p)
+    public void HandlePacket(ushort packetID, ref StackDataReader p, int version)
     {
         if (_handlers.ContainsKey(packetID))
         {
-            _handlers[packetID].Invoke(ref p);
+            _handlers[packetID].Invoke(ref p, version);
         }
         else
         {
@@ -208,7 +205,7 @@ internal class EnhancedPacketHandler
     }
 
 
-    private readonly Dictionary<ushort, PacketHandlers.OnPacketBufferReader> _handlers = new Dictionary<ushort, PacketHandlers.OnPacketBufferReader>();
+    private readonly Dictionary<ushort, EnhancedOnPacketBufferReader> _handlers = new Dictionary<ushort, EnhancedOnPacketBufferReader>();
 
     private static void InvalidVersionReceived(ref StackDataReader p)
     {

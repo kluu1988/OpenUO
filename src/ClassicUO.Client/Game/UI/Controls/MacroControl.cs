@@ -594,6 +594,7 @@ namespace ClassicUO.Game.UI.Controls
 
                             string[] names = null;
                             string[] subNames = null;
+                            int index = 0;
 
                             switch (obj.Code)
                             {
@@ -604,8 +605,10 @@ namespace ClassicUO.Game.UI.Controls
                                         for (int i = 0; i < World.Settings.Potions.Count; i++)
                                         {
                                             names[i] = World.Settings.Potions[i].Name;
-                                        }
 
+                                            if (World.Settings.Potions[i].ID == (int)obj.SubCode)
+                                                index = i;
+                                        }
                                         break;
                                     }
 
@@ -615,7 +618,7 @@ namespace ClassicUO.Game.UI.Controls
                                         {
                                             "Find", "Target", "Acquire"
                                         };
-
+                                        index = (int)obj.SubCode;
                                         break;
                                     }
 
@@ -629,12 +632,12 @@ namespace ClassicUO.Game.UI.Controls
                                         names[i] = $"Slot {(i + 1)}";
                                         subNames[i] = $"Ability {(i + 1)}";
                                     }
+                                    index = (int)obj.SubCode;
 
                                     break;
                                 }
                             }
 
-                            int index = (int)obj.SubCode;
 
                            /*for (int i = 0; i < World.Settings.Potions.Count; i++)
                             {
@@ -656,10 +659,14 @@ namespace ClassicUO.Game.UI.Controls
                                 index, 300
                             );
 
-                            sub.OnOptionSelected += (senderr, ee) =>
+                            if (obj.Code == MacroType.UsePotionEnhanced)
                             {
-                                obj.SubCode = (MacroSubType)ee;
-                            };
+                                sub.OnOptionSelected += (senderr, ee) => { obj.SubCode = (MacroSubType)World.Settings.Potions[ee].ID; };
+                            }
+                            else
+                            {
+                                sub.OnOptionSelected += (senderr, ee) => { obj.SubCode = (MacroSubType)ee; };
+                            }
 
                             Add(sub);
 
