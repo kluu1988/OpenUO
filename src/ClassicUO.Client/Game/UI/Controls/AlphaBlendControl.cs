@@ -71,11 +71,15 @@ namespace ClassicUO.Game.UI.Controls
                 ),
                 hueVector
             );
-return true;
+
+            return true;
         }
     }
     internal sealed class AlphaBlendControlRounded : Control
     {
+        
+        public System.Drawing.Color Color { get; set; }
+        
         private Texture2D GetTexture(GraphicsDevice dev, System.Drawing.Bitmap bmp)
         {
             int[] imgData = new int[bmp.Width * bmp.Height];
@@ -115,7 +119,7 @@ return true;
 
             using (Graphics newGraphics = Graphics.FromImage(bmp))
             {
-                using (Brush brush = new SolidBrush(System.Drawing.Color.Black))
+                using (Brush brush = new SolidBrush(Color))
                 {
                     using (GraphicsPath path = RoundedRect
                     (
@@ -197,12 +201,18 @@ return true;
             return path;
         }
 
-        public AlphaBlendControlRounded(float alpha, int width, int height, int cornerradius = 10)
+        public AlphaBlendControlRounded(float alpha, int width, int height, int cornerradius = 10, System.Drawing.Color? color = null)
         {
             Width = width;
             Height = height;
             Alpha = alpha;
             AcceptMouseInput = false;
+            
+            if (color == null)
+                Color = System.Drawing.Color.Black;
+            else
+                Color = color.Value;
+            
             Texture = GetTexture(Client.Game.GraphicsDevice, DrawRoundedRectangle(Width, Height, 10));
         }
 
@@ -221,6 +231,7 @@ return true;
                     Width,
                     Height),
                 hueVec);
+
             return true;
         }
     }

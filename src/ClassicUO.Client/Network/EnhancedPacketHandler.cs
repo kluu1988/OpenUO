@@ -6,6 +6,7 @@ using ClassicUO.Assets;
 using ClassicUO.Configuration;
 using ClassicUO.Game;
 using ClassicUO.Game.Data.OpenUO;
+using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.IO;
 using ClassicUO.Utility;
@@ -19,6 +20,9 @@ internal class EnhancedPacketHandler
         Handler.Add(0x1, SettingsPacket);
         Handler.Add(0x2, DefaultMovementSpeedPacket);
         Handler.Add(0x3, EnhancedPotionMacrosPacket);
+        
+        Handler.Add(151, ActiveAbilityCompletePacket);
+        Handler.Add(150, ActiveAbilityUpdatePacket);
     }
     
     private static void PacketTemplate(ref StackDataReader p)
@@ -32,6 +36,173 @@ internal class EnhancedPacketHandler
                 break;
             }
             default: InvalidVersionReceived( ref p ); break;
+        }
+    }
+
+    private static void ActiveAbilityUpdatePacket(ref StackDataReader p, int version)
+    {
+        switch (version)
+        {
+            case 0:
+            {
+                //active abilities update for single item
+                    ushort row = p.ReadUInt16BE();
+                    ushort slot = p.ReadUInt16BE();
+                    
+                    TimeSpan cooldown = TimeSpan.FromMilliseconds(p.ReadUInt32BE());
+                    TimeSpan cooldownRemaining = TimeSpan.FromMilliseconds(p.ReadUInt32BE());
+                    DateTime cooldownEnd = DateTime.UtcNow + cooldownRemaining;
+                    short hue = (short) p.ReadUInt16BE();
+                    short charge = (short) p.ReadUInt16BE();
+                    bool useNextMove = p.ReadUInt16BE() == 0x1 ? true : false;
+                    var inUseMS = p.ReadUInt32BE();
+                    var inUseUntilMS = p.ReadUInt32BE();
+                    DateTime inUseEnd = DateTime.MinValue;
+                    DateTime inUseStart = DateTime.MinValue;
+                    if (inUseMS > 0 && inUseUntilMS > 0)
+                    {
+                        TimeSpan inUseTotal = TimeSpan.FromMilliseconds(inUseMS);
+                        TimeSpan inUseRemaining = TimeSpan.FromMilliseconds(inUseUntilMS);
+                        inUseEnd = DateTime.UtcNow + inUseRemaining;
+                        inUseStart = inUseEnd - inUseTotal;
+                    }
+
+                    if (row >= ActiveAbilitiesGump.ActiveAbilities.Count)
+                    {
+                        Console.WriteLine($"Recieved Ability info for an ability I don't have. Ability: {row} {slot}");
+                        return;
+                    }
+                    
+                    if (slot >= ActiveAbilitiesGump.ActiveAbilities[row].Abilities.Count)
+                    {
+                        Console.WriteLine($"Recieved Ability info for an ability I don't have. Ability: {row} {slot}");
+                        return;
+                    }
+
+                    var a = ActiveAbilitiesGump.ActiveAbilities[row].Abilities[slot];
+                    a.Cooldown = cooldown;
+                    a.CooldownStart = cooldownEnd - cooldown;
+                    a.CooldownEnd = cooldownEnd;
+                    a.Hue = hue;
+                    a.Charges = charge;
+                    a.UseNextMove = useNextMove;
+                    a.InUseStart = inUseStart;
+                    a.InUseUntil = inUseEnd;
+                    
+                    var gump = UIManager.GetGump<ActiveAbilitiesGump>();
+
+                    if (gump == null)
+                    {
+                        UIManager.Add(gump = new ActiveAbilitiesGump());
+                    }
+
+                    gump.Updated();
+                    
+                    break;
+            }
+        }
+    }
+
+    private static void ActiveAbilityCompletePacket(ref StackDataReader p, int version)
+    {
+        switch (version)
+        {
+            case 0:
+            {
+                ushort rows = p.ReadUInt16BE();
+                if (rows == 0)
+                {
+                    
+                    UIManager.GetGump<ActiveAbilitiesGump>()?.Dispose();
+
+                    break;
+                }
+                var list = new List<ActiveAbilityObject>();
+                for (int i = 0; i < rows; i++)
+                {
+                    
+                    uint serial = p.ReadUInt32BE();
+                    //ushort len = p.ReadUInt16BE();
+                    
+                    string name = p.ReadASCII(p.ReadUInt16BE())?.Replace('\r', '\n');
+                    //string name = p.ReadUnicodeLE((int)len);
+                    ushort slots = p.ReadUInt16BE();
+
+                    var obj = new ActiveAbilityObject() { Name = name, Serial = (int)serial, Abilities = new List<ActiveAbility>() };
+                    list.Add(obj);
+
+                    for (int j = 0; j < slots; j++)
+                    {
+                        int abilityName = (int)p.ReadUInt32BE();
+                        int abilityDescription = (int)p.ReadUInt32BE();
+                        int count = p.ReadUInt8();
+
+                        string args = "";
+
+                        for (int k = 0; k < count; k++)
+                        {
+                            uint color = p.ReadUInt32BE();
+                            float val = ((float)p.ReadUInt32BE()) / 1000f;
+                            args += $"<BASEFONT COLOR=#\"{color:x6}>{val}<BASEFONT COLOR=#FFFFFF>";
+
+                            if (k < count - 1)
+                                args += "\t";
+                        }
+                        
+                        string description = 
+                             ClilocLoader.Instance.Translate((int) abilityDescription, args );
+                        ;
+                        
+                        int gumpid = (int) p.ReadUInt32BE();
+                        TimeSpan cooldown = TimeSpan.FromSeconds(p.ReadUInt32BE() / 1000d);
+                        TimeSpan cooldownRemaining = TimeSpan.FromSeconds(p.ReadUInt32BE() / 1000d);
+                        DateTime cooldownEnd = DateTime.UtcNow + cooldownRemaining;
+                        short hue = (short) p.ReadUInt16BE();
+                        short charge = (short) p.ReadUInt16BE();
+                        bool useNextMove = p.ReadUInt16BE() == 0x1 ? true : false;
+                        
+                        var inUseMS = p.ReadUInt32BE();
+                        var inUseUntilMS = p.ReadUInt32BE();
+                        DateTime inUseEnd = DateTime.MinValue;
+                        DateTime inUseStart = DateTime.MinValue;
+                        if (inUseMS > 0 && inUseUntilMS > 0)
+                        {
+                            TimeSpan inUseTotal = TimeSpan.FromSeconds(inUseMS / 1000d);
+                            TimeSpan inUseRemaining = TimeSpan.FromSeconds(inUseUntilMS / 1000d);
+                            inUseEnd = DateTime.UtcNow + inUseRemaining;
+                            inUseStart = inUseEnd - inUseTotal;
+                        }
+
+                        
+                        obj.Abilities.Add(new ActiveAbility()
+                        {
+                            Name = ClilocLoader.Instance.GetString(abilityName), 
+                            Description = description,
+                            IconLarge = gumpid,
+                            Cooldown = cooldown,
+                            CooldownStart = cooldownEnd - cooldown,
+                            CooldownEnd = cooldownEnd,
+                            Hue = hue,
+                            Charges = charge,
+                            UseNextMove = useNextMove,
+                            InUseStart = inUseStart,
+                            InUseUntil = inUseEnd,
+                        });
+                    }
+                }
+
+                ActiveAbilitiesGump.ActiveAbilities = list;
+
+                var gump = UIManager.GetGump<ActiveAbilitiesGump>();
+
+                if (gump == null)
+                {
+                    UIManager.Add(gump = new ActiveAbilitiesGump());
+                }
+
+                gump.Updated();
+                break;
+            }
         }
     }
 
