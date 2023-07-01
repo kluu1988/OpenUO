@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 using System.Reflection;
 using ClassicUO.Assets;
 using ClassicUO.Configuration;
 using ClassicUO.Game;
+using ClassicUO.Game.Data;
 using ClassicUO.Game.Data.OpenUO;
+using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.IO;
 using ClassicUO.Utility;
+using Microsoft.Xna.Framework;
 
 namespace ClassicUO.Network;
 
@@ -33,6 +37,307 @@ internal class EnhancedPacketHandler
         {
             case 0:
             {
+                break;
+            }
+            default: InvalidVersionReceived( ref p ); break;
+        }
+    }
+    
+    private static void ExtraTargetInformationPacket(ref StackDataReader p)
+    {
+        int version = p.ReadUInt16BE();
+
+        switch (version)
+        {
+            case 0:
+            {
+                var cursorID = p.ReadUInt32BE();
+                var type = p.ReadUInt16BE();
+
+                switch (type)
+                {
+                    case 2:
+                    {
+                        ushort posX = p.ReadUInt16BE();
+                        ushort posY = p.ReadUInt16BE();
+                        ushort posZ = p.ReadUInt16BE();
+                        uint preview = p.ReadUInt32BE();
+                        ushort hue = p.ReadUInt16BE();
+                        TargetManager.SetExtra
+                        (
+                            cursorID, type, new Vector3(posX, posY, posZ), preview, hue
+                        );
+
+                        break;
+                    }
+
+                    case 3:
+                    {
+                        ushort posX = p.ReadUInt16BE();
+                        ushort posY = p.ReadUInt16BE();
+                        short posZ = p.ReadInt16BE();
+                        uint preview = p.ReadUInt32BE();
+                        ushort hue = p.ReadUInt16BE();
+                        TargetManager.SetExtra
+                        (
+                            cursorID, type, new Vector3(posX, posY, posZ), preview, hue
+                        );
+                        
+                        TargetManager.TargetingState = CursorTarget.MultiPlacement;
+                        TargetManager.MultiTargetInfo = new MultiTargetInfo
+                        (
+                            (ushort)preview,
+                            posX,
+                            posY,
+                            posZ,
+                            hue
+                        );
+                        
+                        break;
+                    }
+                    default:
+                    {
+                        ushort range = p.ReadUInt16BE();
+                        uint preview = p.ReadUInt32BE();
+                        ushort hue = p.ReadUInt16BE();
+
+                        TargetManager.SetExtra
+                        (
+                            cursorID, type, range, preview,
+                            hue
+                        );
+                        break;
+                    }
+                }
+                break;
+            }
+            default: InvalidVersionReceived( ref p ); break;
+        }
+    }
+    
+    private static void ExtraTargetInformationClearPacket(ref StackDataReader p)
+    {
+        int version = p.ReadUInt16BE();
+
+        switch (version)
+        {
+            case 0:
+            {
+                TargetManager.SetExtra(
+                    p.ReadUInt32BE(), 
+                    p.ReadUInt16BE(), 
+                    p.ReadUInt16BE(),
+                    0,
+                    0);
+                break;
+            }
+            default: InvalidVersionReceived( ref p ); break;
+        }
+    }
+    
+    private static void CooldownTimerPacket(ref StackDataReader p)
+    {
+        int version = p.ReadUInt16BE();
+
+        switch (version)
+        {
+            case 0:
+            {
+                //add cooldown timer
+
+                int itemID = (int)p.ReadUInt32BE();
+                ushort itemHue = p.ReadUInt16BE();
+                float timeInSeconds = p.ReadUInt32BE() / 100f;
+                int offsetX = (int)p.ReadUInt16BE();
+                int offsetY = (int)p.ReadUInt16BE();
+
+                int textLength = p.ReadUInt16BE();
+                string text = null;
+
+                if (textLength > 0)
+                    text = p.ReadASCII(textLength);
+                ushort circleHue = p.ReadUInt16BE();
+                ushort textHue = p.ReadUInt16BE();
+                ushort countdownHue = p.ReadUInt16BE();
+
+                World.Player.CooldownTimers.Add(new CooldownTimer(
+                                                    itemID,
+                                                    itemHue,
+                                                    timeInSeconds,
+                                                    offsetX,
+                                                    offsetY,
+                                                    text,
+                                                    circleHue,
+                                                    textHue,
+                                                    countdownHue
+                                                ));
+
+                CooldownTimersGump gump = UIManager.GetGump<CooldownTimersGump>();
+                gump?.RequestUpdateContents();
+                break;
+            }
+            default: InvalidVersionReceived( ref p ); break;
+        }
+    }
+    
+    private static void SpecialHealthBarPacket(ref StackDataReader p)
+    {
+        int version = p.ReadUInt16BE();
+
+        switch (version)
+        {
+            case 0:
+            {
+                int operation = p.ReadUInt16BE();
+
+                    switch (operation)
+                    {
+                        case 1:
+                        {
+                            uint serial = p.ReadUInt32BE();
+                            short offX = p.ReadInt16BE();
+                            short offY = p.ReadInt16BE();
+                            double scaleWidth = p.ReadUInt32BE() / 10000d;
+                            double scaleHeight = p.ReadUInt32BE() / 10000d;
+                            ushort bgHue = p.ReadUInt16BE();
+                            ushort fgOff = p.ReadUInt16BE();
+                            ushort fgHue = p.ReadUInt16BE();
+                            ushort locID = p.ReadUInt16BE();
+                            bool hideWhenFull = p.ReadBool();
+
+                            Entity source = World.Get(serial);
+
+                            if (source != null)
+                            {
+                                World.HealthBarEntities.Remove(source);
+                                World.HealthBarEntities.Add
+                                (
+                                    source,
+                                    new SpecialHealthBarData
+                                    (
+                                        source, new Point(offX, offY), scaleWidth, scaleHeight,
+                                        bgHue, (SpecialHealthBarData.SpecialStatusBarID)fgOff, fgHue, (SpecialHealthBarData.SpecialStatusLocation)locID,
+                                        hideWhenFull
+                                    )
+                                );
+                            }
+
+                            break;
+                        }
+
+                        case 2:
+                        {
+                            uint serial = p.ReadUInt32BE();
+                            Entity source = World.Get(serial);
+
+                            if (source != null)
+                            {
+                                World.HealthBarEntities.Remove(source);
+                            }
+
+                            break;
+                        }
+                    }
+                    
+                    break;
+            }
+            default: InvalidVersionReceived( ref p ); break;
+        }
+    }
+
+    private static void PlayableAreaPacket(ref StackDataReader p, int version)
+    {
+        switch (version)
+        {
+            case 0:
+            {
+                ushort operation = p.ReadUInt16BE();
+
+                switch (operation)
+                {
+                    case 0:
+                    {
+                        World.PlayableArea = null;
+                        break;
+                    }
+                    case 1:
+                    {
+                        bool blocking = p.ReadBool();
+                        ushort hue = p.ReadUInt16BE();
+                        ushort count = p.ReadUInt16BE();
+                        List<Rectangle> areas = new List<Rectangle>();
+
+                        for (int i = 0; i < count; i++)
+                        {
+                            ushort x = p.ReadUInt16BE();
+                            ushort y = p.ReadUInt16BE();
+                            ushort w = p.ReadUInt16BE();
+                            ushort h = p.ReadUInt16BE();
+                            areas.Add(new Rectangle(x, y, w, h));
+                        }
+
+                        World.PlayableArea = new PlayableAreaInformation(blocking, hue, areas);
+
+                        break;
+                    }
+                }
+                break;
+            }
+            default: InvalidVersionReceived( ref p ); break;
+        }
+    }
+
+    private static void HighlightedAreasPacket(ref StackDataReader p, int version)
+    {
+        switch (version)
+        {
+            case 0:
+            {
+                ushort subcmd = p.ReadUInt16BE();
+
+                switch (subcmd)
+                {
+                    case 1: //add 
+                    {
+                        ushort x = p.ReadUInt16BE();
+                        ushort y = p.ReadUInt16BE();
+                        ushort w = p.ReadUInt16BE();
+                        ushort h = p.ReadUInt16BE();
+
+                        ushort hue = p.ReadUInt16BE();
+                        byte priority = p.ReadUInt8();
+                            
+                        UIManager.HighlightedAreas.Add(new Tuple<Rectangle, ushort, byte>(new Rectangle(x,y,w,h), hue, priority));
+                        UIManager.HighlightedAreas.Sort((b1,b2) => b2.Item3.CompareTo(b1.Item3));
+                        break;
+                    }
+
+                    case 2: // remove
+                    {
+                        ushort x = p.ReadUInt16BE();
+                        ushort y = p.ReadUInt16BE();
+                        ushort w = p.ReadUInt16BE();
+                        ushort h = p.ReadUInt16BE();
+
+                        ushort hue = p.ReadUInt16BE();
+                        byte priority = p.ReadUInt8();
+                        var rect = new Rectangle(x, y, w, h);
+
+                        foreach (var item in UIManager.HighlightedAreas.ToList())
+                        {
+                            if (item.Item1 == rect && item.Item2 == hue)
+                                UIManager.HighlightedAreas.Remove(item);
+                        }
+                            
+                        break;
+                    }
+
+                    case 3: //clear
+                    {
+                        UIManager.HighlightedAreas.Clear();
+                        break;
+                    }
+                }
                 break;
             }
             default: InvalidVersionReceived( ref p ); break;

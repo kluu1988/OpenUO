@@ -119,6 +119,9 @@ namespace ClassicUO.Configuration
         public ushort BeneficHue { get; set; } = 0x0059;
         public ushort HarmfulHue { get; set; } = 0x0020;
         public ushort NeutralHue { get; set; } = 0x03B1;
+        public ushort BeneficialAOEHue { get; set; } = 96;
+        public ushort HarmfulAOEHue { get; set; } = 37;
+        public ushort NeutralAOEHue { get; set; } = 980;
         public bool EnabledSpellHue { get; set; }
         public bool EnabledSpellFormat { get; set; }
         public string SpellDisplayFormat { get; set; } = "{power} [{spell}]";
@@ -134,6 +137,8 @@ namespace ClassicUO.Configuration
         public bool UseOldStatusGump { get; set; }
         public int BackpackStyle { get; set; }
         public bool HighlightGameObjects { get; set; }
+        
+        public bool ShowAoEArea { get; set; } = true;
         public bool HighlightMobilesByParalize { get; set; } = true;
         public bool HighlightMobilesByPoisoned { get; set; } = true;
         public bool HighlightMobilesByInvul { get; set; } = true;

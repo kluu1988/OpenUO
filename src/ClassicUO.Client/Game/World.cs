@@ -59,6 +59,8 @@ namespace ClassicUO.Game
         public static Point RangeSize;
 
         public static PlayerMobile Player { get; private set; }
+        
+        public static PlayableAreaInformation PlayableArea { get; set; }
 
         public static HouseCustomizationManager CustomHouseManager;
 
@@ -81,6 +83,8 @@ namespace ClassicUO.Game
         public static Dictionary<uint, Item> Items { get; } = new Dictionary<uint, Item>();
 
         public static Dictionary<uint, Mobile> Mobiles { get; } = new Dictionary<uint, Mobile>();
+        
+        public static Dictionary<uint,SpecialHealthBarData> HealthBarEntities { get; } = new Dictionary<uint,SpecialHealthBarData>();
 
         public static Map.Map Map { get; private set; }
 

@@ -3304,7 +3304,7 @@ namespace ClassicUO.Network
             ushort multiID = p.ReadUInt16BE();
             ushort xOff = p.ReadUInt16BE();
             ushort yOff = p.ReadUInt16BE();
-            ushort zOff = p.ReadUInt16BE();
+            short zOff = p.ReadInt16BE();
             ushort hue = p.ReadUInt16BE();
 
             TargetManager.SetTargetingMulti

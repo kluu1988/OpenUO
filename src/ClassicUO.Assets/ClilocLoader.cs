@@ -71,7 +71,20 @@ namespace ClassicUO.Assets
                 _cliloc = "Cliloc.enu";
             }
 
+            LoadCustom();
+
             return Load();
+        }
+
+        /// <summary>
+        /// Temporary Solution until custom cliloc solution is made
+        /// </summary>
+        public void LoadCustom()
+        {
+            _entries.Add(8010000, "OpenUO Example Ability");
+            _entries.Add(8010001, "This ability will quickly attack your combatant ~1_VAL~ times when used.");
+            _entries.Add(8010010, "OpenUO Example Ability Two");
+            _entries.Add(8010011, "This ability will cast a spell after a short duration that engulfs the area in fire");
         }
 
         public override Task Load()

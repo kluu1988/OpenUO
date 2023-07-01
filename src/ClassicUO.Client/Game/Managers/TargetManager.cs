@@ -30,6 +30,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using ClassicUO.Configuration;
 using ClassicUO.Game.Data;
@@ -40,6 +41,7 @@ using ClassicUO.Assets;
 using ClassicUO.Network;
 using ClassicUO.Resources;
 using ClassicUO.Utility;
+using Microsoft.Xna.Framework;
 
 namespace ClassicUO.Game.Managers
 {
@@ -73,7 +75,7 @@ namespace ClassicUO.Game.Managers
 
     internal class MultiTargetInfo
     {
-        public MultiTargetInfo(ushort model, ushort x, ushort y, ushort z, ushort hue)
+        public MultiTargetInfo(ushort model, ushort x, ushort y, short z, ushort hue)
         {
             Model = model;
             XOff = x;
@@ -82,7 +84,8 @@ namespace ClassicUO.Game.Managers
             Hue = hue;
         }
 
-        public readonly ushort XOff, YOff, ZOff, Model, Hue;
+        public short ZOff;
+        public ushort XOff, YOff, Model, Hue;
     }
 
     internal class LastTargetInfo
@@ -170,9 +173,9 @@ namespace ClassicUO.Game.Managers
         public static readonly LastTargetInfo LastTargetInfo = new LastTargetInfo();
         public static readonly LastTargetInfo LastBeneficialTargetInfo = new LastTargetInfo();
 
-        public static MultiTargetInfo MultiTargetInfo { get; private set; }
+        public static MultiTargetInfo MultiTargetInfo { get; set; }
 
-        public static CursorTarget TargetingState { get; private set; } = CursorTarget.Invalid;
+        public static CursorTarget TargetingState { get; set; } = CursorTarget.Invalid;
 
         public static bool IsTargeting { get; private set; }
 
@@ -247,7 +250,24 @@ namespace ClassicUO.Game.Managers
             _targetCursorId = 0;
             MultiTargetInfo = null;
             TargetingType = 0;
+            IsAoE = false;
+            ExtraDetails = 0;
+            AoEType = 0;
+            Preview = 0;
+            PreviewHue = 0;
+            
+            RestoreTarget();
         }
+        
+        public static void SetExtra(uint cursorID, ushort type, object details, uint preview, ushort previewHue)
+        {
+            IsAoE = true;
+            AoEType = type;
+            ExtraDetails = details;
+            Preview = preview;
+            PreviewHue = previewHue;
+        }
+
 
         public static void SetTargeting(CursorTarget targeting, uint cursorID, TargetType cursorType)
         {
@@ -276,6 +296,221 @@ namespace ClassicUO.Game.Managers
             
             _targetCursorId = cursorID;
         }
+        
+        private static ushort zHue = 0x20;
+        private static DateTime LastChange;
+        private static Rectangle m_OldRect;
+        
+        public static bool AreaOfEffectHighlight(int x, int y, out ushort hue)
+        {
+            hue = 0;
+
+            if (ProfileManager.CurrentProfile.ShowAoEArea && TargetManager.IsAoE)
+            {
+                int locX = -200, locY = -200;
+
+                if (SelectedObject.Object is GameObject gameObject)
+                {
+                    locX = gameObject.X;
+                    locY = gameObject.Y;
+                }
+                else if (SelectedObject.Object is Land land)
+                {
+                    locX = land.X;
+                    locY = land.Y;
+                }
+                else if (SelectedObject.Object is Mobile m)
+                {
+                    locX = m.X;
+                    locY = m.Y;
+                }
+                else if (SelectedObject.Object is Item i)
+                {
+                    if (i.Container == 0xFFFF_FFFF)
+                    {
+                        locX = i.X;
+                        locY = i.Y;
+                    }
+                }
+
+                if (locX != -200)
+                {
+                    
+                    bool inRange = false;
+                    if (TargetManager.AoEType == 0)
+                    {
+                        var range = (int)(ushort)TargetManager.ExtraDetails;
+                        var rect = new Rectangle(-range, -range, range * 2 + 1, range * 2 + 1);
+
+                        if (rect.Contains(locX - x, locY - y))
+                        {
+                            inRange = true;
+                        }
+                    } 
+                    else if (TargetManager.AoEType == 1)
+                    {
+                        var range = (int)(ushort)TargetManager.ExtraDetails;
+                        double dist = Math.Sqrt(Math.Pow(x - locX,2) + Math.Pow(y - locY,2));
+                        dist = (int) dist;
+                        inRange = dist <= range;
+                    }
+                    else if (TargetManager.AoEType == 2) // rect from point to mouse
+                    {
+                        var pos = (Vector3)ExtraDetails;
+                        int topLeftX = Math.Min(locX, (int)pos.X) - 1;
+                        int topLeftY = Math.Min(locY, (int)pos.Y) - 1;
+                        int bottomRightX = Math.Max(locX, (int)pos.X) - topLeftX;
+                        int bottomRightY = Math.Max(locY, (int)pos.Y) - topLeftY;
+                        var rect = new Rectangle(topLeftX, topLeftY, bottomRightX, bottomRightY);
+
+                        if (rect.Contains(x - 1, y - 1))
+                            inRange = true;
+                    }
+                    else if (TargetManager.AoEType == 3)
+                    {
+                        var pos = (Vector3)ExtraDetails;
+                        var posZ = (int) pos.Z;
+                        int topLeftX = Math.Min(locX, (int)pos.X);
+                        int topLeftY = Math.Min(locY, (int)pos.Y);
+                        int bottomRightX = Math.Max(locX, (int)pos.X) - topLeftX + 1;
+                        int bottomRightY = Math.Max(locY, (int)pos.Y) - topLeftY + 1;
+                        var rect = new Rectangle(topLeftX, topLeftY, bottomRightX, bottomRightY);
+
+                        if (!rect.Equals(m_OldRect))
+                        {
+                            m_OldRect = rect;
+                            MultiTargetInfo.XOff = (ushort)topLeftX;
+                            MultiTargetInfo.YOff = (ushort)topLeftY;
+                            //if (rect.Contains(x - 1, y - 1))
+                            //    inRange = true;
+
+                            if (!World.HouseManager.TryGetHouse(0, out House house))
+                            {
+                                house = new House(0, 0, false);
+                                World.HouseManager.Add(0, house);
+                            }
+                            else
+                            {
+                                house.ClearComponents();
+                                house.Revision++;
+                                house.IsCustom = true;
+                            }
+    
+                            for (int rectX = 0; rectX < rect.Width; rectX++)
+                            {
+                                for (int rectY = 0; rectY < rect.Height; rectY++)
+                                {
+                                    /*ushort tempColor = color;
+
+                                    if (x == StartPos.X || y == StartPos.Y)
+                                    {
+                                        tempColor++;
+                                    }*/
+
+                                    Multi mo = house.Add
+                                    (
+                                        (ushort)Preview,
+                                        PreviewHue,
+                                        (ushort)rectX,
+                                        (ushort)rectY,
+                                        (sbyte) posZ,
+                                        true,
+                                        false
+                                    );
+
+                                    mo.MultiOffsetX = rectX;
+                                    mo.MultiOffsetY = rectY;
+                                    //mo.AlphaHue = 0xFF;
+
+                                    mo.State = CUSTOM_HOUSE_MULTI_OBJECT_FLAGS.CHMOF_GENERIC_INTERNAL | CUSTOM_HOUSE_MULTI_OBJECT_FLAGS.CHMOF_TRANSPARENT;
+
+                                    mo.AddToTile();
+                                }
+                            }
+                        }
+                    }
+                    else if (TargetManager.AoEType == 0x99) // fields..
+                    {
+                        var range = (int)(ushort)TargetManager.ExtraDetails;
+                        int dx = World.Player.X - locX;
+                        int dy = World.Player.Y - locY;
+                        int rx = (dx - dy) * 44;
+                        int ry = (dx + dy) * 44;
+
+                        bool eastToWest;
+
+                        if (rx >= 0 && ry >= 0)
+                        {
+                            eastToWest = false;
+                        }
+                        else if (rx >= 0)
+                        {
+                            eastToWest = true;
+                        }
+                        else if (ry >= 0)
+                        {
+                            eastToWest = true;
+                        }
+                        else
+                        {
+                            eastToWest = false;
+                        }
+                        
+                        var rect = new Rectangle(eastToWest ? -range : 0, eastToWest ? 0 : -range, eastToWest ? range * 2 + 1 : 1, eastToWest ? 1: range * 2 + 1);
+
+                        if (rect.Contains(locX - x, locY - y))
+                            inRange = true;
+                    }
+
+                    if (inRange)
+                    {
+                       /* if (LastChange <= DateTime.UtcNow)
+                        {
+                            LastChange = DateTime.UtcNow + TimeSpan.FromMilliseconds(50);
+
+                            if (zHue > 1060)
+                                zHue = 0;
+
+                            zHue = 980;
+                            World.Player.AddMessage(MessageType.Label, $"{zHue}", TextType.CLIENT);
+                        }*/
+                       
+                       Profile currentProfile = ProfileManager.CurrentProfile;
+
+                       if (currentProfile != null)
+                       {
+
+                           ushort highlightHue = currentProfile.NeutralAOEHue;
+
+                           if (TargetManager.TargetingType == TargetType.Beneficial)
+                               highlightHue = currentProfile.BeneficialAOEHue;
+                           else if (TargetManager.TargetingType == TargetType.Harmful)
+                               highlightHue = currentProfile.HarmfulAOEHue;
+
+                           hue = highlightHue;
+                       }
+
+                       return true;
+                    }
+                }
+            }
+            
+            
+            if (UIManager.HighlightedAreas.Count > 0)
+            {
+                foreach (var i in UIManager.HighlightedAreas)
+                {
+                    if (i.Item1.Contains(x, y))
+                    {
+                        hue = i.Item2;
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
 
 
         public static void CancelTarget()
@@ -310,7 +545,7 @@ namespace ClassicUO.Game.Managers
             ushort model,
             ushort x,
             ushort y,
-            ushort z,
+            short z,
             ushort hue
         )
         {
