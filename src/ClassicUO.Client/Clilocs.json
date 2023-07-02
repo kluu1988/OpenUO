@@ -1,12 +1,36 @@
 ﻿{
   "clilocs": [
     {
+      "id": 8000000,
+      "data": "<CENTER><BASEFONT COLOR=#FFFFFF>OpenUO Example Functionality</BASEFONT></CENTER>"
+    },
+    {
+      "id": 8000001,
+      "data": "<BASEFONT COLOR=#FFFFFF>Try it out</BASEFONT>"
+    },
+    {
+      "id": 8000002,
+      "data": "<BASEFONT COLOR=#FFFFFF>Date Released: ~1_VAL~</BASEFONT>"
+    },
+    {
+      "id": 8000003,
+      "data": "<RIGHT><BASEFONT COLOR=#FFFFFF>(~1_VAL~/~2_VAL~)</BASEFONT>"
+    },
+    {
       "id": 8000030,
       "data": "Slot not found"
     },
     {
       "id": 8000031,
       "data": "Ability not found"
+    },
+    {
+      "id": 8000500,
+      "data": "<CENTER><BASEFONT COLOR=#FFFFFF>Active Abilities</BASEFONT></CENTER>"
+    },
+    {
+      "id": 8000501,
+      "data": "Active Abilities are a menu that appears on your player's client that uses custom packets to make it look like a modern looking HUD. <BR><BR>Cooldowns are displayed on the menu. <BR>Abilities can have a set amount of charges.<BR>They can be set to be used next move.<BR>They can be used to take your players to a next level experience."
     },
     {
       "id": 8010000,

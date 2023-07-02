@@ -38,4 +38,10 @@ internal class SettingGeneralFlags
     /// </summary>
     [OptionID(5)]
     public bool RemoveChatFromMenuBar;
+    
+    /// <summary>
+    /// Enables active abilities from showing up. (Also Enables the reset position in options)
+    /// </summary>
+    [OptionID(6)]
+    public bool EnableActiveAbilities;
 }
