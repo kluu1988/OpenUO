@@ -5463,12 +5463,20 @@ namespace ClassicUO.Network
 
             if (iconID < BuffTable.Table.Length)
             {
-                BuffGump gump = UIManager.GetGump<BuffGump>();
+                Gump gump = null;
+                var enhanced = World.Settings.GeneralFlags.EnhancedBuffInformation;
+                if (enhanced)
+                    gump = UIManager.GetGump<EnhancedBuffGump>();
+                else
+                    gump = UIManager.GetGump<BuffGump>();
                 ushort count = p.ReadUInt16BE();
 
                 if (count == 0)
                 {
-                    World.Player.RemoveBuff(ic);
+                    if (enhanced)
+                        World.Player.RemoveBuff((uint)ic);
+                    else
+                        World.Player.RemoveBuff(ic);
                     gump?.RequestUpdateContents();
                 }
                 else
@@ -5523,7 +5531,10 @@ namespace ClassicUO.Network
 
                         string text = $"<left>{title}{description}{wtf}</left>";
                         bool alreadyExists = World.Player.IsBuffIconExists(ic);
-                        World.Player.AddBuff(ic, BuffTable.Table[iconID], timer, text);
+                        if (!enhanced)
+                            World.Player.AddBuff(ic, BuffTable.Table[iconID], timer, text);
+                        else
+                            World.Player.AddBuff((uint)ic, 1, BuffTable.Table[iconID], timer, text);
 
                         if (!alreadyExists)
                         {

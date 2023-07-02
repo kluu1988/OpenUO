@@ -37,7 +37,11 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ClassicUO.Assets
@@ -70,23 +74,72 @@ namespace ClassicUO.Assets
 
                 _cliloc = "Cliloc.enu";
             }
-
-            LoadCustom();
-
+#if DEBUG
+            LoadClientClilocs();
+#endif
             return Load();
         }
-
+        
+#if DEBUG
         /// <summary>
         /// Temporary Solution until custom cliloc solution is made
         /// </summary>
-        public void LoadCustom()
+        public void LoadClientClilocs()
         {
-            _entries.Add(8010000, "OpenUO Example Ability");
-            _entries.Add(8010001, "This ability will quickly attack your combatant ~1_VAL~ times when used.");
-            _entries.Add(8010010, "OpenUO Example Ability Two");
-            _entries.Add(8010011, "This ability will cast a spell after a short duration that engulfs the area in fire");
+            var toLoad = ConfigurationResolver.Load<DebugClilocs>("../../src/ClassicUO.Client/Clilocs.json");
+
+            foreach (var cliloc in toLoad.clilocs)
+            {
+                if (_entries.ContainsKey(cliloc.id))
+                {
+                    _entries[cliloc.id] = cliloc.data;
+                }
+                else
+                {
+                    _entries.Add(cliloc.id,cliloc.data);
+                }
+            }
+        }
+        
+        
+        private static class ConfigurationResolver
+        {
+            public static T Load<T>(string file) where T : class
+            {
+                if (!File.Exists(file))
+                {
+                    Log.Warn(file + " not found.");
+
+                    return null;
+                }
+
+                var text = File.ReadAllText(file);
+
+                text = Regex.Replace
+                (
+                    text,
+                    @"(?<!\\)  # lookbehind: Check that previous character isn't a \
+                                                \\         # match a \
+                                                (?!\\)     # lookahead: Check that the following character isn't a \",
+                    @"\\",
+                    RegexOptions.IgnorePatternWhitespace
+                );
+
+                return JsonSerializer.Deserialize(text, typeof(T)) as T;
+            }
         }
 
+        private class DebugClilocs
+        {
+            public List<ClilocEntries> clilocs { get; set; }
+        }
+
+        private class ClilocEntries
+        {
+            public int id { get; set; }
+            public string data { get; set; }
+        }
+#endif        
         public override Task Load()
         {
             return Task.Run

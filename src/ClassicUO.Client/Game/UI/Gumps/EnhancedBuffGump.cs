@@ -302,7 +302,7 @@ namespace ClassicUO.Game.UI.Gumps
                     {
                         if (delta <= 0)
                         {
-                            ((BuffGump) Parent.Parent)?.RequestUpdateContents();
+                            ((EnhancedBuffGump) Parent.Parent)?.RequestUpdateContents();
                         }
                         else
                         {

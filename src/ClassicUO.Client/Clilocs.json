@@ -1,0 +1,28 @@
+﻿{
+  "clilocs": [
+    {
+      "id": 8000030,
+      "data": "Slot not found"
+    },
+    {
+      "id": 8000031,
+      "data": "Ability not found"
+    },
+    {
+      "id": 8010000,
+      "data": "OpenUO Example Ability"
+    },
+    {
+      "id": 8010001,
+      "data": "This ability will quickly attack your combatant ~1_VAL~ times when used."
+    },
+    {
+      "id": 8010010,
+      "data": "OpenUO Example Ability Two"
+    },
+    {
+      "id": 8010011,
+      "data": "This ability will cast a spell after a short duration that engulfs the area in fire"
+    }
+  ]
+}

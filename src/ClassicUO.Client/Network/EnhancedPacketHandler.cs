@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Net.Sockets;
 using System.Reflection;
@@ -21,9 +22,11 @@ internal class EnhancedPacketHandler
 {
     static EnhancedPacketHandler()
     {
-        Handler.Add(0x1, SettingsPacket);
-        Handler.Add(0x2, DefaultMovementSpeedPacket);
-        Handler.Add(0x3, EnhancedPotionMacrosPacket);
+        Handler.Add(1, SettingsPacket);
+        Handler.Add(2, DefaultMovementSpeedPacket);
+        Handler.Add(3, EnhancedPotionMacrosPacket);
+        
+        Handler.Add(102, ExtraTargetInformationPacket);
         
         Handler.Add(151, ActiveAbilityCompletePacket);
         Handler.Add(150, ActiveAbilityUpdatePacket);
@@ -43,10 +46,8 @@ internal class EnhancedPacketHandler
         }
     }
     
-    private static void ExtraTargetInformationPacket(ref StackDataReader p)
+    private static void ExtraTargetInformationPacket(ref StackDataReader p, int version)
     {
-        int version = p.ReadUInt16BE();
-
         switch (version)
         {
             case 0:

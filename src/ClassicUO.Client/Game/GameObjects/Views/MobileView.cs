@@ -158,6 +158,24 @@ namespace ClassicUO.Game.GameObjects
                     }
                 }
             }
+            
+            
+            
+            if (World.PlayableArea != null)
+            {
+                if (World.PlayableArea.HighLightObject(X,Y, out ushort newHue))
+                {
+                    hueVec.Y = 1;
+                    overridedHue = newHue;
+                }
+            }
+
+            if (TargetManager.AreaOfEffectHighlight(X, Y, out ushort rehue))
+            {
+                overridedHue = rehue;
+                hueVec.Y = 1;
+            }
+
 
 
             bool isAttack = Serial == TargetManager.LastAttack;
