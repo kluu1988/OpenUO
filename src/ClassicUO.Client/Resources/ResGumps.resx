@@ -644,11 +644,47 @@ Murderers, Criminals, Grays (Monsters/Animals)</value>
   <data name="HarmfulSpellHue" xml:space="preserve">
     <value>Harmful Spell Hue</value>
   </data>
+  <data name="HarmfulAOEHue" xml:space="preserve">
+    <value>Harmful AOE Hue</value>
+  </data>
+  <data name="BeneficAOEHue" xml:space="preserve">
+    <value>Benefic AOE Hue</value>
+  </data>
+  <data name="NeutralAOEHue" xml:space="preserve">
+    <value>Neutral AOE Hue</value>
+  </data>
   <data name="NeutralSpellHue" xml:space="preserve">
     <value>Neutral Spell Hue</value>
   </data>
   <data name="SpellOverheadFormat" xml:space="preserve">
     <value>Spell Overhead format: ({power} for powerword - {spell} for spell name)</value>
+  </data>
+  <data name="RollingOverheadLabel" xml:space="preserve">
+    <value>Rolling Overhead Messages:</value>
+  </data>
+  <data name="RollingOverheadHitPoints" xml:space="preserve">
+    <value>Display Hit Point Changes</value>
+  </data>
+  <data name="RollingOverheadStamina" xml:space="preserve">
+    <value>Display Stamina Changes</value>
+  </data>
+  <data name="RollingOverheadMana" xml:space="preserve">
+    <value>Display Mana Changes</value>
+  </data>
+  <data name="RollingOverheadStat" xml:space="preserve">
+    <value>Display Stat Changes</value>
+  </data>
+  <data name="RollingOverheadOther" xml:space="preserve">
+    <value>Display Other Messages</value>
+  </data>
+  <data name="RollingOverheadOverrideHue" xml:space="preserve">
+    <value>Override Hue</value>
+  </data>
+  <data name="RollingOverheadLoss" xml:space="preserve">
+    <value>Loss</value>
+  </data>
+  <data name="RollingOverheadGain" xml:space="preserve">
+    <value>Gain</value>
   </data>
   <data name="EnableCounters" xml:space="preserve">
     <value>Enable Counters</value>

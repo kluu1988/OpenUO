@@ -60,6 +60,6 @@ namespace ClassicUO.Game.UI.Gumps
 
         NameOverHeadHandler,
         CooldownTimers,
-        ActiveAbilities,
+        EnhancedAbilities,
     }
 }

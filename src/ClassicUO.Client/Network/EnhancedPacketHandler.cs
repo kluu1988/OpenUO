@@ -11,6 +11,7 @@ using ClassicUO.Game.Data;
 using ClassicUO.Game.Data.OpenUO;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
+using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.IO;
 using ClassicUO.Utility;
@@ -30,12 +31,13 @@ internal class EnhancedPacketHandler
         
         Handler.Add(151, ActiveAbilityCompletePacket);
         Handler.Add(150, ActiveAbilityUpdatePacket);
+        
+        Handler.Add(101, RollingTextSimple);
+        Handler.Add(100, RollingText);
     }
     
-    private static void PacketTemplate(ref StackDataReader p)
+    private static void PacketTemplate(ref StackDataReader p, int version)
     {
-        int version = p.ReadUInt16BE();
-
         switch (version)
         {
             case 0:
@@ -45,6 +47,142 @@ internal class EnhancedPacketHandler
             default: InvalidVersionReceived( ref p ); break;
         }
     }
+    
+    private static void RollingTextSimple(ref StackDataReader p, int version)
+    {
+        switch (version)
+        {
+            case 0:
+            {
+                uint serial = p.ReadUInt32BE();
+                Entity entity = World.Get(serial);
+                uint source = p.ReadUInt32BE();
+                ushort hue = p.ReadUInt16BE();
+
+                uint cliloc = p.ReadUInt32BE();
+                bool neg = p.ReadBool();
+                long val = p.ReadUInt32BE() * (neg ? -1 : 1);
+                
+                var text = ClilocLoader.Instance.Translate((int) cliloc, $"{(!neg ? "+" : "")}{val}") + " ";
+
+                bool display = true;
+
+                switch (cliloc)
+                {
+                    case 8011100:
+                        if (!ProfileManager.CurrentProfile.RollingTextHitPoints)
+                            display = false;
+                        else if (ProfileManager.CurrentProfile.RollingTextHitPointsOverride)
+                        {
+                            if (neg) hue = ProfileManager.CurrentProfile.RollingTextHitPointsOverrideLoss;
+                            else hue = ProfileManager.CurrentProfile.RollingTextHitPointsOverrideGain;
+                        }
+                        break;
+                    case 8011101:
+                        if (!ProfileManager.CurrentProfile.RollingTextStamina)
+                            display = false;
+                        else if (ProfileManager.CurrentProfile.RollingTextStaminaOverride)
+                        {
+                            if (neg) hue = ProfileManager.CurrentProfile.RollingTextStaminaOverrideLoss;
+                            else hue = ProfileManager.CurrentProfile.RollingTextStaminaOverrideGain;
+                        }
+
+                        break;
+                    case 8011102:
+                        if (!ProfileManager.CurrentProfile.RollingTextMana)
+                            display = false;
+                        else if (ProfileManager.CurrentProfile.RollingTextManaOverride)
+                        {
+                            if (neg) hue = ProfileManager.CurrentProfile.RollingTextManaOverrideLoss;
+                            else hue = ProfileManager.CurrentProfile.RollingTextManaOverrideGain;
+                        }
+
+                        break;
+                    case 8011103: 
+                    case 8011104: 
+                    case 8011105:
+                    case 8011106:
+                        if (!ProfileManager.CurrentProfile.RollingTextStat)
+                            display = false;
+                        else if (ProfileManager.CurrentProfile.RollingTextStatOverride)
+                        {
+                            if (neg) hue = ProfileManager.CurrentProfile.RollingTextStatOverrideLoss;
+                            else hue = ProfileManager.CurrentProfile.RollingTextStatOverrideGain;
+                        }
+
+                        break;
+
+                    default:
+                    {
+                        
+                        if (!ProfileManager.CurrentProfile.RollingTextOther)
+                            display = false;
+                        else if (ProfileManager.CurrentProfile.RollingTextOtherOverride)
+                        {
+                            if (neg) hue = ProfileManager.CurrentProfile.RollingTextOtherOverrideLoss;
+                            else hue = ProfileManager.CurrentProfile.RollingTextOtherOverrideGain;
+                        }
+
+                        break;
+                    }
+                }
+                
+                if (display && entity != null && text.Length > 0)
+                {
+                    World.WorldTextManager.AddRollingText(entity, hue, 3, text);
+                }
+                break;
+            }
+            default: InvalidVersionReceived( ref p ); break;
+        }
+    }
+    
+    private static void RollingText(ref StackDataReader p, int version)
+    {
+        switch (version)
+        {
+            case 0:
+            {
+                uint serial = p.ReadUInt32BE();
+                Entity entity = World.Get(serial);
+                uint source = p.ReadUInt32BE();
+                ushort hue = p.ReadUInt16BE();
+                byte font = p.ReadUInt8();
+                int amount = p.ReadUInt8();
+
+                string text = "";
+
+                for (int i = 0; i < amount; i++)
+                {
+                    ushort len = p.ReadUInt16BE();
+                    uint cliloc = p.ReadUInt32BE();
+                    
+                    string arguments = null;
+                    
+                    arguments = p.ReadUnicodeLE((int)len);
+                    p.Skip(2);
+                    text += ClilocLoader.Instance.Translate((int) cliloc, arguments) + " ";
+                }
+                bool display = true;
+
+                if (!ProfileManager.CurrentProfile.RollingTextOther)
+                    display = false;
+                else if (ProfileManager.CurrentProfile.RollingTextOtherOverride)
+                {
+                    hue = ProfileManager.CurrentProfile.RollingTextOtherOverrideGain;
+                }
+                
+                if (entity != null && text.Length > 0)
+                {
+                    World.WorldTextManager.AddRollingText(entity, hue, font, text);
+                }
+                break;
+            }
+            default: InvalidVersionReceived( ref p ); break;
+        }
+    }
+
+
     
     private static void ExtraTargetInformationPacket(ref StackDataReader p, int version)
     {
@@ -347,70 +485,74 @@ internal class EnhancedPacketHandler
 
     private static void ActiveAbilityUpdatePacket(ref StackDataReader p, int version)
     {
+        if (!World.Settings.GeneralFlags.EnableEnhancedAbilities)
+            return;
         switch (version)
         {
             case 0:
             {
                 //active abilities update for single item
-                    ushort row = p.ReadUInt16BE();
-                    ushort slot = p.ReadUInt16BE();
-                    
-                    TimeSpan cooldown = TimeSpan.FromMilliseconds(p.ReadUInt32BE());
-                    TimeSpan cooldownRemaining = TimeSpan.FromMilliseconds(p.ReadUInt32BE());
-                    DateTime cooldownEnd = DateTime.UtcNow + cooldownRemaining;
-                    short hue = (short) p.ReadUInt16BE();
-                    short charge = (short) p.ReadUInt16BE();
-                    bool useNextMove = p.ReadUInt16BE() == 0x1 ? true : false;
-                    var inUseMS = p.ReadUInt32BE();
-                    var inUseUntilMS = p.ReadUInt32BE();
-                    DateTime inUseEnd = DateTime.MinValue;
-                    DateTime inUseStart = DateTime.MinValue;
-                    if (inUseMS > 0 && inUseUntilMS > 0)
-                    {
-                        TimeSpan inUseTotal = TimeSpan.FromMilliseconds(inUseMS);
-                        TimeSpan inUseRemaining = TimeSpan.FromMilliseconds(inUseUntilMS);
-                        inUseEnd = DateTime.UtcNow + inUseRemaining;
-                        inUseStart = inUseEnd - inUseTotal;
-                    }
+                ushort row = p.ReadUInt16BE();
+                ushort slot = p.ReadUInt16BE();
+                
+                TimeSpan cooldown = TimeSpan.FromMilliseconds(p.ReadUInt32BE());
+                TimeSpan cooldownRemaining = TimeSpan.FromMilliseconds(p.ReadUInt32BE());
+                DateTime cooldownEnd = DateTime.UtcNow + cooldownRemaining;
+                short hue = (short) p.ReadUInt16BE();
+                short charge = (short) p.ReadUInt16BE();
+                bool useNextMove = p.ReadUInt16BE() == 0x1 ? true : false;
+                var inUseMS = p.ReadUInt32BE();
+                var inUseUntilMS = p.ReadUInt32BE();
+                DateTime inUseEnd = DateTime.MinValue;
+                DateTime inUseStart = DateTime.MinValue;
+                if (inUseMS > 0 && inUseUntilMS > 0)
+                {
+                    TimeSpan inUseTotal = TimeSpan.FromMilliseconds(inUseMS);
+                    TimeSpan inUseRemaining = TimeSpan.FromMilliseconds(inUseUntilMS);
+                    inUseEnd = DateTime.UtcNow + inUseRemaining;
+                    inUseStart = inUseEnd - inUseTotal;
+                }
 
-                    if (row >= ActiveAbilitiesGump.ActiveAbilities.Count)
-                    {
-                        Console.WriteLine($"Recieved Ability info for an ability I don't have. Ability: {row} {slot}");
-                        return;
-                    }
-                    
-                    if (slot >= ActiveAbilitiesGump.ActiveAbilities[row].Abilities.Count)
-                    {
-                        Console.WriteLine($"Recieved Ability info for an ability I don't have. Ability: {row} {slot}");
-                        return;
-                    }
+                if (row >= EnhancedAbilitiesGump.EnhancedAbilities.Count)
+                {
+                    Console.WriteLine($"Recieved Ability info for an ability I don't have. Ability: {row} {slot}");
+                    return;
+                }
+                
+                if (slot >= EnhancedAbilitiesGump.EnhancedAbilities[row].Abilities.Count)
+                {
+                    Console.WriteLine($"Recieved Ability info for an ability I don't have. Ability: {row} {slot}");
+                    return;
+                }
 
-                    var a = ActiveAbilitiesGump.ActiveAbilities[row].Abilities[slot];
-                    a.Cooldown = cooldown;
-                    a.CooldownStart = cooldownEnd - cooldown;
-                    a.CooldownEnd = cooldownEnd;
-                    a.Hue = hue;
-                    a.Charges = charge;
-                    a.UseNextMove = useNextMove;
-                    a.InUseStart = inUseStart;
-                    a.InUseUntil = inUseEnd;
-                    
-                    var gump = UIManager.GetGump<ActiveAbilitiesGump>();
+                var a = EnhancedAbilitiesGump.EnhancedAbilities[row].Abilities[slot];
+                a.Cooldown = cooldown;
+                a.CooldownStart = cooldownEnd - cooldown;
+                a.CooldownEnd = cooldownEnd;
+                a.Hue = hue;
+                a.Charges = charge;
+                a.UseNextMove = useNextMove;
+                a.InUseStart = inUseStart;
+                a.InUseUntil = inUseEnd;
+                
+                var gump = UIManager.GetGump<EnhancedAbilitiesGump>();
 
-                    if (gump == null)
-                    {
-                        UIManager.Add(gump = new ActiveAbilitiesGump());
-                    }
+                if (gump == null)
+                {
+                    UIManager.Add(gump = new EnhancedAbilitiesGump());
+                }
 
-                    gump.Updated();
-                    
-                    break;
+                gump.Updated();
+                
+                break;
             }
         }
     }
 
     private static void ActiveAbilityCompletePacket(ref StackDataReader p, int version)
     {
+        if (!World.Settings.GeneralFlags.EnableEnhancedAbilities)
+            return;
         switch (version)
         {
             case 0:
@@ -419,7 +561,7 @@ internal class EnhancedPacketHandler
                 if (rows == 0)
                 {
                     
-                    UIManager.GetGump<ActiveAbilitiesGump>()?.Dispose();
+                    UIManager.GetGump<EnhancedAbilitiesGump>()?.Dispose();
 
                     break;
                 }
@@ -497,13 +639,13 @@ internal class EnhancedPacketHandler
                     }
                 }
 
-                ActiveAbilitiesGump.ActiveAbilities = list;
+                EnhancedAbilitiesGump.EnhancedAbilities = list;
 
-                var gump = UIManager.GetGump<ActiveAbilitiesGump>();
+                var gump = UIManager.GetGump<EnhancedAbilitiesGump>();
 
                 if (gump == null)
                 {
-                    UIManager.Add(gump = new ActiveAbilitiesGump());
+                    UIManager.Add(gump = new EnhancedAbilitiesGump());
                 }
 
                 gump.Updated();
@@ -632,6 +774,8 @@ internal class EnhancedPacketHandler
                     }
                 }
                 TopBarGump.Create();
+                
+                MacroControl.GenerateNames();
                 break;
             }
             default: InvalidVersionReceived( ref p ); break;

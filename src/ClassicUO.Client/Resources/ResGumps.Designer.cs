@@ -582,6 +582,15 @@ namespace ClassicUO.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Benefic AOE Hue.
+        /// </summary>
+        public static string BeneficAOEHue {
+            get {
+                return ResourceManager.GetString("BeneficAOEHue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Benefic Spell Hue.
         /// </summary>
         public static string BeneficSpellHue {
@@ -1897,6 +1906,15 @@ namespace ClassicUO.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Harmful AOE Hue.
+        /// </summary>
+        public static string HarmfulAOEHue {
+            get {
+                return ResourceManager.GetString("HarmfulAOEHue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Harmful Spell Hue.
         /// </summary>
         public static string HarmfulSpellHue {
@@ -2872,6 +2890,15 @@ namespace ClassicUO.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Neutral AOE Hue.
+        /// </summary>
+        public static string NeutralAOEHue {
+            get {
+                return ResourceManager.GetString("NeutralAOEHue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Neutral Spell Hue.
         /// </summary>
         public static string NeutralSpellHue {
@@ -3436,6 +3463,87 @@ namespace ClassicUO.Resources {
         public static string RevertYourDesign {
             get {
                 return ResourceManager.GetString("RevertYourDesign", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gain.
+        /// </summary>
+        public static string RollingOverheadGain {
+            get {
+                return ResourceManager.GetString("RollingOverheadGain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Display Hit Point Changes.
+        /// </summary>
+        public static string RollingOverheadHitPoints {
+            get {
+                return ResourceManager.GetString("RollingOverheadHitPoints", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rolling Overhead Messages:.
+        /// </summary>
+        public static string RollingOverheadLabel {
+            get {
+                return ResourceManager.GetString("RollingOverheadLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Loss.
+        /// </summary>
+        public static string RollingOverheadLoss {
+            get {
+                return ResourceManager.GetString("RollingOverheadLoss", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Display Mana Changes.
+        /// </summary>
+        public static string RollingOverheadMana {
+            get {
+                return ResourceManager.GetString("RollingOverheadMana", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Display Other Messages.
+        /// </summary>
+        public static string RollingOverheadOther {
+            get {
+                return ResourceManager.GetString("RollingOverheadOther", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Override Hue.
+        /// </summary>
+        public static string RollingOverheadOverrideHue {
+            get {
+                return ResourceManager.GetString("RollingOverheadOverrideHue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Display Stamina Changes.
+        /// </summary>
+        public static string RollingOverheadStamina {
+            get {
+                return ResourceManager.GetString("RollingOverheadStamina", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Display Stat Changes.
+        /// </summary>
+        public static string RollingOverheadStat {
+            get {
+                return ResourceManager.GetString("RollingOverheadStat", resourceCulture);
             }
         }
         

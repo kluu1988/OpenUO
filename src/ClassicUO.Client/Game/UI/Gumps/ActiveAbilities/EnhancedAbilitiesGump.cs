@@ -12,12 +12,12 @@ using Microsoft.Xna.Framework;
 namespace ClassicUO.Game.UI.Gumps
 {
 
-    internal class ActiveAbilitiesGump : Gump
+    internal class EnhancedAbilitiesGump : Gump
     {
 
         public static int BorderAround = 6;
         
-        public static List<ActiveAbilityObject> ActiveAbilities;
+        public static List<ActiveAbilityObject> EnhancedAbilities;
 
         public List<ActiveAbilityObjectControl> Abilities;
 
@@ -31,7 +31,7 @@ namespace ClassicUO.Game.UI.Gumps
         
         
         
-        public ActiveAbilitiesGump() : base(0, 0)
+        public EnhancedAbilitiesGump() : base(0, 0)
         {
             _expanding = false;
             CanMove = true;
@@ -57,7 +57,7 @@ namespace ClassicUO.Game.UI.Gumps
             base.OnMove(x, y);
         }
 
-        public ActiveAbilitiesGump(int x, int y) : this()
+        public EnhancedAbilitiesGump(int x, int y) : this()
         {
             X = x;
             Y = y;
@@ -100,11 +100,11 @@ namespace ClassicUO.Game.UI.Gumps
 
 
             int height = 20;
-            for (int i = 0; i < ActiveAbilities.Count; i++)
+            for (int i = 0; i < EnhancedAbilities.Count; i++)
             {
-                int count = ActiveAbilities[i].Abilities.Count;
+                int count = EnhancedAbilities[i].Abilities.Count;
 
-                Vector2 fontsize = Fonts.Bold.MeasureString(ActiveAbilities[i].Name);
+                Vector2 fontsize = Fonts.Bold.MeasureString(EnhancedAbilities[i].Name);
 
                 if (((int)fontsize.X)  > minBackgroundWidth)
                     minBackgroundWidth = (int)fontsize.X;
@@ -114,7 +114,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                 height += _size;
                 height += 30;
-                if (string.IsNullOrEmpty(ActiveAbilities[i].Name))
+                if (string.IsNullOrEmpty(EnhancedAbilities[i].Name))
                     height -= 25;
             }
 
@@ -129,12 +129,12 @@ namespace ClassicUO.Game.UI.Gumps
 
             Abilities = new List<ActiveAbilityObjectControl>();
             int yOffset = 5;
-            for (int i = 0; i < ActiveAbilities.Count; i++)
+            for (int i = 0; i < EnhancedAbilities.Count; i++)
             {
                 int diffsize = 30;
-                if (string.IsNullOrEmpty(ActiveAbilities[i].Name))
+                if (string.IsNullOrEmpty(EnhancedAbilities[i].Name))
                     diffsize -= 25;
-                var item = new ActiveAbilityObjectControl(ActiveAbilities[i], i, _size)
+                var item = new ActiveAbilityObjectControl(EnhancedAbilities[i], i, _size)
                 {
                     Y = yOffset
                     //Y = (((_size + diffsize) * i) + 3)
@@ -200,9 +200,9 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 int max = 0;
 
-                for (int i = 0; i < ActiveAbilities.Count; i++)
+                for (int i = 0; i < EnhancedAbilities.Count; i++)
                 {
-                    int count = ActiveAbilities[i].Abilities.Count;
+                    int count = EnhancedAbilities[i].Abilities.Count;
                     if (count > max)
                         max = count;
                 }

@@ -139,6 +139,9 @@ namespace ClassicUO.Game.UI.Gumps
         private Checkbox _SplitLastTarget;
         private Checkbox _OffscreenTargeting;
         
+        //AOE Colors
+        private ClickableColorBox _BeneficialAOEColorHueBox, _HarmfulAOEColorHueBox, _NeutralAOEColorHueBox;
+        
         //Rolling Text
 
         private Checkbox _RollingOverheadHitPointChanges;
@@ -2934,8 +2937,26 @@ namespace ClassicUO.Game.UI.Gumps
 
             startY += _neutralColorPickerBox.Height + 2;
 
+            if (World.Settings.ClientOptionFlags.AreaOfEffectTargetOptions)
+            {
+
+                _HarmfulAOEColorHueBox = AddColorBox(rightArea, startX, startY, _currentProfile.HarmfulAOEHue, ResGumps.HarmfulAOEHue);
+
+                startY += _HarmfulAOEColorHueBox.Height + 2;
+
+                _BeneficialAOEColorHueBox = AddColorBox(rightArea, startX, startY, _currentProfile.BeneficialAOEHue, ResGumps.BeneficAOEHue);
+
+                startY += _BeneficialAOEColorHueBox.Height + 2;
+
+                _NeutralAOEColorHueBox = AddColorBox(rightArea, startX, startY, _currentProfile.NeutralAOEHue, ResGumps.NeutralAOEHue);
+
+                startY += (_NeutralAOEColorHueBox.Height + 15);
+            }
+
             startX = 5;
-            startY += (_neutralColorPickerBox.Height + 2) * 4;
+
+            startX = 5;
+            startY += (_neutralColorPickerBox.Height + 2);
 
             _spellFormatBox = AddInputField
             (
@@ -2952,6 +2973,220 @@ namespace ClassicUO.Game.UI.Gumps
             );
 
             _spellFormatBox.SetText(_currentProfile.SpellDisplayFormat);
+            
+            startY += (_spellFormatBox.Height * 2) + 5;
+
+            if (World.Settings.ClientOptionFlags.ShowRollingTextOptions)
+            {
+
+                AddLabel(rightArea, ResGumps.RollingOverheadLabel, startX, startY);
+                startY += 20;
+
+                _RollingOverheadHitPointChanges = AddCheckBox(rightArea, ResGumps.RollingOverheadHitPoints, _currentProfile.RollingTextHitPoints, startX, startY);
+
+                startY += 20;
+
+                _RollingOverheadHitPointOverride = AddCheckBox(rightArea, ResGumps.RollingOverheadOverrideHue, _currentProfile.RollingTextHitPointsOverride, startX + 45, startY);
+
+
+                _RollingOverheadHitPointChanges.ValueChanged += (sender, args) =>
+                {
+                    _RollingOverheadHitPointOverride.IsVisible = _RollingOverheadHitPointChanges.IsChecked;
+                    _RollingOverheadHitPointOverrideLoss.IsVisible = _RollingOverheadHitPointChanges.IsChecked && _RollingOverheadHitPointOverride.IsChecked;
+                    _RollingOverheadHitPointOverrideGain.IsVisible = _RollingOverheadHitPointChanges.IsChecked && _RollingOverheadHitPointOverride.IsChecked;
+                };
+
+                _RollingOverheadHitPointOverride.IsVisible = _RollingOverheadHitPointChanges.IsChecked;
+
+                startY += 20;
+
+                _RollingOverheadHitPointOverrideLoss = AddColorBox(rightArea, startX + 90, startY, _currentProfile.RollingTextHitPointsOverrideLoss, ResGumps.RollingOverheadLoss);
+
+                _RollingOverheadHitPointOverrideGain = AddColorBox
+                    (rightArea, startX + 200 + 90, startY, _currentProfile.RollingTextHitPointsOverrideGain, ResGumps.RollingOverheadGain);
+
+
+                _RollingOverheadHitPointOverride.ValueChanged += (sender, args) =>
+                {
+                    _RollingOverheadHitPointOverrideLoss.IsVisible = _RollingOverheadHitPointChanges.IsChecked && _RollingOverheadHitPointOverride.IsChecked;
+                    _RollingOverheadHitPointOverrideGain.IsVisible = _RollingOverheadHitPointChanges.IsChecked && _RollingOverheadHitPointOverride.IsChecked;
+                };
+
+                _RollingOverheadHitPointOverrideLoss.IsVisible = _RollingOverheadHitPointChanges.IsChecked && _RollingOverheadHitPointOverride.IsChecked;
+                _RollingOverheadHitPointOverrideGain.IsVisible = _RollingOverheadHitPointChanges.IsChecked && _RollingOverheadHitPointOverride.IsChecked;
+
+                startY += _RollingOverheadHitPointOverrideLoss.Height + 2;
+
+                _RollingOverheadStaminaChanges = AddCheckBox(rightArea, ResGumps.RollingOverheadStamina, _currentProfile.RollingTextStamina, startX, startY);
+
+                startY += 20;
+
+                _RollingOverheadStaminaOverride = AddCheckBox(rightArea, ResGumps.RollingOverheadOverrideHue, _currentProfile.RollingTextStaminaOverride, startX + 45, startY);
+
+
+                _RollingOverheadStaminaChanges.ValueChanged += (sender, args) =>
+                {
+                    _RollingOverheadStaminaOverride.IsVisible = _RollingOverheadStaminaChanges.IsChecked;
+                    _RollingOverheadStaminaOverrideLoss.IsVisible = _RollingOverheadStaminaChanges.IsChecked && _RollingOverheadStaminaOverride.IsChecked;
+                    _RollingOverheadStaminaOverrideGain.IsVisible = _RollingOverheadStaminaChanges.IsChecked && _RollingOverheadStaminaOverride.IsChecked;
+                };
+
+                _RollingOverheadStaminaOverride.IsVisible = _RollingOverheadStaminaChanges.IsChecked;
+
+                startY += 20;
+
+                _RollingOverheadStaminaOverrideLoss = AddColorBox(rightArea, startX + 90, startY, _currentProfile.RollingTextStaminaOverrideLoss, ResGumps.RollingOverheadLoss);
+
+                _RollingOverheadStaminaOverrideGain = AddColorBox
+                    (rightArea, startX + 200 + 90, startY, _currentProfile.RollingTextStaminaOverrideGain, ResGumps.RollingOverheadGain);
+
+
+                _RollingOverheadStaminaOverride.ValueChanged += (sender, args) =>
+                {
+                    _RollingOverheadStaminaOverrideLoss.IsVisible = _RollingOverheadStaminaChanges.IsChecked && _RollingOverheadStaminaOverride.IsChecked;
+                    _RollingOverheadStaminaOverrideGain.IsVisible = _RollingOverheadStaminaChanges.IsChecked && _RollingOverheadStaminaOverride.IsChecked;
+                };
+
+                _RollingOverheadStaminaOverrideLoss.IsVisible = _RollingOverheadStaminaChanges.IsChecked && _RollingOverheadStaminaOverride.IsChecked;
+                _RollingOverheadStaminaOverrideGain.IsVisible = _RollingOverheadStaminaChanges.IsChecked && _RollingOverheadStaminaOverride.IsChecked;
+
+                startY += _RollingOverheadStaminaOverrideLoss.Height + 2;
+
+                _RollingOverheadManaChanges = AddCheckBox(rightArea, ResGumps.RollingOverheadMana, _currentProfile.RollingTextMana, startX, startY);
+
+                startY += 20;
+
+                _RollingOverheadManaOverride = AddCheckBox(rightArea, ResGumps.RollingOverheadOverrideHue, _currentProfile.RollingTextManaOverride, startX + 45, startY);
+
+
+                _RollingOverheadManaChanges.ValueChanged += (sender, args) =>
+                {
+                    _RollingOverheadManaOverride.IsVisible = _RollingOverheadManaChanges.IsChecked;
+                    _RollingOverheadManaOverrideLoss.IsVisible = _RollingOverheadManaChanges.IsChecked && _RollingOverheadManaOverride.IsChecked;
+                    _RollingOverheadManaOverrideGain.IsVisible = _RollingOverheadManaChanges.IsChecked && _RollingOverheadManaOverride.IsChecked;
+                };
+
+                _RollingOverheadManaOverride.IsVisible = _RollingOverheadManaChanges.IsChecked;
+
+                startY += 20;
+
+                _RollingOverheadManaOverrideLoss = AddColorBox(rightArea, startX + 90, startY, _currentProfile.RollingTextManaOverrideLoss, ResGumps.RollingOverheadLoss);
+
+                _RollingOverheadManaOverrideGain = AddColorBox(rightArea, startX + 200 + 90, startY, _currentProfile.RollingTextManaOverrideGain, ResGumps.RollingOverheadGain);
+
+
+                _RollingOverheadManaOverride.ValueChanged += (sender, args) =>
+                {
+                    _RollingOverheadManaOverrideLoss.IsVisible = _RollingOverheadManaChanges.IsChecked && _RollingOverheadManaOverride.IsChecked;
+                    _RollingOverheadManaOverrideGain.IsVisible = _RollingOverheadManaChanges.IsChecked && _RollingOverheadManaOverride.IsChecked;
+                };
+
+                _RollingOverheadManaOverrideLoss.IsVisible = _RollingOverheadManaChanges.IsChecked && _RollingOverheadManaOverride.IsChecked;
+                _RollingOverheadManaOverrideGain.IsVisible = _RollingOverheadManaChanges.IsChecked && _RollingOverheadManaOverride.IsChecked;
+
+                startY += _RollingOverheadManaOverrideLoss.Height + 2;
+
+
+                _RollingOverheadStatChanges = AddCheckBox(rightArea, ResGumps.RollingOverheadStat, _currentProfile.RollingTextStat, startX, startY);
+
+                startY += 20;
+
+                _RollingOverheadStatOverride = AddCheckBox(rightArea, ResGumps.RollingOverheadOverrideHue, _currentProfile.RollingTextStatOverride, startX + 45, startY);
+
+
+                _RollingOverheadStatChanges.ValueChanged += (sender, args) =>
+                {
+                    _RollingOverheadStatOverride.IsVisible = _RollingOverheadStatChanges.IsChecked;
+                    _RollingOverheadStatOverrideLoss.IsVisible = _RollingOverheadStatChanges.IsChecked && _RollingOverheadStatOverride.IsChecked;
+                    _RollingOverheadStatOverrideGain.IsVisible = _RollingOverheadStatChanges.IsChecked && _RollingOverheadStatOverride.IsChecked;
+                };
+
+                _RollingOverheadStatOverride.IsVisible = _RollingOverheadStatChanges.IsChecked;
+
+                startY += 20;
+
+                _RollingOverheadStatOverrideLoss = AddColorBox(rightArea, startX + 90, startY, _currentProfile.RollingTextStatOverrideLoss, ResGumps.RollingOverheadLoss);
+
+                _RollingOverheadStatOverrideGain = AddColorBox(rightArea, startX + 200 + 90, startY, _currentProfile.RollingTextStatOverrideGain, ResGumps.RollingOverheadGain);
+
+
+                _RollingOverheadStatOverride.ValueChanged += (sender, args) =>
+                {
+                    _RollingOverheadStatOverrideLoss.IsVisible = _RollingOverheadStatChanges.IsChecked && _RollingOverheadStatOverride.IsChecked;
+                    _RollingOverheadStatOverrideGain.IsVisible = _RollingOverheadStatChanges.IsChecked && _RollingOverheadStatOverride.IsChecked;
+                };
+
+                _RollingOverheadStatOverrideLoss.IsVisible = _RollingOverheadStatChanges.IsChecked && _RollingOverheadStatOverride.IsChecked;
+                _RollingOverheadStatOverrideGain.IsVisible = _RollingOverheadStatChanges.IsChecked && _RollingOverheadStatOverride.IsChecked;
+
+                startY += _RollingOverheadStatOverrideLoss.Height + 2;
+
+                _RollingOverheadOther = AddCheckBox(rightArea, ResGumps.RollingOverheadOther, _currentProfile.RollingTextOther, startX, startY);
+
+                startY += 20;
+
+                _RollingOverheadOtherOverride = AddCheckBox(rightArea, ResGumps.RollingOverheadOverrideHue, _currentProfile.RollingTextOtherOverride, startX + 45, startY);
+
+
+                _RollingOverheadOther.ValueChanged += (sender, args) =>
+                {
+                    _RollingOverheadOtherOverride.IsVisible = _RollingOverheadOther.IsChecked;
+                    _RollingOverheadOtherOverrideLoss.IsVisible = _RollingOverheadOther.IsChecked && _RollingOverheadOtherOverride.IsChecked;
+                    _RollingOverheadOtherOverrideGain.IsVisible = _RollingOverheadOther.IsChecked && _RollingOverheadOtherOverride.IsChecked;
+                };
+
+                _RollingOverheadOtherOverride.IsVisible = _RollingOverheadOther.IsChecked;
+
+                startY += 20;
+
+                _RollingOverheadOtherOverrideLoss = AddColorBox(rightArea, startX + 90, startY, _currentProfile.RollingTextOtherOverrideLoss, ResGumps.RollingOverheadLoss);
+
+                _RollingOverheadOtherOverrideGain = AddColorBox(rightArea, startX + 200 + 90, startY, _currentProfile.RollingTextOtherOverrideGain, ResGumps.RollingOverheadGain);
+
+
+                _RollingOverheadOtherOverride.ValueChanged += (sender, args) =>
+                {
+                    _RollingOverheadOtherOverrideLoss.IsVisible = _RollingOverheadOther.IsChecked && _RollingOverheadOtherOverride.IsChecked;
+                    _RollingOverheadOtherOverrideGain.IsVisible = _RollingOverheadOther.IsChecked && _RollingOverheadOtherOverride.IsChecked;
+                };
+
+                _RollingOverheadOtherOverrideLoss.IsVisible = _RollingOverheadOther.IsChecked && _RollingOverheadOtherOverride.IsChecked;
+                _RollingOverheadOtherOverrideGain.IsVisible = _RollingOverheadOther.IsChecked && _RollingOverheadOtherOverride.IsChecked;
+
+                startY += _RollingOverheadOtherOverrideLoss.Height + 2;
+
+            }
+
+            if (World.Settings.GeneralFlags.EnableEnhancedAbilities)
+            {
+
+                var nb = new NiceButton(startX, startY, 240, 30, ButtonAction.Activate, ResGumps.ResetAbilitiesGumpPosition, 0, TEXT_ALIGN_TYPE.TS_CENTER)
+                {
+                    ButtonParameter = -1,
+                    IsSelectable = true,
+                    IsSelected = true
+                };
+
+                nb.MouseUp += (sender, e) =>
+                {
+                    _currentProfile.ActiveAbilityGumpX = 0;
+                    _currentProfile.ActiveAbilityGumpY = 0;
+                    _currentProfile.ActiveAbilityGumpSize = 15;
+
+
+                    var gump = UIManager.GetGump<EnhancedAbilitiesGump>();
+
+                    if (gump == null)
+                        return;
+
+                    gump.X = 0;
+                    gump.Y = 0;
+                    gump._size = 15;
+                    gump.Updated();
+                };
+                rightArea.Add(nb);
+            }
+
 
             Add(rightArea, PAGE);
         }
@@ -4125,9 +4360,45 @@ namespace ClassicUO.Game.UI.Gumps
             _currentProfile.BeneficHue = _beneficColorPickerBox.Hue;
             _currentProfile.HarmfulHue = _harmfulColorPickerBox.Hue;
             _currentProfile.NeutralHue = _neutralColorPickerBox.Hue;
+
+            if (World.Settings.ClientOptionFlags.AreaOfEffectTargetOptions)
+            {
+                _currentProfile.BeneficialAOEHue = _BeneficialAOEColorHueBox.Hue;
+                _currentProfile.HarmfulAOEHue = _HarmfulAOEColorHueBox.Hue;
+                _currentProfile.NeutralAOEHue = _NeutralAOEColorHueBox.Hue;
+            }
+
             _currentProfile.EnabledSpellHue = _spellColoringCheckbox.IsChecked;
             _currentProfile.EnabledSpellFormat = _spellFormatCheckbox.IsChecked;
             _currentProfile.SpellDisplayFormat = _spellFormatBox.Text;
+
+            if (World.Settings.ClientOptionFlags.ShowRollingTextOptions)
+            {
+                _currentProfile.RollingTextHitPoints = _RollingOverheadHitPointChanges.IsChecked;
+                _currentProfile.RollingTextHitPointsOverride = _RollingOverheadHitPointOverride.IsChecked;
+                _currentProfile.RollingTextHitPointsOverrideLoss = _RollingOverheadHitPointOverrideLoss.Hue;
+                _currentProfile.RollingTextHitPointsOverrideGain = _RollingOverheadHitPointOverrideGain.Hue;
+
+                _currentProfile.RollingTextStamina = _RollingOverheadStaminaChanges.IsChecked;
+                _currentProfile.RollingTextStaminaOverride = _RollingOverheadStaminaOverride.IsChecked;
+                _currentProfile.RollingTextStaminaOverrideLoss = _RollingOverheadStaminaOverrideLoss.Hue;
+                _currentProfile.RollingTextStaminaOverrideGain = _RollingOverheadStaminaOverrideGain.Hue;
+
+                _currentProfile.RollingTextMana = _RollingOverheadManaChanges.IsChecked;
+                _currentProfile.RollingTextManaOverride = _RollingOverheadManaOverride.IsChecked;
+                _currentProfile.RollingTextManaOverrideLoss = _RollingOverheadManaOverrideLoss.Hue;
+                _currentProfile.RollingTextManaOverrideGain = _RollingOverheadManaOverrideGain.Hue;
+
+                _currentProfile.RollingTextStat = _RollingOverheadStatChanges.IsChecked;
+                _currentProfile.RollingTextStatOverride = _RollingOverheadStatOverride.IsChecked;
+                _currentProfile.RollingTextStatOverrideLoss = _RollingOverheadStatOverrideLoss.Hue;
+                _currentProfile.RollingTextStatOverrideGain = _RollingOverheadStatOverrideGain.Hue;
+
+                _currentProfile.RollingTextOther = _RollingOverheadOther.IsChecked;
+                _currentProfile.RollingTextOtherOverride = _RollingOverheadOtherOverride.IsChecked;
+                _currentProfile.RollingTextOtherOverrideLoss = _RollingOverheadOtherOverrideLoss.Hue;
+                _currentProfile.RollingTextOtherOverrideGain = _RollingOverheadOtherOverrideGain.Hue;
+            }
 
             // macros
             Client.Game.GetScene<GameScene>().Macros.Save();
@@ -4541,18 +4812,16 @@ namespace ClassicUO.Game.UI.Gumps
                 14,
                 hue
             );
-
-            area?.Add(box);
-
-            area?.Add
+            box.Children.Add
             (
                 new Label(text, true, HUE_FONT)
                 {
-                    X = x + box.Width + 10,
-                    Y = y
+                    X = box.Width + 10,
+                    Y = 0
                 }
             );
-
+            
+            area?.Add(box);
             return box;
         }
 

@@ -40,8 +40,8 @@ internal class SettingGeneralFlags
     public bool RemoveChatFromMenuBar;
     
     /// <summary>
-    /// Enables active abilities from showing up. (Also Enables the reset position in options)
+    /// Enables/Disables enhanced abilities from showing up. (Also Enables the reset position in options)
     /// </summary>
     [OptionID(6)]
-    public bool EnableActiveAbilities;
+    public bool EnableEnhancedAbilities;
 }

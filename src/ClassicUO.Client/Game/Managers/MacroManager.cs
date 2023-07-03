@@ -1667,9 +1667,9 @@ namespace ClassicUO.Game.Managers
                     GameActions.DrinkPotion((int)macro.SubCode);
                     break;
 
-                case MacroType.ActiveAbilitiesBySlot:
+                case MacroType.EnhancedAbilitiesBySlot:
                 {
-                    GameActions.UseActiveBySlot((int)macro.SubCode, (int)macro.SubSubCode);
+                    GameActions.UseAbilityBySlot((int)macro.SubCode, (int)macro.SubSubCode);
                     break;
                 }
 
@@ -2396,7 +2396,7 @@ namespace ClassicUO.Game.Managers
 
                 case MacroType.SallosTargeting:
                 case MacroType.UsePotionEnhanced:
-                case MacroType.ActiveAbilitiesBySlot:
+                case MacroType.EnhancedAbilitiesBySlot:
                     SubMenuType = 4;
                     break;
 
@@ -2520,7 +2520,7 @@ namespace ClassicUO.Game.Managers
         ToggleDisarm,
         SelectNearestCursor,
         SallosTargeting,
-        ActiveAbilitiesBySlot,
+        EnhancedAbilitiesBySlot,
         AddFriend,
         ResyncWithServer,
         UsePotionEnhanced

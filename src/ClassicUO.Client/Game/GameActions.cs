@@ -693,7 +693,7 @@ namespace ClassicUO.Game
             Socket.Send_DrinkPotion(id);
         }
         
-        public static void UseActiveBySlot(int slot, int ability)
+        public static void UseAbilityBySlot(int slot, int ability)
         {
             Socket.Send_UseActiveBySlot(slot, ability);
         }

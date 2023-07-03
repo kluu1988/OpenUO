@@ -31,6 +31,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.Scenes;
@@ -46,11 +47,58 @@ namespace ClassicUO.Game.UI.Controls
 {
     internal class MacroControl : Control
     {
-        private static readonly string[] _allHotkeysNames = Enum.GetNames(typeof(MacroType)).CamelSpace();
-        private static readonly Array _allHotkeysValues = Enum.GetValues(typeof(MacroType));
+        private static string[] _enabledMacrosNames;
+        private static MacroType[] _enabledMacroTypes;
         //private static readonly string[] _allSubHotkeysNames = Enum.GetNames(typeof(MacroSubType)).CamelSpace();
         private readonly DataBox _databox;
         private readonly HotkeyBox _hotkeyBox;
+
+        static MacroControl()
+        {
+            GenerateNames();
+        }
+
+        public static void GenerateNames()
+        {
+            var allValues = Enum.GetValues(typeof(MacroType));
+            var names = new List<string>();
+            var types = new List<MacroType>();
+
+            for (int i = 0; i < allValues.Length; i++)
+            {
+                //if ((MacroType)allValues.GetValue[i] == MacroType.Aura)
+                var macroType = (MacroType)allValues.GetValue(i);
+
+                switch (macroType)
+                {
+                    case MacroType.EnhancedAbilitiesBySlot:
+                        if (World.Settings.GeneralFlags.EnableEnhancedAbilities && World.Settings.MacroFlags.EnhancedAbilities)
+                            goto default;
+                        break;
+                    case MacroType.SallosTargeting:
+                        if (World.Settings.MacroFlags.AllowSallosTargeting)
+                            goto default;
+                        break;
+                    case MacroType.UsePotion:
+                        if (!World.Settings.MacroFlags.EnhancedPotionMacros)
+                            goto default;
+                        break;
+                    case MacroType.UsePotionEnhanced:
+                        if (World.Settings.MacroFlags.EnhancedPotionMacros)
+                            goto default;
+                        break;
+                    default:
+                    { 
+                        names.Add(macroType.ToString().CamelSpace());
+                        types.Add(macroType);
+                        break;
+                    }
+                }
+            }
+
+            _enabledMacrosNames = names.ToArray();
+            _enabledMacroTypes = types.ToArray();
+        }
 
         private enum buttonsOption
         {
@@ -188,7 +236,7 @@ namespace ClassicUO.Game.UI.Controls
 
             Macro.PushToBack(obj);
 
-            _databox.Add(new MacroEntry(this, obj, _allHotkeysNames));
+            _databox.Add(new MacroEntry(this, obj, _enabledMacrosNames));
             _databox.WantUpdateSize = true;
             _databox.ReArrangeChildren();
         }
@@ -231,7 +279,7 @@ namespace ClassicUO.Game.UI.Controls
 
             while (obj != null)
             {
-                _databox.Add(new MacroEntry(this, obj, _allHotkeysNames));
+                _databox.Add(new MacroEntry(this, obj, _enabledMacrosNames));
 
                 if (obj.Next != null && obj.Code == MacroType.None)
                 {
@@ -402,7 +450,7 @@ namespace ClassicUO.Game.UI.Controls
 
                 for (int i = 0; i < items.Length; i++)
                 {
-                    if ((MacroType)_allHotkeysValues.GetValue(i) == obj.Code)
+                    if (_enabledMacroTypes[i] == obj.Code)
                     {
                         index = i;
                         break;
@@ -622,7 +670,7 @@ namespace ClassicUO.Game.UI.Controls
                                         break;
                                     }
 
-                                case MacroType.ActiveAbilitiesBySlot:
+                                case MacroType.EnhancedAbilitiesBySlot:
                                 {
                                     names = new string[10];
                                     subNames = new string[10];
@@ -708,7 +756,7 @@ namespace ClassicUO.Game.UI.Controls
 
             private void BoxOnOnOptionSelected(object sender, int val)
             {
-                var e = (MacroType)_allHotkeysValues.GetValue(val);
+                var e = _enabledMacroTypes[val];
                 WantUpdateSize = true;
 
                 Combobox box = (Combobox) sender;

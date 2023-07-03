@@ -22,8 +22,8 @@ internal class SettingsMacrosFlags
     public bool EnhancedSpellMacros;
     
     /// <summary>
-    /// Allows setting macros for active abilities
+    /// Allows setting macros for enhanced abilities
     /// </summary>
     [OptionID(3)]
-    public bool ActiveAbilities;
+    public bool EnhancedAbilities;
 }

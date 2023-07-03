@@ -27,7 +27,7 @@ namespace ClassicUO.Game.UI.Gumps
                                      (ushort) ability.IconLarge, 
                                      (ushort) ability.IconLarge)
                 {
-                    X = ActiveAbilitiesGump.BorderAround / 2, Y = ActiveAbilitiesGump.BorderAround / 2,
+                    X = EnhancedAbilitiesGump.BorderAround / 2, Y = EnhancedAbilitiesGump.BorderAround / 2,
                     AcceptMouseInput = false,
                     Width = size,
                     Height = size
@@ -35,7 +35,7 @@ namespace ClassicUO.Game.UI.Gumps
                 
                 MouseDown += ((sender, args) =>
                 {
-                    GameActions.UseActiveBySlot(row, item);
+                    GameActions.UseAbilityBySlot(row, item);
                     Console.WriteLine($"{row} {item}");
                 });
                 
@@ -55,13 +55,13 @@ namespace ClassicUO.Game.UI.Gumps
                     
                     X = 0, Y = 0,
                     Alpha = 0.7f,
-                    TrackSize = (size + ActiveAbilitiesGump.BorderAround) / 7,
+                    TrackSize = (size + EnhancedAbilitiesGump.BorderAround) / 7,
                     CountdownHue = 0x0481,
                     CircleHue = 0x50,
                     TextInMiddle = true,
                     Precision = 0,
-                    Width = size + ActiveAbilitiesGump.BorderAround,
-                    Height = size + ActiveAbilitiesGump.BorderAround,
+                    Width = size + EnhancedAbilitiesGump.BorderAround,
+                    Height = size + EnhancedAbilitiesGump.BorderAround,
                     AcceptMouseInput = false,
                     //Texture = SolidColorTextureCache.GetTexture(Color.Gold)
                     
@@ -72,7 +72,7 @@ namespace ClassicUO.Game.UI.Gumps
                 
                 _Button = new GumpPic(0, 0, (ushort)ability.IconLarge, 0)
                 {
-                    X = ActiveAbilitiesGump.BorderAround / 2, Y = ActiveAbilitiesGump.BorderAround / 2,
+                    X = EnhancedAbilitiesGump.BorderAround / 2, Y = EnhancedAbilitiesGump.BorderAround / 2,
                     Width = size,
                     Height = size,
                     AcceptMouseInput = false,
@@ -85,7 +85,7 @@ namespace ClassicUO.Game.UI.Gumps
                     {
                         Width = _Button.Width,
                         Height = _Button.Height,
-                        X = ActiveAbilitiesGump.BorderAround / 2, Y = ActiveAbilitiesGump.BorderAround / 2,
+                        X = EnhancedAbilitiesGump.BorderAround / 2, Y = EnhancedAbilitiesGump.BorderAround / 2,
                         AcceptMouseInput = false,
                     }
                 );
@@ -96,7 +96,7 @@ namespace ClassicUO.Game.UI.Gumps
                 Locked = true;
                 _Button = new GumpPic(0, 0, (ushort)ability.IconLarge, 0)
                 {
-                    X = ActiveAbilitiesGump.BorderAround / 2, Y = ActiveAbilitiesGump.BorderAround / 2,
+                    X = EnhancedAbilitiesGump.BorderAround / 2, Y = EnhancedAbilitiesGump.BorderAround / 2,
                     Width = size,
                     Height = size,
                     AcceptMouseInput = false,
@@ -109,7 +109,7 @@ namespace ClassicUO.Game.UI.Gumps
                     {
                         Width = _Button.Width,
                         Height = _Button.Height,
-                        X = ActiveAbilitiesGump.BorderAround / 2, Y = ActiveAbilitiesGump.BorderAround / 2,
+                        X = EnhancedAbilitiesGump.BorderAround / 2, Y = EnhancedAbilitiesGump.BorderAround / 2,
                         AcceptMouseInput = false,
                     }
                 );
@@ -121,7 +121,7 @@ namespace ClassicUO.Game.UI.Gumps
                                                  0, 0, 0, 0)
                 {
                     
-                    X = ActiveAbilitiesGump.BorderAround / 2, Y = ActiveAbilitiesGump.BorderAround / 2,
+                    X = EnhancedAbilitiesGump.BorderAround / 2, Y = EnhancedAbilitiesGump.BorderAround / 2,
                     Alpha = 0.3f,
                     TrackSize = size / 7,
                     CountdownHue = 0x0481,
@@ -131,19 +131,12 @@ namespace ClassicUO.Game.UI.Gumps
                     Width = size,
                     Height = size,
                     AcceptMouseInput = false,
-                    //CircleHue = k.CircleHue,
-                    //TextHue = k.TextHue,
 
                 });
-
-                /*Add(new Label($"{ability.Charges}", true, 0x0481, 0)
-                {
-                    X = ActiveAbilitiesGump.BorderAround / 2, Y = ActiveAbilitiesGump.BorderAround / 2,
-                });*/
             }
             SetTooltip($"<BASEFONT COLOR=#AA00AA>{ability.Name}</BASEFONT>\n<BASEFONT COLOR=#2222CC>Cooldown: {ability.Cooldown.TotalSeconds} seconds</BASEFONT>\n{ability.Description}");
-            Height = _Button.Height + ActiveAbilitiesGump.BorderAround;
-            Width = _Button.Width + ActiveAbilitiesGump.BorderAround;
+            Height = _Button.Height + EnhancedAbilitiesGump.BorderAround;
+            Width = _Button.Width + EnhancedAbilitiesGump.BorderAround;
             //WantUpdateSize = true;
         }
 
@@ -159,8 +152,8 @@ namespace ClassicUO.Game.UI.Gumps
                 SolidColorTextureCache.GetTexture(Color.Black),
                 x,
                 y,
-                m_Size + ActiveAbilitiesGump.BorderAround,
-                m_Size + ActiveAbilitiesGump.BorderAround,
+                m_Size + EnhancedAbilitiesGump.BorderAround,
+                m_Size + EnhancedAbilitiesGump.BorderAround,
                 hue_vec
             );
 
@@ -192,10 +185,10 @@ namespace ClassicUO.Game.UI.Gumps
             batcher.DrawSolidRectangle
             (
                 Locked || InUse ? SolidColorTextureCache.GetTexture(Color.DarkGray) : SolidColorTextureCache.GetTexture(Color.Gold),
-                x + ActiveAbilitiesGump.BorderAround / 4,
-                y + ActiveAbilitiesGump.BorderAround / 4,
-                m_Size + ActiveAbilitiesGump.BorderAround / 2,
-                m_Size + ActiveAbilitiesGump.BorderAround / 2,
+                x + EnhancedAbilitiesGump.BorderAround / 4,
+                y + EnhancedAbilitiesGump.BorderAround / 4,
+                m_Size + EnhancedAbilitiesGump.BorderAround / 2,
+                m_Size + EnhancedAbilitiesGump.BorderAround / 2,
                 hue_vec
             );
             
