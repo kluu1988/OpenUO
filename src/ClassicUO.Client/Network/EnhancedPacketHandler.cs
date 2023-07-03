@@ -27,11 +27,12 @@ internal class EnhancedPacketHandler
         Handler.Add(2, DefaultMovementSpeedPacket);
         Handler.Add(3, EnhancedPotionMacrosPacket);
         
-        Handler.Add(102, ExtraTargetInformationPacket);
         
         Handler.Add(151, ActiveAbilityCompletePacket);
         Handler.Add(150, ActiveAbilityUpdatePacket);
         
+        Handler.Add(103, SetProfileOption);
+        Handler.Add(102, ExtraTargetInformationPacket);
         Handler.Add(101, RollingTextSimple);
         Handler.Add(100, RollingText);
     }
@@ -47,6 +48,58 @@ internal class EnhancedPacketHandler
             default: InvalidVersionReceived( ref p ); break;
         }
     }
+    
+    private static void SetProfileOption(ref StackDataReader p, int version)
+    {
+        switch (version)
+        {
+            case 0:
+            {
+                ushort cmd = p.ReadUInt16BE();
+                ushort len = p.ReadUInt16BE();
+                string name = p.ReadASCII(len);
+                switch (cmd)
+                {
+                    case 0:
+                    {
+                        bool val = p.ReadBool();
+                        var prop = typeof(Profile).GetProperty(name, BindingFlags.Instance | BindingFlags.Public);
+                        try
+                        {
+                            prop.SetValue(ProfileManager.CurrentProfile, val);
+                        }
+                        catch { }
+                        break;
+                    }
+                    case 1:
+                    {
+                        int val = p.ReadInt32BE();
+                        var prop = typeof(Profile).GetProperty(name, BindingFlags.Instance | BindingFlags.Public);
+                        try
+                        {
+                            prop.SetValue(ProfileManager.CurrentProfile, val);
+                        }
+                        catch { }
+                        break;
+                    }
+                    case 2:
+                    {
+                        double val = p.ReadInt32BE() / 100000d;
+                        var prop = typeof(Profile).GetProperty(name, BindingFlags.Instance | BindingFlags.Public);
+                        try
+                        {
+                            prop.SetValue(ProfileManager.CurrentProfile, val);
+                        }
+                        catch { }
+                        break;
+                    }
+                }
+                break;
+            }
+            default: InvalidVersionReceived( ref p ); break;
+        }
+    }
+
     
     private static void RollingTextSimple(ref StackDataReader p, int version)
     {
