@@ -488,9 +488,12 @@ namespace ClassicUO.Game.UI.Controls
 
             return null;
         }
+        
+        public Control LastGumpObject;
 
         public virtual void Add(Control c, int page = 0)
         {
+            LastGumpObject = c;
             c.Page = page;
             c.Parent = this;
             OnChildAdded();

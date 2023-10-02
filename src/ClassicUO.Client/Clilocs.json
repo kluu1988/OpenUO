@@ -103,6 +103,30 @@
     {
       "id": 8012001,
       "data": "Extra Target Information allows you display extra information with your target information.<BR>You can display preview items to appear on the cursor of the mouse.<BR>You can display an Area of Effect range (for fields as well)<BR>You can display tile information to put several items on the ground.<BR><BR>Players have control over the colors of the AoE indicators through Options=>Combat-Spells<BR><BR><BR>Associated Settings:<BR>Options - AreaOfEffectTargetOptions<BR><BR>Associated Packets:<BR><BR>Client To Server<BR>None<BR><BR>Server To Client:<BR>ID: 102 - Extra Target Information<BR>"
+    },
+    {
+      "id": 8013000,
+      "data": "<CENTER><BASEFONT COLOR=#FFFFFF>Set Client Profile Options</BASEFONT></CENTER>"
+    },
+    {
+      "id": 8013001,
+      "data": "This enhanced feature will allow the server to set config options to the client, to make things such as tutorials easier as they can be built by the server.<BR><BR><BR>Associated Settings:<BR>None<BR><BR>Associated Packets:<BR><BR>Client To Server<BR>None<BR><BR>Server To Client:<BR>ID: 103 - Set Config Option<BR>"
+    },
+    {
+      "id": 8014000,
+      "data": "<CENTER><BASEFONT COLOR=#FFFFFF>Gump Option - Animated Mobile</BASEFONT></CENTER>"
+    },
+    {
+      "id": 8014001,
+      "data": "This will give you the option to put animated mobiles to appear in gumps.<BR><BR><BR>Associated Settings:<BR>None<BR><BR>Associated Packets:<BR><BR>Gump Option Text:<BR>gumpanimatedmobile<BR>"
+    },
+    {
+      "id": 8014002,
+      "data": "<CENTER><BASEFONT COLOR=#FFFFFF>Animated Mobile Gump Example</BASEFONT></CENTER>"
+    },
+    {
+      "id": 8014003,
+      "data": "<CENTER><BASEFONT COLOR=#FFFFFF>Current Hue: ~1_VAL~</BASEFONT></CENTER>"
     }
   ]
 }

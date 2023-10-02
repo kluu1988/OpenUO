@@ -6533,6 +6533,47 @@ namespace ClassicUO.Network
                 {
                     gump.Add(new Button(gparams), page);
                 }
+                else if (string.Equals(entry, "gumpanimatedmobile", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    if (gparams.Count < 6)
+                        continue;
+                    gump.Add(new MobileAnimatedGumpPic(gparams), page);
+                }
+                else if (string.Equals(entry, "addtooltip", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    if (gparams.Count < 1)
+                        continue;
+                    string text = "";
+                    if (gump.LastGumpObject.Tooltip != null)
+                        text += $"{gump.LastGumpObject.Tooltip}\n";
+                    for (int i = 1; i < gparams.Count; i++)
+                    {
+                        if (i > 1)
+                            text += " ";
+                        text += gparams[i];
+                    }
+                    gump.LastGumpObject.SetTooltip(text);
+                }
+                else if (string.Equals(entry, "addtooltiplocalized", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    if (gparams.Count < 1)
+                        continue;
+                    string text = "";
+
+                    if (gump.LastGumpObject.Tooltip != null)
+                        text += $"{gump.LastGumpObject.Tooltip}\n";
+                    string args = "";
+                    for (int i = 2; i < gparams.Count; i++)
+                    {
+                        if (i > 2)
+                            args += " ";
+                        args += gparams[i];
+                    }
+
+                    text += ClilocLoader.Instance.Translate(int.Parse(gparams[1]), args.Trim('@'), true);
+                    gump.LastGumpObject.SetTooltip(text);
+                    //ClilocLoader.Instance.GetString(int.Parse(gparams[8].Replace("#", ""))) : ClilocLoader.Instance.Translate(int.Parse(gparams[8].Replace("#", "")), sb.ToString().Trim('@').Replace('@', '\t')),
+                }
                 else if (string.Equals(entry, "buttontileart", StringComparison.InvariantCultureIgnoreCase))
                 {
                     gump.Add(new ButtonTileArt(gparams), page);

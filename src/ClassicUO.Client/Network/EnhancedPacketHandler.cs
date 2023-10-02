@@ -67,6 +67,7 @@ internal class EnhancedPacketHandler
                         try
                         {
                             prop.SetValue(ProfileManager.CurrentProfile, val);
+                            ProfileManager.CurrentProfile?.Save(ProfileManager.ProfilePath);
                         }
                         catch { }
                         break;
@@ -78,17 +79,7 @@ internal class EnhancedPacketHandler
                         try
                         {
                             prop.SetValue(ProfileManager.CurrentProfile, val);
-                        }
-                        catch { }
-                        break;
-                    }
-                    case 2:
-                    {
-                        double val = p.ReadInt32BE() / 100000d;
-                        var prop = typeof(Profile).GetProperty(name, BindingFlags.Instance | BindingFlags.Public);
-                        try
-                        {
-                            prop.SetValue(ProfileManager.CurrentProfile, val);
+                            ProfileManager.CurrentProfile?.Save(ProfileManager.ProfilePath);
                         }
                         catch { }
                         break;
