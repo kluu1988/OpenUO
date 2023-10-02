@@ -414,13 +414,6 @@ namespace ClassicUO.Assets
                                 }
                             }
                         }
-                        else if (has_arguments && int.TryParse(a.ToString(), out int clil))
-                        {
-                            if (_entries.TryGetValue(clil, out string value) && !string.IsNullOrEmpty(value))
-                            {
-                                a = value.AsSpan();
-                            }
-                        }
                     }
 
                     sb.Remove(pos, pos2 - pos + 1);
