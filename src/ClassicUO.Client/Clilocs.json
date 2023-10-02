@@ -127,6 +127,22 @@
     {
       "id": 8014003,
       "data": "<CENTER><BASEFONT COLOR=#FFFFFF>Current Hue: ~1_VAL~</BASEFONT></CENTER>"
+    },
+    {
+      "id": 8015000,
+      "data": "<CENTER><BASEFONT COLOR=#FFFFFF>Gump Option - Added new HTML Tag: Countdown</BASEFONT></CENTER>"
+    },
+    {
+      "id": 8015001,
+      "data": "This enhanced feature will allow you to display a countdown without having to constantly refresh the gump from the server.<BR><BR><BR>Associated Settings:<BR>None<BR><BR>Associated Packets:<BR><BR>Gump Option Text:<BR>&LT;countdown precision=num&GT; seconds &LT;/countdown&GT;"
+    },
+    {
+      "id": 8015002,
+      "data": "<CENTER><BASEFONT COLOR=#FFFFFF>Countdown Gump Example</BASEFONT></CENTER>"
+    },
+    {
+      "id": 8015003,
+      "data": "<CENTER><BASEFONT COLOR=#FFFFFF>This is a countdown: <COUNTDOWN PRECISION=~1_VAL~>~2_VAL~</COUNTDOWN></BASEFONT></CENTER>"
     }
   ]
 }

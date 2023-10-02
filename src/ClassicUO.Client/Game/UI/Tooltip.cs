@@ -219,6 +219,7 @@ namespace ClassicUO.Game.UI
                 null,
                 Vector3.UnitZ
             );
+            
 
             return true;
         }

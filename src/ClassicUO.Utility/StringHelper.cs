@@ -257,6 +257,71 @@ namespace ClassicUO.Utility
         {
             return c >= 0x20 && c < 0xFFFE;
         }
+        
+        private static string GetTimeRemaining(TimeSpan timeSpan, int precision, int depth)
+        {
+            string text;
+
+            int seconds = (int) timeSpan.TotalSeconds;
+
+            if (seconds < 0)
+            {
+                return "now";
+            }
+
+            if (seconds < 60)
+            {
+                var time = seconds;
+                text = $"{time} second";
+                if (time > 1)
+                    text += "s";
+                seconds = 0;
+            }
+            else if (seconds < 3600)
+            {
+                var time = seconds / 60;
+                text = $"{time} minute";
+                if (time > 1)
+                    text += "s";
+                seconds -= time * 60;
+            }
+            else if (seconds < 86400)
+            {
+                var time = seconds / 3600;
+                text = $"{time} hour";
+                if (time > 1)
+                    text += "s";
+                seconds -= time * 3600;
+            }
+            else if (seconds < 604800)
+            {
+                var time = seconds / 86400;
+                text = $"{time} day";
+                if (time > 1)
+                    text += "s";
+                seconds -= time * 86400;
+            }
+            else
+            {
+                var time = seconds / 604800;
+                text = $"{time} week";
+                if (time > 1)
+                    text += "s";
+                seconds -= time * 604800;
+            }
+            
+            if (precision - depth > 0 && seconds > 0)
+                text += $" {GetTimeRemaining(TimeSpan.FromSeconds(seconds), precision, depth + 1)}";
+
+            if (depth == 1)
+                text = $"in {text}";
+            return text;
+        }
+        
+        public static string GetTimeRemaining(TimeSpan timeSpan, int precision = 1)
+        {
+            return $"{GetTimeRemaining(timeSpan, precision, 1)}";
+        }
 
         public static void AddSpaceBeforeCapital(string[] str, bool checkAcronyms = true)
         {
