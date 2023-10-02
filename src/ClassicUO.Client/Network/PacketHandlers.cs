@@ -624,10 +624,10 @@ namespace ClassicUO.Network
 
                         if (type >= 4) //AOS
                         {
-                            World.Player.FireResistance = (short)p.ReadUInt16BE();
-                            World.Player.ColdResistance = (short)p.ReadUInt16BE();
-                            World.Player.PoisonResistance = (short)p.ReadUInt16BE();
-                            World.Player.EnergyResistance = (short)p.ReadUInt16BE();
+                            World.Player.FireResistance = (short)p.ReadInt16BE();
+                            World.Player.ColdResistance = (short)p.ReadInt16BE();
+                            World.Player.PoisonResistance = (short)p.ReadInt16BE();
+                            World.Player.EnergyResistance = (short)p.ReadInt16BE();
                             World.Player.Luck = p.ReadUInt16BE();
                             World.Player.DamageMin = (short)p.ReadUInt16BE();
                             World.Player.DamageMax = (short)p.ReadUInt16BE();
