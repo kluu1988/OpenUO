@@ -553,7 +553,7 @@ namespace ClassicUO.Game
                 {
                     if (_tooltip.IsEmpty || _tooltip.Text != text)
                     {
-                        _tooltip.SetText(text, UIManager.MouseOverControl.TooltipMaxLength);
+                        _tooltip.SetText(text, UIManager.MouseOverControl.TooltipMaxLength, UIManager.MouseOverControl.TooltipSetTime);
                     }
 
                     _tooltip.Draw(batcher, position.X, position.Y + 24);

@@ -246,6 +246,8 @@ namespace ClassicUO.Game.UI.Controls
         public bool AllowedToDraw { get; set; }
 
         public int TooltipMaxLength { get; private set; }
+        
+        public DateTime TooltipSetTime { get; private set; }
 
         public void UpdateOffset(int x, int y)
         {
@@ -386,6 +388,7 @@ namespace ClassicUO.Game.UI.Controls
             {
                 Tooltip = text;
                 TooltipMaxLength = maxWidth;
+                TooltipSetTime = DateTime.UtcNow;
             }
         }
 

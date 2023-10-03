@@ -134,7 +134,7 @@
     },
     {
       "id": 8015001,
-      "data": "This enhanced feature will allow you to display a countdown without having to constantly refresh the gump from the server.<BR><BR><BR>Associated Settings:<BR>None<BR><BR>Associated Packets:<BR><BR>Gump Option Text:<BR>&LT;countdown precision=num&GT; seconds &LT;/countdown&GT;"
+      "data": "This enhanced feature will allow you to display a countdown without having to constantly refresh the gump from the server.<BR><BR>This also works with tooltips.<BR><BR><BR>Associated Settings:<BR>None<BR><BR>Associated Packets:<BR><BR>Gump Option Text:<BR>&LT;countdown precision=num&GT; seconds &LT;/countdown&GT;"
     },
     {
       "id": 8015002,
