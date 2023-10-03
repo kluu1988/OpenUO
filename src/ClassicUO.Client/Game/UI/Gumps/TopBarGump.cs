@@ -44,6 +44,7 @@ using ClassicUO.Renderer;
 using ClassicUO.Resources;
 using ClassicUO.Utility;
 using ClassicUO.Utility.Logging;
+using ClassicUO.Utility.Platforms;
 using Microsoft.Xna.Framework;
 
 namespace ClassicUO.Game.UI.Gumps
@@ -101,6 +102,8 @@ namespace ClassicUO.Game.UI.Gumps
                 table.Add(new Tuple<bool, int, string>(false, (int)Buttons.Chat, cliloc.GetString(3000131, ResGumps.Chat)));
             table.Add(new Tuple<bool, int, string>(false, (int)Buttons.Help, cliloc.GetString(3000134, ResGumps.Help)));
             table.Add(new Tuple<bool, int, string>(true, (int)Buttons.WorldMap, StringHelper.CapitalizeAllWords(cliloc.GetString(1015233, ResGumps.WorldMap))));
+            if (World.Settings.GeneralFlags.CooldownGumpEnabled)
+                table.Add(new Tuple<bool, int, string>(false, (int)Buttons.Cooldowns, StringHelper.CapitalizeAllWords(cliloc.GetString(8016003))));
             if (!World.Settings.GeneralFlags.RemoveInfoFromMenuBar)
                 table.Add(new Tuple<bool, int, string>(false, (int)Buttons.Info, cliloc.GetString(1079449, ResGumps.Info)));
             table.Add(new Tuple<bool, int, string>(false, (int)Buttons.Debug, cliloc.GetString(1042237, ResGumps.Debug)));
@@ -113,6 +116,8 @@ namespace ClassicUO.Game.UI.Gumps
                 table.Add(new Tuple<bool, int, string>(true, (int)Buttons.UOStore, cliloc.GetString(1158008, ResGumps.UOStore)));
                 table.Add(new Tuple<bool, int, string>(true, (int)Buttons.GlobalChat, cliloc.GetString(1158390, ResGumps.GlobalChat)));
             }
+            else if (World.Settings.GeneralSettings.StoreOverride != null)
+                table.Add(new Tuple<bool, int, string>(true, (int)Buttons.UOStore, cliloc.GetString(1158008, ResGumps.UOStore)));
             
 
 
@@ -261,11 +266,24 @@ namespace ClassicUO.Game.UI.Gumps
                     GameActions.Print(ResGumps.GlobalChatNotImplementedYet, 0x23, MessageType.System);
 
                     break;
+                
+                case Buttons.Cooldowns:
+                {
+                    GameActions.OpenCooldowns();
+                    break;
+                }
 
                 case Buttons.UOStore:
-                    if (Client.Version >= ClientVersion.CV_706400)
+                    if (World.Settings.GeneralSettings.StoreOverride != null)
                     {
-                        NetClient.Socket.Send_OpenUOStore();
+                        PlatformHelper.LaunchBrowser(World.Settings.GeneralSettings.StoreOverride);
+                    }
+                    else
+                    {
+                        if (Client.Version >= ClientVersion.CV_706400)
+                        {
+                            NetClient.Socket.Send_OpenUOStore();
+                        }
                     }
 
                     break;
@@ -324,11 +342,13 @@ namespace ClassicUO.Game.UI.Gumps
             Chat,
             Help,
             WorldMap,
+            Cooldowns,
             Info,
             Debug,
             NetStats,
             UOStore,
-            GlobalChat
+            GlobalChat,
+            
         }
 
         private class RighClickableButton : Button

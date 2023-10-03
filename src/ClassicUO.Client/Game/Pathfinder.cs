@@ -84,6 +84,8 @@ namespace ClassicUO.Game
             {
                 return false;
             }
+            if (World.PlayableArea != null && World.PlayableArea.Blocking && !World.PlayableArea.Contains(x, y))
+                return false;
 
             bool ignoreGameCharacters = ProfileManager.CurrentProfile.IgnoreStaminaCheck || stepState == (int) PATH_STEP_STATE.PSS_DEAD_OR_GM || World.Player.IgnoreCharacters || !(World.Player.Stamina < World.Player.StaminaMax && World.Map.Index == 0);
 

@@ -26,6 +26,8 @@ internal class EnhancedPacketHandler
         Handler.Add(1, SettingsPacket);
         Handler.Add(2, DefaultMovementSpeedPacket);
         Handler.Add(3, EnhancedPotionMacrosPacket);
+        Handler.Add(4, GeneralSettings);
+
         
         
         Handler.Add(151, ActiveAbilityCompletePacket);
@@ -35,6 +37,10 @@ internal class EnhancedPacketHandler
         Handler.Add(102, ExtraTargetInformationPacket);
         Handler.Add(101, RollingTextSimple);
         Handler.Add(100, RollingText);
+        
+        Handler.Add(110, CooldownTimerPacket);
+        
+        Handler.Add(120, PlayableAreaPacket);
     }
     
     private static void PacketTemplate(ref StackDataReader p, int version)
@@ -48,7 +54,7 @@ internal class EnhancedPacketHandler
             default: InvalidVersionReceived( ref p ); break;
         }
     }
-    
+
     private static void SetProfileOption(ref StackDataReader p, int version)
     {
         switch (version)
@@ -298,10 +304,8 @@ internal class EnhancedPacketHandler
         }
     }
     
-    private static void ExtraTargetInformationClearPacket(ref StackDataReader p)
+    private static void ExtraTargetInformationClearPacket(ref StackDataReader p, int version)
     {
-        int version = p.ReadUInt16BE();
-
         switch (version)
         {
             case 0:
@@ -318,10 +322,8 @@ internal class EnhancedPacketHandler
         }
     }
     
-    private static void CooldownTimerPacket(ref StackDataReader p)
+    private static void CooldownTimerPacket(ref StackDataReader p, int version)
     {
-        int version = p.ReadUInt16BE();
-
         switch (version)
         {
             case 0:
@@ -745,6 +747,27 @@ internal class EnhancedPacketHandler
                 World.Settings.MovementSettings.MoveSpeedRunningUnmounted = p.ReadUInt16BE();
                 World.Settings.MovementSettings.MoveSpeedWalkingMounted = p.ReadUInt16BE();
                 World.Settings.MovementSettings.MoveSpeedRunningMounted = p.ReadUInt16BE();
+                break;
+            }
+            default: InvalidVersionReceived( ref p ); break;
+        }
+    }
+    
+    
+    private static void GeneralSettings(ref StackDataReader p, int version)
+    {
+        World.Settings.GeneralSettings = new GeneralSettings();
+        
+        switch (version)
+        {
+            case 0:
+            {
+                if (p.ReadBool())
+                {
+                    int len = p.ReadUInt16BE();
+                    World.Settings.GeneralSettings.StoreOverride = p.ReadASCII(len);
+                }
+                TopBarGump.Create();
                 break;
             }
             default: InvalidVersionReceived( ref p ); break;

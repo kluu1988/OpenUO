@@ -1499,7 +1499,7 @@ namespace ClassicUO.Game.UI.Gumps
                                         for (x = 0; x < 8; ++x, ++pos, ++block)
                                         {
                                             ushort color = (ushort)(0x8000 | huesLoader.GetRadarColorData(cells[pos].TileID & 0x3FFF));
-
+                                            //ushort color = 0xFFFF;
                                             buffer[block] = HuesHelper.Color16To32(color) | 0xFF_00_00_00;
                                             allZ[block] = cells[pos].Z;
                                         }
@@ -2506,6 +2506,12 @@ namespace ClassicUO.Game.UI.Gumps
                 );
             }
 
+            if (World.PlayableArea != null)
+            {
+                DrawPlayableArea(batcher, srcRect, gX, gY, halfWidth, halfHeight, Zoom);
+                
+            }
+
             if (_showMouseCoordinates && _lastMousePosition != null)
             {
 
@@ -2975,6 +2981,48 @@ namespace ClassicUO.Game.UI.Gumps
                 Vector2 end = WorldPointToGumpPoint(zone.Vertices[j].X, zone.Vertices[j].Y, x, y, width, height, zoom);
 
                 batcher.DrawLine(texture, start, end, hueVector, 1);
+            }
+        }
+        
+        private void DrawPlayableArea
+        (
+            UltimaBatcher2D batcher,
+            Rectangle srcRect,
+            int x,
+            int y,
+            int width,
+            int height,
+            float zoom
+        )
+        {
+            Vector3 hueVector = ShaderHueTranslator.GetHueVector(World.PlayableArea.Hue, false, 0.8f);
+            var colorTexture = SolidColorTextureCache.GetTexture(Color.Black);
+
+            for (int worldY = srcRect.Y; worldY < srcRect.Y + srcRect.Height; worldY++)
+            {
+                if (World.PlayableArea.ContainsY(worldY))
+                {
+                    var edges = World.PlayableArea.XInvertEdgesOfY(worldY);
+                    for (int i = 0; i < edges.Count; i += 2)
+                    {
+                        if (edges[i] == 0)
+                            edges[i] = srcRect.X;
+
+                        if (edges[i + 1] == 9999)
+                            edges[i + 1] = srcRect.X + srcRect.Width;
+                        
+                        Vector2 startedge = WorldPointToGumpPoint( edges[i], worldY, x, y, width, height, zoom);
+                        Vector2 endedge = WorldPointToGumpPoint( edges[i + 1], worldY, x, y, width, height, zoom);
+
+                        batcher.DrawLine(colorTexture, startedge, endedge, hueVector, 9);
+                    }
+                    continue;
+                }
+
+                Vector2 start = WorldPointToGumpPoint(srcRect.X, worldY, x, y, width, height, zoom);
+                Vector2 end = WorldPointToGumpPoint(srcRect.X + srcRect.Width, worldY, x, y, width, height, zoom);
+
+                batcher.DrawLine(colorTexture, start, end, hueVector, 9);
             }
         }
 

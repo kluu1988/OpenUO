@@ -6,7 +6,7 @@
     },
     {
       "id": 8000001,
-      "data": "<BASEFONT COLOR=#FFFFFF>Try it out</BASEFONT>"
+      "data": "<RIGHT><BASEFONT COLOR=#FFFFFF>Try it out</BASEFONT></RIGHT>"
     },
     {
       "id": 8000002,
@@ -18,7 +18,15 @@
     },
     {
       "id": 8000004,
-      "data": "<BASEFONT COLOR=#FF5555>Disabled Due to Options</BASEFONT>"
+      "data": "<RIGHT><BASEFONT COLOR=#FF5555>Disabled Due to Options</BASEFONT></RIGHT>"
+    },
+    {
+      "id": 8000005,
+      "data": "<RIGHT><BASEFONT COLOR=#FF5555>Option is available elsewhere</BASEFONT></RIGHT>"
+    },
+    {
+      "id": 8000006,
+      "data": "<RIGHT><BASEFONT COLOR=#FF5555>Not Available</BASEFONT></RIGHT>"
     },
     {
       "id": 8000030,
@@ -143,6 +151,34 @@
     {
       "id": 8015003,
       "data": "<CENTER><BASEFONT COLOR=#FFFFFF>This is a countdown: <COUNTDOWN PRECISION=~1_VAL~>~2_VAL~</COUNTDOWN></BASEFONT></CENTER>"
+    },
+    {
+      "id": 8016000,
+      "data": "<CENTER><BASEFONT COLOR=#FFFFFF>Enhanced Feature - Added Cooldown Timer</BASEFONT></CENTER>"
+    },
+    {
+      "id": 8016001,
+      "data": "This enhanced feature will allow you to send a packet which displays a cooldown for an item or something represented as an item.<BR><BR>To test this feature make sure you have the cooldown gump open from the top bar.<BR><BR>Associated Settings:<BR>General - CooldownGumpEnabled<BR><BR>Associated Packets:<BR><BR>Client To Server<BR>None<BR><BR>Server To Client<BR>ID: 110 - AddCooldown<BR>"
+    },
+    {
+      "id": 8016003,
+      "data": "Cooldowns"
+    },
+    {
+      "id": 8017000,
+      "data": "<CENTER><BASEFONT COLOR=#FFFFFF>Enhanced Feature - Store</BASEFONT></CENTER>"
+    },
+    {
+      "id": 8017001,
+      "data": "This enhanced feature will allow you set the top bar Store button to link to shard's website..<BR><BR>This feature must be set through the server side configuration, to disable set option to null.<BR><BR><BASEFONT COLOR=#DD0000>Warning:<BR>Your store must include a visible link to the OpenUO support page at:<BR><A HREF=https://www.openuo.io/support.php>https://www.openuo.io/support.php</A> to support this project.</BASEFONT><BR>"
+    },
+    {
+      "id": 8018000,
+      "data": "<CENTER><BASEFONT COLOR=#FFFFFF>Enhanced Feature - Playable Area</BASEFONT></CENTER>"
+    },
+    {
+      "id": 8018001,
+      "data": "This enhanced feature will allow you set a playable area for a client. This will prevent them from walking outside of the selected area..<BR><BR><BR><BR>Associated Packets:<BR><BR>Client To Server<BR>None<BR><BR>Server To Client<BR>ID: 120 - PlayableAreaSet, PlayableAreaClear<BR>"
     }
   ]
 }

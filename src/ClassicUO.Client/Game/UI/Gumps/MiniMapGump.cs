@@ -402,6 +402,13 @@ namespace ClassicUO.Game.UI.Gumps
                             int py = realBlockY + y - lastY;
                             int gx = px - py;
                             int gy = px + py;
+                            
+                            if (World.PlayableArea != null && !World.PlayableArea.Contains(realBlockX + x, realBlockY + y))
+                            {
+                                var (r, g, b, a) = HuesHelper.GetBGRA(HuesHelper.Color16To32((ushort)(color | 0xFF_00_00_00)));
+                                var (br, bg, bb, ba) = HuesHelper.GetBGRA(HuesHelper.Color16To32(HuesLoader.Instance.GetColor16(16384, (ushort)(World.PlayableArea.Hue))));
+                                color = HuesHelper.ColorToHue(new Color((byte)((r + (br * 2)) / 3),(byte)((g + (bg * 2)) / 3),(byte)((b + (bb * 2)) / 3),a));
+                            }
 
                             CreatePixels
                             (

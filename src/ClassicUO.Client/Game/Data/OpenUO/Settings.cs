@@ -44,6 +44,8 @@ namespace ClassicUO.Game.Data
         public SettingOptionFlags ClientOptionFlags = new SettingOptionFlags();
         public SettingsMacrosFlags MacroFlags = new SettingsMacrosFlags();
 
+        public GeneralSettings GeneralSettings = new GeneralSettings();
+
         public List<PotionDefinition> Potions = new List<PotionDefinition>();
 
         public MovementSettings MovementSettings = new MovementSettings();
