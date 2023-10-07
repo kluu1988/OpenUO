@@ -227,17 +227,18 @@ namespace ClassicUO.Game.GameObjects
                     //    batcher.SetBlendState(null);
                     //}
                     //else
-
-                    DrawStaticRotated
-                    (
-                        batcher,
-                        AnimationGraphic,
-                        posX,
-                        posY,
-                        AngleToTarget,
-                        hueVec,
-                        depth
-                    );
+                    if (!RotateFromCenter)
+                    {
+                        DrawStaticRotated(batcher, AnimationGraphic, posX, posY, AngleToTarget, hueVec, depth);
+                    }
+                    else
+                    {
+                        DrawStaticRotatedAroundCenter
+                        (
+                            batcher, AnimationGraphic, posX, posY,
+                            AngleToTarget, hueVec, depth
+                        );
+                    }
 
                     break;
             }

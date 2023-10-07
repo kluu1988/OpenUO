@@ -179,6 +179,30 @@
     {
       "id": 8018001,
       "data": "This enhanced feature will allow you set a playable area for a client. This will prevent them from walking outside of the selected area..<BR><BR><BR><BR>Associated Packets:<BR><BR>Client To Server<BR>None<BR><BR>Server To Client<BR>ID: 120 - PlayableAreaSet, PlayableAreaClear<BR>"
+    },
+    {
+      "id": 8019000,
+      "data": "<CENTER><BASEFONT COLOR=#FFFFFF>Enhanced Feature - Highlight Area</BASEFONT></CENTER>"
+    },
+    {
+      "id": 8019001,
+      "data": "This enhanced feature will allow you set a highlighted area for a client.<BR><BR><BR><BR>Associated Packets:<BR><BR>Client To Server<BR>None<BR><BR>Server To Client<BR>ID: 121 - HighlightAreaPacket, HighlightAreaRemovePacket, HighlightAreaClearAllPacket<BR>"
+    },
+    {
+      "id": 8020000,
+      "data": "<CENTER><BASEFONT COLOR=#FFFFFF>Enhanced Feature - Multipoint Moving Effect</BASEFONT></CENTER>"
+    },
+    {
+      "id": 8020001,
+      "data": "This enhanced feature will allow you send a enhanced multipoint moving effect.<BR><BR><BR><BR>Associated Packets:<BR><BR>Client To Server<BR>None<BR><BR>Server To Client<BR>ID: 201 - MovingEffectMultiPointTimed<BR>"
+    },
+    {
+      "id": 8021000,
+      "data": "<CENTER><BASEFONT COLOR=#FFFFFF>Enhanced Feature - Timed Effect</BASEFONT></CENTER>"
+    },
+    {
+      "id": 8021001,
+      "data": "This enhanced feature will allow you send a moving effect which will reach a target after a set time rather than constant move speed.<BR><BR><BR><BR>Associated Packets:<BR><BR>Client To Server<BR>None<BR><BR>Server To Client<BR>ID: 200 - MovingEffectTimed<BR>"
     }
   ]
 }

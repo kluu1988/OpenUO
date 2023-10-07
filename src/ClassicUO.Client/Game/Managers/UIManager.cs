@@ -33,6 +33,7 @@
 using System;
 using System.Collections.Generic;
 using ClassicUO.Configuration;
+using ClassicUO.Game.Data.OpenUO;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Input;
@@ -61,7 +62,7 @@ namespace ClassicUO.Game.Managers
         public static LinkedList<Gump> Gumps { get; } = new LinkedList<Gump>();
         
 
-        public static List<Tuple<Rectangle, ushort, byte>> HighlightedAreas = new List<Tuple<Rectangle, ushort, byte>>();
+        public static List<HighlightedArea> HighlightedAreas = new List<HighlightedArea>();
 
         public static Control MouseOverControl { get; private set; }
 

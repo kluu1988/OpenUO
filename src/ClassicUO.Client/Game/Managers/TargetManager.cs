@@ -45,6 +45,15 @@ using Microsoft.Xna.Framework;
 
 namespace ClassicUO.Game.Managers
 {
+    [Flags]
+    internal enum HighlightType : ushort
+    {
+        Item = 0x1,
+        Land = 0x2,
+        Mobile = 0x4,
+        Multi = 0x8,
+        Static = 0x10,
+    }
     internal enum CursorTarget
     {
         Invalid = -1,
@@ -300,8 +309,8 @@ namespace ClassicUO.Game.Managers
         private static ushort zHue = 0x20;
         private static DateTime LastChange;
         private static Rectangle m_OldRect;
-        
-        public static bool AreaOfEffectHighlight(int x, int y, out ushort hue)
+
+        public static bool AreaOfEffectHighlight(int x, int y, HighlightType highlightType, out ushort hue)
         {
             hue = 0;
 
@@ -500,9 +509,11 @@ namespace ClassicUO.Game.Managers
             {
                 foreach (var i in UIManager.HighlightedAreas)
                 {
-                    if (i.Item1.Contains(x, y))
+                    if (!i.Type.HasFlag(highlightType))
+                        continue;
+                    if (i.Rectangle.Contains(x, y))
                     {
-                        hue = i.Item2;
+                        hue = i.Hue;
                         return true;
                     }
                 }

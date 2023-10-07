@@ -57,6 +57,7 @@ using Microsoft.Xna.Framework.Graphics;
 using SDL2;
 using SpriteFont = ClassicUO.Renderer.SpriteFont;
 using System.Text.Json.Serialization;
+using System.Threading;
 using static ClassicUO.Game.UI.Gumps.WorldMapGump;
 
 namespace ClassicUO.Game.UI.Gumps
@@ -2480,6 +2481,11 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 DrawGrid(batcher, srcRect, gX, gY, halfWidth, halfHeight, Zoom);
             }
+            
+            if (World.PlayableArea != null)
+            {
+                DrawPlayableArea(batcher, srcRect, gX, gY, halfWidth, halfHeight, Zoom);
+            }
 
             if (_showCoordinates)
             {
@@ -2506,11 +2512,6 @@ namespace ClassicUO.Game.UI.Gumps
                 );
             }
 
-            if (World.PlayableArea != null)
-            {
-                DrawPlayableArea(batcher, srcRect, gX, gY, halfWidth, halfHeight, Zoom);
-                
-            }
 
             if (_showMouseCoordinates && _lastMousePosition != null)
             {
@@ -2995,7 +2996,11 @@ namespace ClassicUO.Game.UI.Gumps
             float zoom
         )
         {
-            Vector3 hueVector = ShaderHueTranslator.GetHueVector(World.PlayableArea.Hue, false, 0.8f);
+            if (_zoomIndex < 3)
+                return;
+            batcher.SetBlendState(BlendState.AlphaBlend);
+            Vector3 hueVector = ShaderHueTranslator.GetHueVector(World.PlayableArea.Hue, false, 0.4f);
+            //Texture2D colorTexture = SolidColorTextureCache.GetTexture(_semiTransparentWhiteForGrid);
             var colorTexture = SolidColorTextureCache.GetTexture(Color.Black);
 
             for (int worldY = srcRect.Y; worldY < srcRect.Y + srcRect.Height; worldY++)
@@ -3013,17 +3018,16 @@ namespace ClassicUO.Game.UI.Gumps
                         
                         Vector2 startedge = WorldPointToGumpPoint( edges[i], worldY, x, y, width, height, zoom);
                         Vector2 endedge = WorldPointToGumpPoint( edges[i + 1], worldY, x, y, width, height, zoom);
-
-                        batcher.DrawLine(colorTexture, startedge, endedge, hueVector, 9);
+                        batcher.DrawLine(colorTexture, startedge, endedge, hueVector, zoom * 2);
                     }
                     continue;
                 }
 
                 Vector2 start = WorldPointToGumpPoint(srcRect.X, worldY, x, y, width, height, zoom);
                 Vector2 end = WorldPointToGumpPoint(srcRect.X + srcRect.Width, worldY, x, y, width, height, zoom);
-
-                batcher.DrawLine(colorTexture, start, end, hueVector, 9);
+                batcher.DrawLine(colorTexture, start, end, hueVector, zoom * 2);
             }
+            batcher.SetBlendState(null);
         }
 
         private void DrawGrid

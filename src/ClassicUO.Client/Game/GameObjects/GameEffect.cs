@@ -101,6 +101,7 @@ namespace ClassicUO.Game.GameObjects
         protected ushort TargetX;
         protected ushort TargetY;
         protected sbyte TargetZ;
+        public bool RotateFromCenter = true;
 
       
         public override void Update()
@@ -122,7 +123,7 @@ namespace ClassicUO.Game.GameObjects
 
             if (IsEnabled)
             {
-                if (Duration < Time.Ticks && Duration >= 0)
+                if (this is not MovingEffectTimed && Duration < Time.Ticks && Duration >= 0)
                 {
                     Destroy();
                 }

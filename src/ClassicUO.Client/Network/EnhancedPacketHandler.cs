@@ -41,6 +41,11 @@ internal class EnhancedPacketHandler
         Handler.Add(110, CooldownTimerPacket);
         
         Handler.Add(120, PlayableAreaPacket);
+        Handler.Add(121, HighlightedAreasPacket);
+        
+        //Handler.Add(200, EnhancedGraphicEffect);
+        Handler.Add(201, EnhancedEffectMultiPoint);
+        Handler.Add(200, EnhancedGraphicEffect);
     }
     
     private static void PacketTemplate(ref StackDataReader p, int version)
@@ -54,6 +59,153 @@ internal class EnhancedPacketHandler
             default: InvalidVersionReceived( ref p ); break;
         }
     }
+    
+        private static void EnhancedGraphicEffect(ref StackDataReader p, int version)
+        {
+            switch (version)
+            {
+                case 0:
+                {
+                    if (World.Player == null)
+                    {
+                        return;
+                    }
+                    GraphicEffectType type = (GraphicEffectType)p.ReadUInt8();
+
+                    uint source = p.ReadUInt32BE();
+                    uint target = p.ReadUInt32BE();
+                    ushort graphic = p.ReadUInt16BE();
+                    ushort srcX = p.ReadUInt16BE();
+                    ushort srcY = p.ReadUInt16BE();
+                    sbyte srcZ = p.ReadInt8();
+                    ushort targetX = p.ReadUInt16BE();
+                    ushort targetY = p.ReadUInt16BE();
+                    sbyte targetZ = p.ReadInt8();
+                    byte speed = p.ReadUInt8();
+                    ushort duration = p.ReadUInt8();
+                    short fixedDirection = p.ReadInt16BE();
+                    bool doesExplode = p.ReadBool();
+                    ushort hue = 0;
+                    GraphicEffectBlendMode blendmode = 0;
+                    hue = (ushort)p.ReadUInt32BE();
+                    blendmode = (GraphicEffectBlendMode)(p.ReadUInt32BE() % 7);
+                    ushort effect = p.ReadUInt16BE();
+                    ushort explodeEffect = p.ReadUInt16BE();
+                    ushort explodeSound = p.ReadUInt16BE();
+                    uint serial = p.ReadUInt32BE();
+                    byte layer = p.ReadUInt8();
+                    ushort unknown = p.ReadUInt16BE();
+                    TimeSpan durationTimeSpan = TimeSpan.FromMilliseconds(p.ReadUInt32BE());
+                    short spinning = p.ReadInt16BE();
+
+                    /*if (speed > 7)
+                    {
+                        speed = 7;
+                    }*/
+
+                    World.SpawnEffect
+                    (
+                        type,
+                        source,
+                        target,
+                        graphic,
+                        hue,
+                        srcX,
+                        srcY,
+                        srcZ,
+                        targetX,
+                        targetY,
+                        targetZ,
+                        speed,
+                        duration,
+                        fixedDirection,
+                        doesExplode,
+                        false,
+                        blendmode, durationTimeSpan, spinning, null
+                    );
+                    break;
+                }
+                default: InvalidVersionReceived( ref p ); break;
+            }
+        }
+        
+        private static void EnhancedEffectMultiPoint(ref StackDataReader p, int version)
+        {
+            switch (version)
+            {
+                case 0:
+                {
+                    if (World.Player == null)
+                    {
+                        return;
+                    }
+                    GraphicEffectType type = (GraphicEffectType)p.ReadUInt8();
+
+                    uint source = p.ReadUInt32BE();
+                    ushort graphic = p.ReadUInt16BE();
+                    ushort srcX = p.ReadUInt16BE();
+                    ushort srcY = p.ReadUInt16BE();
+                    sbyte srcZ = p.ReadInt8();
+                    byte speed = p.ReadUInt8();
+                    ushort duration = p.ReadUInt8();
+                    short fixedDirection = p.ReadInt16BE();
+                    bool doesExplode = p.ReadBool();
+                    ushort hue = 0;
+                    GraphicEffectBlendMode blendmode = 0;
+                    hue = (ushort)p.ReadUInt32BE();
+                    blendmode = (GraphicEffectBlendMode)(p.ReadUInt32BE() % 7);
+                    ushort effect = p.ReadUInt16BE();
+                    ushort explodeEffect = p.ReadUInt16BE();
+                    ushort explodeSound = p.ReadUInt16BE();
+                    uint serial = p.ReadUInt32BE();
+                    byte layer = p.ReadUInt8();
+                    ushort unknown = p.ReadUInt16BE();
+                    short spinning = p.ReadInt16BE();
+                    ushort pointCount = p.ReadUInt16BE();
+
+                    List<Tuple<TimeSpan, Vector3>> points = new List<Tuple<TimeSpan, Vector3>>();
+
+                    for (int i = 0; i < pointCount; i++)
+                    {
+                        TimeSpan durationTimeSpan = TimeSpan.FromMilliseconds(p.ReadUInt32BE());
+                        ushort targetX = p.ReadUInt16BE();
+                        ushort targetY = p.ReadUInt16BE();
+                        sbyte targetZ = p.ReadInt8();
+                        points.Add(new Tuple<TimeSpan, Vector3>(durationTimeSpan, new Vector3(targetX, targetY, targetZ)));
+                    }
+                    /*
+                     
+                    
+                     if (speed > 7)
+                    {
+                        speed = 7;
+                    }*/
+
+                    World.SpawnEffect
+                    (
+                        type,
+                        source,
+                        0,
+                        graphic,
+                        hue,
+                        srcX,
+                        srcY,
+                        srcZ,
+                        0,
+                        0,
+                        0,
+                        speed,
+                        duration,
+                        fixedDirection,
+                        doesExplode,
+                        false,
+                        blendmode, TimeSpan.Zero, spinning, points
+                    );
+                    break;
+                }
+                default: InvalidVersionReceived( ref p ); break;
+            }
+        }
 
     private static void SetProfileOption(ref StackDataReader p, int version)
     {
@@ -490,10 +642,11 @@ internal class EnhancedPacketHandler
                         ushort h = p.ReadUInt16BE();
 
                         ushort hue = p.ReadUInt16BE();
+                        HighlightType type = (HighlightType) p.ReadUInt16BE();
                         byte priority = p.ReadUInt8();
-                            
-                        UIManager.HighlightedAreas.Add(new Tuple<Rectangle, ushort, byte>(new Rectangle(x,y,w,h), hue, priority));
-                        UIManager.HighlightedAreas.Sort((b1,b2) => b2.Item3.CompareTo(b1.Item3));
+
+                        UIManager.HighlightedAreas.Add(new HighlightedArea(new Rectangle(x,y,w,h), hue, type, priority));
+                        UIManager.HighlightedAreas.Sort((b1,b2) => b2.Priority.CompareTo(b1.Priority));
                         break;
                     }
 
@@ -505,12 +658,13 @@ internal class EnhancedPacketHandler
                         ushort h = p.ReadUInt16BE();
 
                         ushort hue = p.ReadUInt16BE();
+                        HighlightType type = (HighlightType) p.ReadUInt16BE();
                         byte priority = p.ReadUInt8();
                         var rect = new Rectangle(x, y, w, h);
 
                         foreach (var item in UIManager.HighlightedAreas.ToList())
                         {
-                            if (item.Item1 == rect && item.Item2 == hue)
+                            if (item.Rectangle == rect && item.Hue == hue && item.Type == type && item.Priority == priority)
                                 UIManager.HighlightedAreas.Remove(item);
                         }
                             

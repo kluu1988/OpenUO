@@ -75,7 +75,7 @@ namespace ClassicUO.Game.GameObjects
                 }
             }
 
-            if (TargetManager.AreaOfEffectHighlight(X, Y, out ushort rehue))
+            if (TargetManager.AreaOfEffectHighlight(X, Y, HighlightType.Land, out ushort rehue))
                 hue = rehue;
 
             Vector3 hueVec;

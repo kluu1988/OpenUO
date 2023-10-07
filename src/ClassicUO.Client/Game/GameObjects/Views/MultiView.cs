@@ -119,7 +119,7 @@ namespace ClassicUO.Game.GameObjects
                 }
             }
             
-            if (TargetManager.AreaOfEffectHighlight(X, Y, out ushort rehue))
+            if (TargetManager.AreaOfEffectHighlight(X, Y, HighlightType.Multi, out ushort rehue))
             {
                 partial = false;
                 hue = rehue;

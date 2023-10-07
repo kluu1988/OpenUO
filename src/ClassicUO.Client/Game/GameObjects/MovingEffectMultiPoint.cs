@@ -188,6 +188,24 @@ namespace ClassicUO.Game.GameObjects
                         _points = null;
                 }
             }
+            
+
+            IsPositionChanged = true;
+
+            if (_Spinning == 0)
+            {
+                if (FixedDir == -1)
+                    AngleToTarget = (float)Math.Atan2(-offset.Y, -offset.X);
+            }
+            else
+            {
+                AngleToTarget = (float)((DateTime.UtcNow - _RealStartTime).TotalSeconds * _Spinning / 57f);
+            }
+                
+                
+            Vector2.Multiply(ref offset, (float)((time.TotalSeconds / totalSeconds)) , out Vector2 s0);
+            Offset.X = s0.X;
+            Offset.Y = s0.Y;
         }
         private void RemoveMe()
         {
