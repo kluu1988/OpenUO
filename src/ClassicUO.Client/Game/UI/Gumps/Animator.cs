@@ -100,7 +100,7 @@ internal class AnimatorGump : Gump
                     new List<AnimationInfo>()
                     {
                         new AnimationInfo(m_ID, m_AnimationGroup, (byte)Direction.Down, 0, m_Forward, m_FrameCount)
-                    }, 50, 50, 250, 450, true)
+                    }, 50, 50, 250, 450, true, 1, 0, true)
         );
 
         Add(new Label($"Animation:", true, 0xFFFF, 0, 255, FontStyle.BlackBorder, TEXT_ALIGN_TYPE.TS_LEFT) { X = 10, Y = 10});

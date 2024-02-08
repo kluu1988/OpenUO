@@ -158,6 +158,9 @@ namespace ClassicUO.Assets
                         Log.Error($"cliloc not found: '{path}'");
                         return;
                     }
+                    
+                    UOFileManager.LastClilocModified = new FileInfo(path).LastWriteTimeUtc;
+                    UOFileManager.LastClilocPath = path;
 
                     if (string.Compare(_cliloc, "cliloc.enu", StringComparison.InvariantCultureIgnoreCase) != 0)
                     { 

@@ -49,6 +49,7 @@ namespace ClassicUO.Assets
         private static GumpsLoader _instance;
         private UOFile _file;
         private PixelPicker _picker = new PixelPicker();
+        public Dictionary<string, UOAnimatedTexture> AnimatedGumps;
 
         public const int MAX_GUMP_DATA_INDEX_COUNT = 0x10000;
 
@@ -60,6 +61,72 @@ namespace ClassicUO.Assets
             _instance ?? (_instance = new GumpsLoader(MAX_GUMP_DATA_INDEX_COUNT));
 
         public bool UseUOPGumps = false;
+        
+        public Task LoadAnimatedGumps()
+        {
+            return Task.Run(() =>
+            {
+                Console.WriteLine("Loading Animated Gumps");
+                try
+                {
+                    AnimatedGumps = new Dictionary<string, UOAnimatedTexture>();
+                    string[] loadOverrideFiles = UOFileManager.GetUOFiles("./datafiles", "*.ag");
+
+                    foreach (string filename in loadOverrideFiles)
+                    {
+                        Console.WriteLine($"Found Animated Gump File: {filename}");
+                        try
+                        {
+                            if (Regex.IsMatch(filename, @".ag"))
+                            {
+                                Stream stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
+                                using (var streamReader = new BinaryReader(stream))
+                                {
+                                    using (var memoryStream = new MemoryStream())
+                                    {
+                                        List<byte[]> textures = new List<byte[]>();
+                                        string name = streamReader.ReadString();
+                                        int version = streamReader.ReadInt32();
+                                        int fps = 30;
+                                        switch (version)
+                                        {
+                                            case 1:
+                                                {
+                                                    fps = streamReader.ReadInt32();
+                                                    break;
+                                                }
+                                        }
+
+                                        int soundlen = streamReader.ReadInt32();
+                                        int imageCount = streamReader.ReadInt32();
+                                        for (int i = 0; i < imageCount; i++)
+                                        {
+                                            int bytes = streamReader.ReadInt32();
+                                            var imgbytes = streamReader.ReadBytes(bytes);
+                                            textures.Add(imgbytes);
+                                        }
+
+                                        UOSound sound = null;
+                                        if (soundlen > 0)
+                                            sound = new UOSound(name, 9999, streamReader.ReadBytes(soundlen), 44100, Microsoft.Xna.Framework.Audio.AudioChannels.Stereo);
+                                        AnimatedGumps.Add(name, new UOAnimatedTexture( textures.ToArray(), fps, sound));
+                                        Console.WriteLine($"Added animated texture: {name}");
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine($"Exception Loading Animation File: {filename} {e.Message}");
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Error Getting Directory Information: {e}");
+                }
+            });
+        }
         
         public Task OverrideTextures()
         {

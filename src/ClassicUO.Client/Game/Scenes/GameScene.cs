@@ -34,6 +34,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using ClassicUO.Configuration;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
@@ -82,6 +83,7 @@ namespace ClassicUO.Game.Scenes
         );
 
         private uint _time_cleanup = Time.Ticks + 5000;
+        private uint _time_checkfiles = Time.Ticks + 5000;
         private static XBREffect _xbr;
         private bool _alphaChanged;
         private long _alphaTimer;
@@ -715,6 +717,13 @@ namespace ClassicUO.Game.Scenes
             {
                 World.Map?.ClearUnusedBlocks();
                 _time_cleanup = Time.Ticks + 500;
+            }
+            
+            
+            if (_time_checkfiles < Time.Ticks)
+            {
+                Task.Run(() => UOFileManager.CheckFiles(Settings.GlobalSettings.Language));
+                _time_cleanup = Time.Ticks + 500000;
             }
 
             PacketHandlers.SendMegaClilocRequests();

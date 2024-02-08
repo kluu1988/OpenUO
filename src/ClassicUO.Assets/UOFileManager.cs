@@ -88,6 +88,28 @@ namespace ClassicUO.Assets
 
             return uoFilePath;
         }
+        
+        public static DateTime LastClilocModified;
+        public static string LastClilocPath;
+        public static DateTime LastMountDataModified; 
+        /// <summary>
+        /// occasionally check files if they've been modified and reload
+        /// </summary>
+        public static void CheckFiles(string lang)
+        {
+            if (LastClilocModified != new FileInfo(LastClilocPath).LastWriteTimeUtc)
+            {
+                ClilocLoader.Instance.Load(lang);
+                Console.WriteLine("Reloading Clilocs");
+            }
+            var mountDataInfo = new FileInfo(GetUOFilePath("datafiles\\mountdata.def")).LastWriteTimeUtc;
+            if (LastMountDataModified != mountDataInfo)
+            {
+                AnimationsLoader.Instance.LoadMountData();
+                LastMountDataModified = mountDataInfo;
+                Console.WriteLine("Reloading Clilocs");
+            }
+        }
 
         public static ClientVersion Version;
         public static string BasePath;
@@ -314,6 +336,7 @@ namespace ClassicUO.Assets
             }
             
             GumpsLoader.Instance.OverrideTextures().Wait();
+            GumpsLoader.Instance.LoadAnimatedGumps().Wait();
             ArtLoader.Instance.OverrideTextures().Wait();
             
             

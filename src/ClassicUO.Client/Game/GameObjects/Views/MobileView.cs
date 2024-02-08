@@ -54,6 +54,9 @@ namespace ClassicUO.Game.GameObjects
         private static int _startCharacterKneesY;
         private static int _startCharacterFeetY;
         private static int _characterFrameHeight;
+        
+        private static Tuple<short, short> OffsetZero = new Tuple<short, short>(0, 0);
+
 
         public override bool Draw(UltimaBatcher2D batcher, int posX, int posY, float depth)
         {
@@ -213,7 +216,7 @@ namespace ClassicUO.Game.GameObjects
 
                 if (mountGraphic != 0xFFFF && mountGraphic < AnimationsLoader.Instance.MaxAnimationCount)
                 {
-                    mountOffsetY = AnimationsLoader.Instance.GetMountedHeightOffset(mountGraphic);
+                    Tuple<short,short> mountOffset = AnimationsLoader.Instance.GetMountedOffset(mountGraphic, (sbyte)Direction);
 
                     if (hasShadow)
                     {
@@ -236,12 +239,12 @@ namespace ClassicUO.Game.GameObjects
                             false,
                             false,
                             depth,
-                            mountOffsetY,
+                            mountOffset,
                             overridedHue,
                             charSitting
                         );
 
-                        animGroupMount = GetGroupForAnimation(this, mountGraphic);
+                        animGroupMount = GetGroupForAnimation(this, mountGraphic, false, true);
 
                         DrawInternal
                         (
@@ -262,14 +265,14 @@ namespace ClassicUO.Game.GameObjects
                             false,
                             false,
                             depth,
-                            mountOffsetY,
+                            mountOffset,
                             overridedHue,
                             charSitting
                         );
                     }
                     else
                     {
-                        animGroupMount = GetGroupForAnimation(this, mountGraphic);
+                        animGroupMount = GetGroupForAnimation(this, mountGraphic, false, true);
                     }
 
                     DrawInternal
@@ -291,12 +294,12 @@ namespace ClassicUO.Game.GameObjects
                         true,
                         false,
                         depth,
-                        mountOffsetY,
+                        mountOffset,
                         overridedHue,
                         charSitting
                     );
 
-                    drawY += mountOffsetY;
+                    drawY += mountOffset.Item2;
                 }
             }
             else
@@ -361,7 +364,7 @@ namespace ClassicUO.Game.GameObjects
                         false,
                         false,
                         depth,
-                        mountOffsetY,
+                        OffsetZero,
                         overridedHue,
                         charSitting
                     );
@@ -387,7 +390,7 @@ namespace ClassicUO.Game.GameObjects
                 false,
                 isGargoyle,
                 depth,
-                mountOffsetY,
+                OffsetZero,
                 overridedHue,
                 charSitting
             );
@@ -454,7 +457,7 @@ namespace ClassicUO.Game.GameObjects
                                 false,
                                 isGargoyle,
                                 depth,
-                                mountOffsetY,
+                                OffsetZero,
                                 overridedHue,
                                 charSitting
                             );
@@ -678,7 +681,7 @@ namespace ClassicUO.Game.GameObjects
             bool isMount,
             bool forceUOP,
             float depth,
-            sbyte mountOffset,
+            Tuple<short,short> mountOffset,
             ushort overridedHue,
             bool charIsSitting
         )
@@ -791,7 +794,7 @@ namespace ClassicUO.Game.GameObjects
                     }
                     else
                     {
-                        int diffY = (spriteInfo.UV.Height + spriteInfo.Center.Y) - mountOffset;
+                        int diffY = (spriteInfo.UV.Height + spriteInfo.Center.Y) - mountOffset.Item2;
 
                         int value = Math.Max(1, diffY);
                         int count = Math.Max((spriteInfo.UV.Height / value) + 1, 2);
@@ -1022,7 +1025,7 @@ namespace ClassicUO.Game.GameObjects
                    
                     if (mountGraphic != 0xFFFF)
                     {
-                        var animGroupMount = GetGroupForAnimation(this, mountGraphic);
+                        var animGroupMount = GetGroupForAnimation(this, mountGraphic, false, true);
 
                         if (GetTexture(mountGraphic, animGroupMount, ref animIndex, dir, out spriteInfo, out isUop))
                         {
@@ -1043,7 +1046,7 @@ namespace ClassicUO.Game.GameObjects
                                 return true;
                             }
 
-                            position.Y += AnimationsLoader.Instance.GetMountedHeightOffset(mountGraphic);
+                            position.Y += AnimationsLoader.Instance.GetMountedOffset(mountGraphic, (sbyte)dir).Item2;
                         }
                     }
                 }

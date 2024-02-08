@@ -90,7 +90,6 @@ namespace ClassicUO.Game.UI.Gumps.Login
                 );
             }
 
-
             CanCloseWithEsc = false;
             CanCloseWithRightClick = false;
             AcceptKeyboardInput = false;
