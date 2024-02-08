@@ -79,6 +79,9 @@ namespace ClassicUO
             const int TEXTURE_HEIGHT = 2048;
             const int LIGHTS_TEXTURE_WIDTH = 32;
             const int LIGHTS_TEXTURE_HEIGHT = 63;
+                // https://github.com/FNA-XNA/FNA/wiki/7:-FNA-Environment-Variables#fna_graphics_enable_highdpi
+            ArtLoader.Instance.Game = Game;
+            GumpsLoader.Instance.Game = Game;
 
             var hueSamplers = new Texture2D[3];
             hueSamplers[0] = new Texture2D(game.GraphicsDevice, TEXTURE_WIDTH, TEXTURE_HEIGHT);
@@ -240,7 +243,7 @@ namespace ClassicUO
             Log.Trace($"Client path: '{clientPath}'");
             Log.Trace($"Client version: {clientVersion}");
             Log.Trace($"Protocol: {Protocol}");
-
+            
             // ok now load uo files
             UOFileManager.Load(Version, Settings.GlobalSettings.UltimaOnlineDirectory, Settings.GlobalSettings.UseVerdata, Settings.GlobalSettings.Language);
             StaticFilters.Load();

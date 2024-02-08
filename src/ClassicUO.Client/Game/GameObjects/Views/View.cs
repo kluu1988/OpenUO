@@ -246,6 +246,66 @@ namespace ClassicUO.Game.GameObjects
                 );
             }
         }
+        
+        
+        protected static void DrawStaticRotatedAroundCenter
+        (
+            UltimaBatcher2D batcher,
+            ushort graphic,
+            int x,
+            int y,
+            float angle,
+            Vector3 hue,
+            float depth
+        )
+        {
+            var texture = ArtLoader.Instance.GetStaticTexture(graphic, out var bounds);
+
+            if (texture != null)
+            {
+                ref UOFileIndex index = ref ArtLoader.Instance.GetValidRefEntry(graphic + 0x4000);
+
+                var destinationRectangle = new Rectangle(x - index.Width, y - index.Height, bounds.Width, bounds.Height);
+                destinationRectangle.X += destinationRectangle.Width/2;
+                destinationRectangle.Y += destinationRectangle.Height / 2;
+                
+                batcher.Draw
+                (
+                    texture,
+                    destinationRectangle,
+                    bounds,
+                    hue,
+                    angle,
+                    //new Vector2(bounds.Center.X, bounds.Center.Y),
+                    new Vector2(bounds.Width/2, bounds.Height/2),
+                    SpriteEffects.None,
+                    depth + 0.5f
+                );
+            }
+            
+            /*var texture = ArtLoader.Instance.GetStaticTexture(graphic, out var bounds);
+
+            if (texture != null)
+            {
+                ref UOFileIndex index = ref ArtLoader.Instance.GetValidRefEntry(graphic + 0x4000);
+                var destinationRectangle = new Rectangle(x - index.Width, y - index.Height, bounds.Width, bounds.Height);
+                destinationRectangle.X += destinationRectangle.Width/2;
+                destinationRectangle.Y += destinationRectangle.Height / 2;
+                //spriteBatch.Draw(myTexture, destinationRectangle, null, Color.White, ballRotation, origin, SpriteEffects.None, 0);
+
+                batcher.Draw
+                (
+                    texture,
+                    destinationRectangle,
+                    bounds,
+                    hue,
+                    angle,
+                    new Vector2(bounds.Center.X, bounds.Center.Y),
+                    SpriteEffects.None,
+                    depth + 0.5f
+                );
+            }*/
+        }
 
         protected static void DrawStaticAnimated(
             UltimaBatcher2D batcher,

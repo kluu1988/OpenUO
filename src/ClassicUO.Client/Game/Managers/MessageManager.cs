@@ -173,6 +173,10 @@ namespace ClassicUO.Game.Managers
 
                     if (parent == null)
                     {
+                        type = MessageType.System;
+                        if (!name.Equals("System"))
+                            name = $"<{name}>";
+                        //goto case MessageType.System;
                         break;
                     }
 

@@ -161,6 +161,21 @@ namespace ClassicUO.Game.GameObjects
                     hue = 0x038E;
                 }
             }
+            
+            if (World.PlayableArea != null)
+            {
+                if (World.PlayableArea.HighLightObject(X,Y, out ushort newHue))
+                {
+                    partial = false;
+                    hue = newHue;
+                }
+            }
+
+            if (TargetManager.AreaOfEffectHighlight(X, Y, HighlightType.Item, out ushort rehue))
+            {
+                partial = false;
+                hue = rehue;
+            }
 
             hueVec = ShaderHueTranslator.GetHueVector(hue, partial, alpha);
 

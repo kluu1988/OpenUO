@@ -71,17 +71,26 @@ namespace ClassicUO.Game.UI.Gumps
             switch ((ButtonType) buttonID)
             {
                 case ButtonType.BuffIcon:
-
-                    BuffGump gump = UIManager.GetGump<BuffGump>();
-
-                    if (gump == null)
+                    if (World.Settings.GeneralFlags.EnhancedBuffInformation)
                     {
-                        UIManager.Add(new BuffGump(World, 100, 100));
+                        EnhancedBuffGump gump = UIManager.GetGump<EnhancedBuffGump>();
+                        gump?.Dispose();
+
+                        UIManager.Add(new EnhancedBuffGump(Mouse.Position.X, Mouse.Position.Y));
                     }
                     else
                     {
-                        gump.SetInScreen();
-                        gump.BringOnTop();
+                        BuffGump gump = UIManager.GetGump<BuffGump>();
+
+                        if (gump == null)
+                        {
+                            UIManager.Add(new BuffGump(100, 100));
+                        }
+                        else
+                        {
+                            gump.SetInScreen();
+                            gump.BringOnTop();
+                        }
                     }
 
                     break;
@@ -1196,15 +1205,35 @@ namespace ClassicUO.Game.UI.Gumps
 
                     xOffset = 475;
 
-                    AddStatTextLabel($"{World.Player.PhysicalResistance}/{World.Player.MaxPhysicResistence}", MobileStats.AR, xOffset, 74);
+                    AddStatTextLabel(
+                        World.Player.MaxPhysicResistence > 0 ? 
+                            $"{World.Player.PhysicalResistance}/{World.Player.MaxPhysicResistence}" : 
+                            $"{World.Player.PhysicalResistance}", 
+                        MobileStats.AR, xOffset, 74);
 
-                    AddStatTextLabel($"{World.Player.FireResistance}/{World.Player.MaxFireResistence}", MobileStats.RF, xOffset, 92);
+                    AddStatTextLabel(
+                        World.Player.MaxFireResistence > 0 ? 
+                            $"{World.Player.FireResistance}/{World.Player.MaxFireResistence}" : 
+                            $"{World.Player.FireResistance}", 
+                        MobileStats.RF, xOffset, 92);
 
-                    AddStatTextLabel($"{World.Player.ColdResistance}/{World.Player.MaxColdResistence}", MobileStats.RC, xOffset, 106);
+                    AddStatTextLabel(
+                        World.Player.MaxColdResistence > 0 ? 
+                            $"{World.Player.ColdResistance}/{World.Player.MaxColdResistence}" : 
+                            $"{World.Player.ColdResistance}", 
+                        MobileStats.RC, xOffset, 106);
 
-                    AddStatTextLabel($"{World.Player.PoisonResistance}/{World.Player.MaxPoisonResistence}", MobileStats.RP, xOffset, 120);
+                    AddStatTextLabel(
+                        World.Player.MaxColdResistence > 0 ? 
+                            $"{World.Player.PoisonResistance}/{World.Player.MaxPoisonResistence}" : 
+                            $"{World.Player.PoisonResistance}", 
+                        MobileStats.RP, xOffset, 120);
 
-                    AddStatTextLabel($"{World.Player.EnergyResistance}/{World.Player.MaxEnergyResistence}", MobileStats.RE, xOffset, 134);
+                    AddStatTextLabel(
+                        World.Player.MaxEnergyResistence > 0 ? 
+                            $"{World.Player.EnergyResistance}/{World.Player.MaxEnergyResistence}" : 
+                            $"{World.Player.EnergyResistance}", 
+                        MobileStats.RE, xOffset, 134);
                 }
                 else
                 {
@@ -1468,15 +1497,15 @@ namespace ClassicUO.Game.UI.Gumps
 
                     _labels[(int) MobileStats.FasterCastRecovery].Text = World.Player.FasterCastRecovery.ToString();
 
-                    _labels[(int) MobileStats.AR].Text = $"{World.Player.PhysicalResistance}/{World.Player.MaxPhysicResistence}";
+                    _labels[(int) MobileStats.AR].Text = World.Player.MaxPhysicResistence > 0 ? $"{World.Player.PhysicalResistance}/{World.Player.MaxPhysicResistence}" : $"{World.Player.PhysicalResistance}";
 
-                    _labels[(int) MobileStats.RF].Text = $"{World.Player.FireResistance}/{World.Player.MaxFireResistence}";
+                    _labels[(int) MobileStats.RF].Text = World.Player.MaxFireResistence > 0 ? $"{World.Player.FireResistance}/{World.Player.MaxFireResistence}" : $"{World.Player.FireResistance}";
 
-                    _labels[(int) MobileStats.RC].Text = $"{World.Player.ColdResistance}/{World.Player.MaxColdResistence}";
+                    _labels[(int) MobileStats.RC].Text = World.Player.MaxColdResistence > 0 ? $"{World.Player.ColdResistance}/{World.Player.MaxColdResistence}" : $"{World.Player.ColdResistance}";
 
-                    _labels[(int) MobileStats.RP].Text = $"{World.Player.PoisonResistance}/{World.Player.MaxPoisonResistence}";
+                    _labels[(int) MobileStats.RP].Text = World.Player.MaxColdResistence > 0 ? $"{World.Player.PoisonResistance}/{World.Player.MaxPoisonResistence}" : $"{World.Player.PoisonResistance}";
 
-                    _labels[(int) MobileStats.RE].Text = $"{World.Player.EnergyResistance}/{World.Player.MaxEnergyResistence}";
+                    _labels[(int) MobileStats.RE].Text = World.Player.MaxEnergyResistence > 0 ? $"{World.Player.EnergyResistance}/{World.Player.MaxEnergyResistence}" : $"{World.Player.EnergyResistance}";
                 }
                 else
                 {

@@ -36,6 +36,7 @@ using ClassicUO.Configuration;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Assets;
+using ClassicUO.Game.UI.Controls;
 using ClassicUO.Renderer;
 using ClassicUO.Utility;
 using Microsoft.Xna.Framework;
@@ -52,6 +53,7 @@ namespace ClassicUO.Game.UI
         private readonly World _world;
 
         public Tooltip(World world) => _world = world;
+        private DateTime _createTime;
 
         public string Text { get; protected set; }
 
@@ -115,6 +117,8 @@ namespace ClassicUO.Game.UI
                     hue: hue
                 );
             }
+
+            _renderedText.CreateTime = _createTime;
 
             if (_renderedText.Text != Text)
             {
@@ -222,6 +226,7 @@ namespace ClassicUO.Game.UI
                 null,
                 Vector3.UnitZ
             );
+            
 
             return true;
         }
@@ -312,7 +317,7 @@ namespace ClassicUO.Game.UI
             return string.IsNullOrEmpty(result) ? null : result;
         }
 
-        public void SetText(string text, int maxWidth = 0)
+        public void SetText(string text, int maxWidth, DateTime time)
         {
             if (ProfileManager.CurrentProfile != null && !ProfileManager.CurrentProfile.UseTooltip)
             {
@@ -324,8 +329,10 @@ namespace ClassicUO.Game.UI
                 _maxWidth = maxWidth;
                 Serial = 0;
                 Text = _textHTML = text;
+                _createTime = time;
 
-                _lastHoverTime = (uint) (Time.Ticks + (ProfileManager.CurrentProfile != null ? ProfileManager.CurrentProfile.TooltipDelayBeforeDisplay : 250));
+
+                //_lastHoverTime = (uint) (Time.Ticks + (ProfileManager.CurrentProfile != null ? ProfileManager.CurrentProfile.TooltipDelayBeforeDisplay : 250));
             }
         }
     }

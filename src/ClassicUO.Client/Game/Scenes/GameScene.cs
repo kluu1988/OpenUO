@@ -34,6 +34,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using ClassicUO.Configuration;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
@@ -76,11 +77,13 @@ namespace ClassicUO.Game.Scenes
         });
 
         private uint _time_cleanup = Time.Ticks + 5000;
+        private uint _time_checkfiles = Time.Ticks + 5000;
         private static XBREffect _xbr;
         private bool _alphaChanged;
         private long _alphaTimer;
         private bool _forceStopScene;
         private HealthLinesManager _healthLinesManager;
+        private SelectedMobileManager _selectedMobileManager;
 
         private Point _lastSelectedMultiPositionInHouseCustomization;
         private int _lightCount;
@@ -141,9 +144,10 @@ namespace ClassicUO.Game.Scenes
             _world.Macros.Load();
             _animatedStaticsManager = new AnimatedStaticsManager();
             _animatedStaticsManager.Initialize();
+            InfoBars = new InfoBarManager();
             _world.InfoBars.Load();
             _healthLinesManager = new HealthLinesManager(_world);
-
+            _selectedMobileManager = new SelectedMobileManager();
             _world.CommandManager.Initialize();
 
             WorldViewportGump viewport = new WorldViewportGump(_world, this);
@@ -157,8 +161,11 @@ namespace ClassicUO.Game.Scenes
             NetClient.Socket.Disconnected += SocketOnDisconnected;
             _world.MessageManager.MessageReceived += ChatOnMessageReceived;
             UIManager.ContainerScale = ProfileManager.CurrentProfile.ContainersScale / 100f;
-
-            SDL.SDL_SetWindowMinimumSize(Client.Game.Window.Handle, 640, 480);
+            //TODO: search for enhanced game file
+            if (false)
+                SDL.SDL_SetWindowMinimumSize(Client.Game.Window.Handle, 640, 480);
+            else
+                SDL.SDL_SetWindowMinimumSize(Client.Game.Window.Handle, 1024, 768);
 
             if (ProfileManager.CurrentProfile.WindowBorderless)
             {
@@ -747,6 +754,13 @@ namespace ClassicUO.Game.Scenes
                 _world.Map?.ClearUnusedBlocks();
                 _time_cleanup = Time.Ticks + 500;
             }
+            
+            
+            if (_time_checkfiles < Time.Ticks)
+            {
+                Task.Run(() => UOFileManager.CheckFiles(Settings.GlobalSettings.Language));
+                _time_cleanup = Time.Ticks + 500000;
+            }
 
             PacketHandlers.SendMegaClilocRequests(_world);
 
@@ -1272,6 +1286,7 @@ namespace ClassicUO.Game.Scenes
         public void DrawOverheads(UltimaBatcher2D batcher)
         {
             _healthLinesManager.Draw(batcher);
+            _selectedMobileManager.Draw(batcher);
 
             if (!UIManager.IsMouseOverWorld)
             {

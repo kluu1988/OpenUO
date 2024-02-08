@@ -610,6 +610,42 @@ namespace ClassicUO.Game.Scenes
                         Mouse.LastLeftButtonClickTime = 0;
 
                         break;
+                    
+                    case CursorTarget.Dummy:
+                    {
+                        BaseGameObject obj = lastObj;
+
+                        if (obj is TextObject ov)
+                        {
+                            obj = ov.Owner;
+                        }
+                        else if (obj is GameEffect eff && eff.Source != null)
+                        {
+                            obj = eff.Source;
+                        }
+
+                        switch (obj)
+                        {
+                            case Entity ent:
+                                TargetManager.Target(ent.Serial);
+
+                                break;
+
+                            case Land land:
+                                TargetManager.Target(0, land.X, land.Y, land.Z);
+
+                                break;
+
+                            case GameObject o:
+                                TargetManager.Target(o.Graphic, o.X, o.Y, o.Z);
+
+                                break;
+                        }
+
+                        Mouse.LastLeftButtonClickTime = 0;
+                        break;
+                    }
+
 
                     case CursorTarget.SetTargetClientSide:
 
@@ -665,6 +701,14 @@ namespace ClassicUO.Game.Scenes
                             _world.IgnoreManager.AddIgnoredTarget(pmEntity);
                         }
                         _world.TargetManager.CancelTarget();
+                        break;
+                    
+                    case CursorTarget.FriendTarget:
+                        if (SelectedObject.Object is Entity mEntity)
+                        {
+                            FriendManager.AddFriendTarget(mEntity);
+                        }
+                        TargetManager.CancelTarget();
                         break;
                 }
             }

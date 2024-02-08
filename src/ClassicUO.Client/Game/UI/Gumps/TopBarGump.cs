@@ -30,6 +30,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using ClassicUO.Configuration;
 using ClassicUO.Game.Data;
@@ -43,6 +44,7 @@ using ClassicUO.Renderer;
 using ClassicUO.Resources;
 using ClassicUO.Utility;
 using ClassicUO.Utility.Logging;
+using ClassicUO.Utility.Platforms;
 using Microsoft.Xna.Framework;
 
 namespace ClassicUO.Game.UI.Gumps
@@ -83,42 +85,34 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 largeWidth = gumpInfo.UV.Width;
             }
-
-            int[][] textTable =
-            {
-                new[] { 0, (int)Buttons.Map },
-                new[] { 1, (int)Buttons.Paperdoll },
-                new[] { 1, (int)Buttons.Inventory },
-                new[] { 1, (int)Buttons.Journal },
-                new[] { 0, (int)Buttons.Chat },
-                new[] { 0, (int)Buttons.Help },
-                new[] { 1, (int)Buttons.WorldMap },
-                new[] { 0, (int)Buttons.Info },
-                new[] { 0, (int)Buttons.Debug },
-                new[] { 1, (int)Buttons.NetStats },
-                new[] { 1, (int)Buttons.UOStore },
-                new[] { 1, (int)Buttons.GlobalChat }
-            };
-
             var cliloc = ClilocLoader.Instance;
 
-            string[] texts =
-            {
-                cliloc.GetString(3000430, ResGumps.Map),
-                cliloc.GetString(3000133, ResGumps.Paperdoll),
-                cliloc.GetString(3000431, ResGumps.Inventory),
-                cliloc.GetString(3000129, ResGumps.Journal),
-                cliloc.GetString(3000131, ResGumps.Chat),
-                cliloc.GetString(3000134, ResGumps.Help),
-                StringHelper.CapitalizeAllWords(cliloc.GetString(1015233, ResGumps.WorldMap)),
-                cliloc.GetString(1079449, ResGumps.Info),
-                cliloc.GetString(1042237, ResGumps.Debug),
-                cliloc.GetString(3000169, ResGumps.NetStats),
-                cliloc.GetString(1158008, ResGumps.UOStore),
-                cliloc.GetString(1158390, ResGumps.GlobalChat)
-            };
+            List<Tuple<bool, int, string>> table = new List<Tuple<bool, int, string>>();
+            table.Add(new Tuple<bool, int, string>(false, (int)Buttons.Map, cliloc.GetString(3000430, ResGumps.Map)));
+            table.Add(new Tuple<bool, int, string>(true, (int)Buttons.Paperdoll, cliloc.GetString(3000133, ResGumps.Paperdoll)));
+            table.Add(new Tuple<bool, int, string>(true, (int)Buttons.Inventory, cliloc.GetString(3000431, ResGumps.Inventory)));
+            table.Add(new Tuple<bool, int, string>(true, (int)Buttons.Journal, cliloc.GetString(3000129, ResGumps.Journal)));
+            if (!World.Settings.GeneralFlags.RemoveChatFromMenuBar)
+                table.Add(new Tuple<bool, int, string>(false, (int)Buttons.Chat, cliloc.GetString(3000131, ResGumps.Chat)));
+            table.Add(new Tuple<bool, int, string>(false, (int)Buttons.Help, cliloc.GetString(3000134, ResGumps.Help)));
+            table.Add(new Tuple<bool, int, string>(true, (int)Buttons.WorldMap, StringHelper.CapitalizeAllWords(cliloc.GetString(1015233, ResGumps.WorldMap))));
+            if (World.Settings.GeneralFlags.CooldownGumpEnabled)
+                table.Add(new Tuple<bool, int, string>(false, (int)Buttons.Cooldowns, StringHelper.CapitalizeAllWords(cliloc.GetString(8016003))));
+            if (!World.Settings.GeneralFlags.RemoveInfoFromMenuBar)
+                table.Add(new Tuple<bool, int, string>(false, (int)Buttons.Info, cliloc.GetString(1079449, ResGumps.Info)));
+            table.Add(new Tuple<bool, int, string>(false, (int)Buttons.Debug, cliloc.GetString(1042237, ResGumps.Debug)));
+            table.Add(new Tuple<bool, int, string>(true, (int)Buttons.NetStats, cliloc.GetString(3000169, ResGumps.NetStats)));
+            
+            bool hasUOStore = Client.Version >= ClientVersion.CV_706400;
 
-            bool hasUOStore = Client.Game.UO.Version >= ClientVersion.CV_706400;
+            if (hasUOStore)
+            {
+                table.Add(new Tuple<bool, int, string>(true, (int)Buttons.UOStore, cliloc.GetString(1158008, ResGumps.UOStore)));
+                table.Add(new Tuple<bool, int, string>(true, (int)Buttons.GlobalChat, cliloc.GetString(1158390, ResGumps.GlobalChat)));
+            }
+            else if (World.Settings.GeneralSettings.StoreOverride != null)
+                table.Add(new Tuple<bool, int, string>(true, (int)Buttons.UOStore, cliloc.GetString(1158008, ResGumps.UOStore)));
+            
 
             ResizePic background;
 
@@ -136,22 +130,19 @@ namespace ClassicUO.Game.UI.Gumps
 
             int startX = 30;
 
-            for (int i = 0; i < textTable.Length; i++)
+            for (int i = 0; i < table.Count; i++)
             {
-                if (!hasUOStore && i >= (int)Buttons.UOStore)
-                {
-                    break;
-                }
+                ushort graphic = (ushort) (table[i].Item1 ? 0x098D : 0x098B);
 
-                ushort graphic = (ushort)(textTable[i][0] != 0 ? 0x098D : 0x098B);
-
-                Add(
-                    new RighClickableButton(
-                        textTable[i][1],
+                Add
+                (
+                    new RighClickableButton
+                    (
+                        table[i].Item2,
                         graphic,
                         graphic,
                         graphic,
-                        texts[i],
+                        table[i].Item3,
                         1,
                         true,
                         0,
@@ -166,7 +157,7 @@ namespace ClassicUO.Game.UI.Gumps
                     1
                 );
 
-                startX += (textTable[i][0] != 0 ? largeWidth : smallWidth) + 1;
+                startX += (table[i].Item1 ? largeWidth : smallWidth) + 1;
                 background.Width = startX;
             }
 
@@ -181,33 +172,28 @@ namespace ClassicUO.Game.UI.Gumps
         public static void Create(World world)
         {
             TopBarGump gump = UIManager.GetGump<TopBarGump>();
+            
+            if (gump != null)
+                gump.Dispose();
 
-            if (gump == null)
+            if (ProfileManager.CurrentProfile.TopbarGumpPosition.X < 0 || ProfileManager.CurrentProfile.TopbarGumpPosition.Y < 0)
             {
-                if (
-                    ProfileManager.CurrentProfile.TopbarGumpPosition.X < 0
-                    || ProfileManager.CurrentProfile.TopbarGumpPosition.Y < 0
-                )
-                {
-                    ProfileManager.CurrentProfile.TopbarGumpPosition = Point.Zero;
-                }
 
-                UIManager.Add(
-                    gump = new TopBarGump(world)
-                    {
-                        X = ProfileManager.CurrentProfile.TopbarGumpPosition.X,
-                        Y = ProfileManager.CurrentProfile.TopbarGumpPosition.Y
-                    }
-                );
-
-                if (ProfileManager.CurrentProfile.TopbarGumpIsMinimized)
-                {
-                    gump.ChangePage(2);
-                }
+                ProfileManager.CurrentProfile.TopbarGumpPosition = Point.Zero;
             }
-            else
+
+            UIManager.Add
+            (
+                gump = new TopBarGump
+                {
+                    X = ProfileManager.CurrentProfile.TopbarGumpPosition.X,
+                    Y = ProfileManager.CurrentProfile.TopbarGumpPosition.Y
+                }
+            );
+
+            if (ProfileManager.CurrentProfile.TopbarGumpIsMinimized)
             {
-                Log.Error(ResGumps.TopBarGumpAlreadyExists);
+                gump.ChangePage(2);
             }
         }
 
@@ -273,11 +259,24 @@ namespace ClassicUO.Game.UI.Gumps
                     );
 
                     break;
+                
+                case Buttons.Cooldowns:
+                {
+                    GameActions.OpenCooldowns();
+                    break;
+                }
 
                 case Buttons.UOStore:
-                    if (Client.Game.UO.Version >= ClientVersion.CV_706400)
+                    if (World.Settings.GeneralSettings.StoreOverride != null)
                     {
-                        NetClient.Socket.Send_OpenUOStore();
+                        PlatformHelper.LaunchBrowser(World.Settings.GeneralSettings.StoreOverride);
+                    }
+                    else
+                    {
+                        if (Client.Version >= ClientVersion.CV_706400)
+                        {
+                            NetClient.Socket.Send_OpenUOStore();
+                        }
                     }
 
                     break;
@@ -336,11 +335,13 @@ namespace ClassicUO.Game.UI.Gumps
             Chat,
             Help,
             WorldMap,
+            Cooldowns,
             Info,
             Debug,
             NetStats,
             UOStore,
-            GlobalChat
+            GlobalChat,
+            
         }
 
         private class RighClickableButton : Button

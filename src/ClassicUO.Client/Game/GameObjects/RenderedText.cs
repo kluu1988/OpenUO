@@ -39,6 +39,7 @@ using Microsoft.Xna.Framework.Graphics;
 using StbTextEditSharp;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ClassicUO.Game
 {
@@ -76,6 +77,7 @@ namespace ClassicUO.Game
         private string _text;
 
         public bool IsUnicode { get; set; }
+        public DateTime CreateTime { get; set; }
 
         public byte Font
         {
@@ -167,6 +169,8 @@ namespace ClassicUO.Game
                                 true
                             );
                         }
+                        if (Text.IndexOf("<countdown", StringComparison.CurrentCultureIgnoreCase) >= 0)
+                            RedrawPerSecond = true;
                     }
                 }
             }
@@ -182,7 +186,20 @@ namespace ClassicUO.Game
 
         public int Height { get; private set; }
 
-        public Texture2D Texture { get; set; }
+        private Texture2D _texture2D;
+        public Texture2D Texture
+        {
+            get
+            {
+                if (RedrawPerSecond && Time.Ticks - LastRefresh > 100)
+                {
+                    CreateTexture();
+                    LastRefresh = Time.Ticks;
+                }
+                return _texture2D;
+            }
+            set => _texture2D = value;
+        }
 
         public static RenderedText Create(
             string text,
@@ -199,6 +216,8 @@ namespace ClassicUO.Game
         )
         {
             RenderedText r = _pool.GetOne();
+            r.CreateTime = DateTime.UtcNow;
+            r.RedrawPerSecond = false;
             r.Hue = hue;
             r.Font = font;
             r.IsUnicode = isunicode;
@@ -396,8 +415,9 @@ namespace ClassicUO.Game
 
             return FontsLoader.Instance.GetCharWidthASCII(Font, c);
         }
-
-        public bool Draw(
+        
+        public bool Draw
+        (
             UltimaBatcher2D batcher,
             int swidth,
             int sheight,
@@ -413,6 +433,12 @@ namespace ClassicUO.Game
             if (string.IsNullOrEmpty(Text) || Texture == null || IsDestroyed || Texture.IsDisposed)
             {
                 return false;
+            }
+            
+            if (RedrawPerSecond && Time.Ticks - LastRefresh > 100)
+            {
+                CreateTexture();
+                LastRefresh = Time.Ticks;
             }
 
             if (offsetX > swidth || offsetX < -swidth || offsetY > sheight || offsetY < -sheight)
@@ -506,6 +532,12 @@ namespace ClassicUO.Game
             {
                 return false;
             }
+            
+            if (RedrawPerSecond && Time.Ticks - LastRefresh > 100)
+            {
+                CreateTexture();
+                LastRefresh = Time.Ticks;
+            }
 
             if (sx > Texture.Width || sy > Texture.Height)
             {
@@ -565,7 +597,13 @@ namespace ClassicUO.Game
             {
                 return false;
             }
-
+            
+            if (RedrawPerSecond && Time.Ticks - LastRefresh > 100)
+            {
+                CreateTexture();
+                LastRefresh = Time.Ticks;
+            }
+            
             if (!IsUnicode && SaveHitMap && hue == 0)
             {
                 hue = Hue;
@@ -605,10 +643,11 @@ namespace ClassicUO.Game
 
         public unsafe void CreateTexture()
         {
-            if (Texture != null && !Texture.IsDisposed)
+            FontsLoader.Instance.RefreshCreateTime = CreateTime;
+            if (_texture2D != null && !_texture2D.IsDisposed)
             {
-                Texture.Dispose();
-                Texture = null;
+                _texture2D.Dispose();
+                _texture2D = null;
             }
 
             if (IsHTML)
@@ -662,7 +701,7 @@ namespace ClassicUO.Game
 
             var isValid = fi.Data != null && fi.Data.Length > 0;
 
-            if (isValid && (Texture == null || Texture.IsDisposed))
+            if (isValid && (_texture2D == null || _texture2D.IsDisposed))
             {
                 Texture = new Texture2D(
                     Client.Game.GraphicsDevice,
@@ -683,12 +722,13 @@ namespace ClassicUO.Game
             }
 
             LinesCount = fi.LineCount;
-
-            if (Texture != null && isValid)
+ 
+            if (_texture2D != null && isValid)
             {
                 fixed (uint* dataPtr = fi.Data)
                 {
-                    Texture.SetDataPointerEXT(
+                    _texture2D.SetDataPointerEXT
+                    (
                         0,
                         null,
                         (IntPtr)dataPtr,
@@ -696,8 +736,8 @@ namespace ClassicUO.Game
                     );
                 }
 
-                Width = Texture.Width;
-                Height = Texture.Height;
+                Width = _texture2D.Width;
+                Height = _texture2D.Height;
             }
 
             if (IsHTML)
@@ -706,8 +746,17 @@ namespace ClassicUO.Game
             }
 
             FontsLoader.Instance.RecalculateWidthByInfo = false;
+            
+            if (_info != null && _info.Data.Buffer.Any((d) => (d.Flags & FontsLoader.UOFONT_NEEDREDRAW1PERSECOND) != 0))
+            {
+                RedrawPerSecond = true;
+                LastRefresh = Time.Ticks - 999;
+            }
         }
 
+        private bool RedrawPerSecond = false;
+        private uint LastRefresh;
+        
         public void Destroy()
         {
             if (IsDestroyed)

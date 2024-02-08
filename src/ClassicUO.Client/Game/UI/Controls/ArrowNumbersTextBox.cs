@@ -31,6 +31,7 @@
 #endregion
 
 using System;
+using System.Data.SqlClient;
 using ClassicUO.Renderer;
 
 namespace ClassicUO.Game.UI.Controls
@@ -42,6 +43,8 @@ namespace ClassicUO.Game.UI.Controls
         private readonly StbTextBox _textBox;
         private uint _timeUntilNextClick;
         private readonly Button _up, _down;
+
+        public Action<ArrowNumbersTextBox, int> OnChange;
 
         public ArrowNumbersTextBox
         (
@@ -81,15 +84,6 @@ namespace ClassicUO.Game.UI.Controls
                 ButtonAction = ButtonAction.Activate
             };
 
-            _up.MouseDown += (sender, e) =>
-            {
-                if (_up.IsClicked)
-                {
-                    UpdateValue();
-                    _timeUntilNextClick = TIME_BETWEEN_CLICKS * 2;
-                }
-            };
-
             Add(_up);
 
             _down = new Button(-raiseamount, 0x985, 0x986)
@@ -98,16 +92,7 @@ namespace ClassicUO.Game.UI.Controls
                 Y = height - 7,
                 ButtonAction = ButtonAction.Activate
             };
-
-            _down.MouseDown += (sender, e) =>
-            {
-                if (_down.IsClicked)
-                {
-                    UpdateValue();
-                    _timeUntilNextClick = TIME_BETWEEN_CLICKS * 2;
-                }
-            };
-
+            
             Add(_down);
 
             Add
@@ -130,7 +115,7 @@ namespace ClassicUO.Game.UI.Controls
                 }
             );
         }
-
+        
         internal string Text
         {
             get => _textBox?.Text ?? string.Empty;
@@ -166,8 +151,12 @@ namespace ClassicUO.Game.UI.Controls
 
         private void ValidateValue(int val)
         {
-            Tag = val = Math.Max(_Min, Math.Min(_Max, val));
+            var newVal = Math.Max(_Min, Math.Min(_Max, val));
+
+            if (newVal != val)
+                Tag = val = newVal;
             _textBox.SetText(val.ToString());
+            OnChange?.Invoke(this, val);
         }
 
         public override void Update()

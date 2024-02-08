@@ -246,6 +246,8 @@ namespace ClassicUO.Game.UI.Controls
         public bool AllowedToDraw { get; set; }
 
         public int TooltipMaxLength { get; private set; }
+        
+        public DateTime TooltipSetTime { get; private set; }
 
         public void UpdateOffset(int x, int y)
         {
@@ -386,6 +388,7 @@ namespace ClassicUO.Game.UI.Controls
             {
                 Tooltip = text;
                 TooltipMaxLength = maxWidth;
+                TooltipSetTime = DateTime.UtcNow;
             }
         }
 
@@ -488,9 +491,12 @@ namespace ClassicUO.Game.UI.Controls
 
             return null;
         }
+        
+        public Control LastGumpObject;
 
         public virtual void Add(Control c, int page = 0)
         {
+            LastGumpObject = c;
             c.Page = page;
             c.Parent = this;
             OnChildAdded();
