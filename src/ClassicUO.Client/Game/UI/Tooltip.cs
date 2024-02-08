@@ -1,6 +1,6 @@
 ﻿#region license
 
-// Copyright (c) 2021, andreakarasho
+// Copyright (c) 2024, andreakarasho
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,9 @@ namespace ClassicUO.Game.UI
         private int _maxWidth;
         private RenderedText _renderedText;
         private string _textHTML;
+        private readonly World _world;
+
+        public Tooltip(World world) => _world = world;
         private DateTime _createTime;
 
         public string Text { get; protected set; }
@@ -60,7 +63,7 @@ namespace ClassicUO.Game.UI
 
         public bool Draw(UltimaBatcher2D batcher, int x, int y)
         {
-            if (SerialHelper.IsValid(Serial) && World.OPL.TryGetRevision(Serial, out uint revision) && _hash != revision)
+            if (SerialHelper.IsValid(Serial) && _world.OPL.TryGetRevision(Serial, out uint revision) && _hash != revision)
             {
                 _hash = revision;
                 Text = ReadProperties(Serial, out _textHTML);
@@ -242,7 +245,7 @@ namespace ClassicUO.Game.UI
             {
                 uint revision2 = 0;
 
-                if (Serial == 0 || Serial != serial || World.OPL.TryGetRevision(Serial, out uint revision) && World.OPL.TryGetRevision(serial, out revision2) && revision != revision2)
+                if (Serial == 0 || Serial != serial || _world.OPL.TryGetRevision(Serial, out uint revision) && _world.OPL.TryGetRevision(serial, out revision2) && revision != revision2)
                 {
                     _maxWidth = 0;
                     Serial = serial;
@@ -262,7 +265,7 @@ namespace ClassicUO.Game.UI
             string result = null;
             htmltext = string.Empty;
 
-            if (SerialHelper.IsValid(serial) && World.OPL.TryGetNameAndData(serial, out string name, out string data))
+            if (SerialHelper.IsValid(serial) && _world.OPL.TryGetNameAndData(serial, out string name, out string data))
             {
                 ValueStringBuilder sbHTML = new ValueStringBuilder();
                 {
@@ -277,7 +280,7 @@ namespace ClassicUO.Game.UI
                             }
                             else
                             {
-                                Mobile mob = World.Mobiles.Get(serial);
+                                Mobile mob = _world.Mobiles.Get(serial);
 
                                 if (mob != null)
                                 {

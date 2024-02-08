@@ -36,22 +36,18 @@ OpenUO is natively cross platform and supports:
 | Browser | Not Yet Available |
 | Windows x64 | Not Yet Available |
 | Linux x64 | Not Yet Available |
-| macOS | Not Yet Available |
+| macOS | Not Yet Available |\
 
 Or visit the [OpenUO Website](https://www.openuo.io/)
 
-# How to build the project
-
-Clone repository with:
+# How to generate a release build
 ```
 git config --global url."https://".insteadOf git://
 git clone --recursive https://github.com/Open-UO/OpenUO.git
 ```
-
-Build the project:
-```
-dotnet build -c Release
-```
+Binaries available in `bin/dist` folder
+> [!WARNING] 
+> To execute .sh scripts on Windows, use Git Bash which can be installed with Git itself: https://git-scm.com/download/win
 
 **Note:** To build on windows visual studio the project currently requires Visual Studio 2022 and Visual Studio 2019. 
 
@@ -84,4 +80,4 @@ Backend:
 This work is released under the BSD 4 license. This project does not distribute any copyrighted game assets. In order to run this client you'll need to legally obtain a copy of the Ultima Online Classic Client.
 Using a custom client to connect to official UO servers is strictly forbidden. We do not assume any responsibility of the usage of this client.
 
-Ultima Online(R) © 2022 Electronic Arts Inc. All Rights Reserved.
+Ultima Online(R) © 2024 Electronic Arts Inc. All Rights Reserved.

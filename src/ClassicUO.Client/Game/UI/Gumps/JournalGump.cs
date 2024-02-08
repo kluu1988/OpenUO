@@ -1,6 +1,6 @@
 ﻿#region license
 
-// Copyright (c) 2021, andreakarasho
+// Copyright (c) 2024, andreakarasho
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ namespace ClassicUO.Game.UI.Gumps
         private readonly RenderedTextList _journalEntries;
         private readonly ScrollFlag _scrollBar;
 
-        public JournalGump() : base(0, 0)
+        public JournalGump(World world) : base(world, 0, 0)
         {
             Height = 300;
             CanMove = true;
@@ -299,10 +299,15 @@ namespace ClassicUO.Game.UI.Gumps
             var usrSend = entry.Name != string.Empty ? $"{entry.Name}" : string.Empty;
 
             // Check if ignored person
-            if (!string.IsNullOrEmpty(usrSend) && IgnoreManager.IgnoredCharsList.Contains(usrSend))
+            if (!string.IsNullOrEmpty(usrSend) && World.IgnoreManager.IgnoredCharsList.Contains(usrSend))
                 return;
 
             string text = $"{usrSend}: {entry.Text}";
+
+            if (string.IsNullOrEmpty(usrSend))
+            {
+                text = entry.Text;
+            }
 
             _journalEntries.AddEntry
             (

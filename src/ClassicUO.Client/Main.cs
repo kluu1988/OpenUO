@@ -1,6 +1,6 @@
 ﻿#region license
 
-// Copyright (c) 2021, andreakarasho
+// Copyright (c) 2024, andreakarasho
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without
@@ -43,6 +43,7 @@ using SDL2;
 using System;
 using System.Globalization;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 
@@ -54,20 +55,33 @@ namespace ClassicUO
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool SetDllDirectory(string lpPathName);
 
+
+        [UnmanagedCallersOnly(EntryPoint = "Initialize", CallConvs = new Type[] { typeof(CallConvCdecl) })]
+        static unsafe void Initialize(IntPtr* argv, int argc, HostBindings* hostSetup)
+        {
+            var args = new string[argc];
+            for (int i = 0; i < argc; i++)
+            {
+                args[i] = Marshal.PtrToStringAnsi(argv[i]);
+            }
+
+            var host = new UnmanagedAssistantHost(hostSetup);
+            Boot(host, args);
+        }
+
+
         [STAThread]
-        public static void Main(string[] args)
+        public static void Main(string[] args) => Boot(null, args);
+       
+
+        public static void Boot(UnmanagedAssistantHost pluginHost, string[] args)
         {
             CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
-
-#if !NETFRAMEWORK
-            DllMap.Initialise();
-#endif
 
             Log.Start(LogTypes.All);
 
             CUOEnviroment.GameThread = Thread.CurrentThread;
             CUOEnviroment.GameThread.Name = "CUO_MAIN_THREAD";
-
 #if !DEBUG
             AppDomain.CurrentDomain.UnhandledException += (s, e) =>
             {
@@ -117,6 +131,11 @@ namespace ClassicUO
                 Environment.SetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI", "1");
             }
 
+            //Environment.SetEnvironmentVariable("FNA3D_FORCE_DRIVER", "OpenGL");
+
+            // NOTE: this is a workaroud to fix d3d11 on windows 11 + scale windows
+            Environment.SetEnvironmentVariable("FNA3D_D3D11_FORCE_BITBLT", "1");
+
             Environment.SetEnvironmentVariable("FNA3D_BACKBUFFER_SCALE_NEAREST", "1");
             Environment.SetEnvironmentVariable("FNA3D_OPENGL_FORCE_COMPATIBILITY_PROFILE", "1");
             Environment.SetEnvironmentVariable(SDL.SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
@@ -134,7 +153,7 @@ namespace ClassicUO
                 }
             }
 
-            Settings.GlobalSettings = ConfigurationResolver.Load<Settings>(globalSettingsPath, SettingsJsonContext.Default);
+            Settings.GlobalSettings = ConfigurationResolver.Load<Settings>(globalSettingsPath, SettingsJsonContext.RealDefault.Settings);
             CUOEnviroment.IsOutlands = Settings.GlobalSettings.ShardType == 2;
 
             ReadSettingsFromArgs(args);
@@ -242,7 +261,7 @@ namespace ClassicUO
                         break;
                 }
 
-                Client.Run();
+                Client.Run(pluginHost);
             }
 
             Log.Trace("Closing...");

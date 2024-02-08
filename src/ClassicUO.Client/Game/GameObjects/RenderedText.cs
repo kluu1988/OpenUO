@@ -1,8 +1,8 @@
 #region license
 
-// Copyright (c) 2021, andreakarasho
+// Copyright (c) 2024, andreakarasho
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
 // 1. Redistributions of source code must retain the above copyright
@@ -16,7 +16,7 @@
 // 4. Neither the name of the copyright holder nor the
 //    names of its contributors may be used to endorse or promote products
 //    derived from this software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -61,8 +61,7 @@ namespace ClassicUO.Game
 
     internal sealed class RenderedText
     {
-        private static readonly QueuedPool<RenderedText> _pool = new QueuedPool<RenderedText>
-        (
+        private static readonly QueuedPool<RenderedText> _pool = new QueuedPool<RenderedText>(
             3000,
             r =>
             {
@@ -87,7 +86,7 @@ namespace ClassicUO.Game
             {
                 if (value == 0xFF)
                 {
-                    value = (byte) (Client.Version >= ClientVersion.CV_305D ? 1 : 0);
+                    value = (byte)(Client.Game.UO.Version >= ClientVersion.CV_305D ? 1 : 0);
                 }
 
                 _font = value;
@@ -146,13 +145,12 @@ namespace ClassicUO.Game
 
                         if (IsUnicode)
                         {
-                            _info = FontsLoader.Instance.GetInfoUnicode
-                            (
+                            _info = FontsLoader.Instance.GetInfoUnicode(
                                 Font,
                                 Text,
                                 Text.Length,
                                 Align,
-                                (ushort) FontStyle,
+                                (ushort)FontStyle,
                                 MaxWidth > 0 ? MaxWidth : Width,
                                 true,
                                 true
@@ -160,13 +158,12 @@ namespace ClassicUO.Game
                         }
                         else
                         {
-                            _info = FontsLoader.Instance.GetInfoASCII
-                            (
+                            _info = FontsLoader.Instance.GetInfoASCII(
                                 Font,
                                 Text,
                                 Text.Length,
                                 Align,
-                                (ushort) FontStyle,
+                                (ushort)FontStyle,
                                 MaxWidth > 0 ? MaxWidth : Width,
                                 true,
                                 true
@@ -204,9 +201,7 @@ namespace ClassicUO.Game
             set => _texture2D = value;
         }
 
-
-        public static RenderedText Create
-        (
+        public static RenderedText Create(
             string text,
             ushort hue = 0xFFFF,
             byte font = 0xFF,
@@ -256,26 +251,24 @@ namespace ClassicUO.Game
 
             if (IsUnicode)
             {
-                (p.X, p.Y) = FontsLoader.Instance.GetCaretPosUnicode
-                (
+                (p.X, p.Y) = FontsLoader.Instance.GetCaretPosUnicode(
                     Font,
                     Text,
                     caret_index,
                     MaxWidth,
                     Align,
-                    (ushort) FontStyle
+                    (ushort)FontStyle
                 );
             }
             else
             {
-                (p.X, p.Y) = FontsLoader.Instance.GetCaretPosASCII
-                (
+                (p.X, p.Y) = FontsLoader.Instance.GetCaretPosASCII(
                     Font,
                     Text,
                     caret_index,
                     MaxWidth,
                     Align,
-                    (ushort) FontStyle
+                    (ushort)FontStyle
                 );
             }
 
@@ -301,7 +294,14 @@ namespace ClassicUO.Game
                 hue = 0x7FFF;
             }
 
-            ulong b = (ulong)(Text.GetHashCode() ^ hue ^ ((int)Align) ^ ((int)FontStyle) ^ Font ^ (IsUnicode ? 0x01 : 0x00));
+            ulong b = (ulong)(
+                Text.GetHashCode()
+                ^ hue
+                ^ ((int)Align)
+                ^ ((int)FontStyle)
+                ^ Font
+                ^ (IsUnicode ? 0x01 : 0x00)
+            );
 
             return _picker.Get(b, x, y);
         }
@@ -441,7 +441,6 @@ namespace ClassicUO.Game
                 LastRefresh = Time.Ticks;
             }
 
-
             if (offsetX > swidth || offsetX < -swidth || offsetY > sheight || offsetY < -sheight)
             {
                 return false;
@@ -508,31 +507,17 @@ namespace ClassicUO.Game
                 hueVector.Y = 0;
             }
 
-            batcher.Draw
-            (
+            batcher.Draw(
                 Texture,
-                new Rectangle
-                (
-                    dx,
-                    dy,
-                    dwidth,
-                    dheight
-                ),
-                new Rectangle
-                (
-                    srcX,
-                    srcY,
-                    srcWidth,
-                    srcHeight
-                ),
+                new Rectangle(dx, dy, dwidth, dheight),
+                new Rectangle(srcX, srcY, srcWidth, srcHeight),
                 hueVector
             );
 
             return true;
         }
 
-        public bool Draw
-        (
+        public bool Draw(
             UltimaBatcher2D batcher,
             int dx,
             int dy,
@@ -596,17 +581,10 @@ namespace ClassicUO.Game
                 }
             }
 
-            batcher.Draw
-            (
+            batcher.Draw(
                 Texture,
                 new Vector2(dx, dy),
-                new Rectangle
-                (
-                    sx,
-                    sy,
-                    swidth,
-                    sheight
-                ),
+                new Rectangle(sx, sy, swidth, sheight),
                 hueVector
             );
 
@@ -638,7 +616,6 @@ namespace ClassicUO.Game
 
             Vector3 hueVector = new Vector3(hue, 0, alpha);
 
-
             if (hue != 0)
             {
                 if (IsUnicode)
@@ -659,18 +636,7 @@ namespace ClassicUO.Game
                 hueVector.Y = 0;
             }
 
-            batcher.Draw
-            (
-                Texture,
-                new Rectangle
-                (
-                    x,
-                    y,
-                    Width,
-                    Height
-                ),
-                hueVector
-            );
+            batcher.Draw(Texture, new Rectangle(x, y, Width, Height), hueVector);
 
             return true;
         }
@@ -694,41 +660,56 @@ namespace ClassicUO.Game
             FontsLoader.FontInfo fi;
             if (IsUnicode)
             {
-                fi = FontsLoader.Instance.GenerateUnicode
-                (
+                fi = FontsLoader.Instance.GenerateUnicode(
                     Font,
                     Text,
                     Hue,
                     Cell,
                     MaxWidth,
                     Align,
-                    (ushort) FontStyle,
+                    (ushort)FontStyle,
                     SaveHitMap,
-                    MaxHeight,
-                    _picker
+                    MaxHeight
                 );
             }
             else
             {
-                fi = FontsLoader.Instance.GenerateASCII
-                (
+                fi = FontsLoader.Instance.GenerateASCII(
                     Font,
                     Text,
                     Hue,
                     MaxWidth,
                     Align,
-                    (ushort) FontStyle,
+                    (ushort)FontStyle,
                     SaveHitMap,
-                    MaxHeight,
-                    _picker
+                    MaxHeight
                 );
+            }
+
+            if (SaveHitMap)
+            {
+                var b = (ulong)(
+                    Text.GetHashCode()
+                    ^ Hue
+                    ^ ((int)Align)
+                    ^ ((int)FontStyle)
+                    ^ Font
+                    ^ (IsUnicode ? 0x01 : 0x00)
+                );
+                _picker.Set(b, fi.Width, fi.Height, fi.Data);
             }
 
             var isValid = fi.Data != null && fi.Data.Length > 0;
 
             if (isValid && (_texture2D == null || _texture2D.IsDisposed))
             {
-                _texture2D = new Texture2D(Client.Game.GraphicsDevice, fi.Width, fi.Height, false, SurfaceFormat.Color);
+                Texture = new Texture2D(
+                    Client.Game.GraphicsDevice,
+                    fi.Width,
+                    fi.Height,
+                    false,
+                    SurfaceFormat.Color
+                );
             }
 
             Links.Clear();

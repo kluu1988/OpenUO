@@ -1,8 +1,8 @@
 #region license
 
-// Copyright (c) 2021, andreakarasho
+// Copyright (c) 2024, andreakarasho
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
 // 1. Redistributions of source code must retain the above copyright
@@ -16,7 +16,7 @@
 // 4. Neither the name of the copyright holder nor the
 //    names of its contributors may be used to endorse or promote products
 //    derived from this software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -40,6 +40,7 @@ using ClassicUO.Assets;
 using ClassicUO.Resources;
 using ClassicUO.Utility;
 using Microsoft.Xna.Framework;
+using ClassicUO.Game.Scenes;
 
 namespace ClassicUO.Game.UI.Gumps
 {
@@ -50,7 +51,7 @@ namespace ClassicUO.Game.UI.Gumps
         protected const ushort LOCK_LOCKED_GRAPHIC = 0x082C;
 
 
-        protected StatusGumpBase() : base(0, 0)
+        protected StatusGumpBase(World world) : base(world, 0, 0)
         {
             // sanity check
             UIManager.GetGump<HealthBarGump>(World.Player)?.Dispose();
@@ -101,9 +102,9 @@ namespace ClassicUO.Game.UI.Gumps
         {
             if (button == MouseButtonType.Left)
             {
-                if (TargetManager.IsTargeting)
+                if (World.TargetManager.IsTargeting)
                 {
-                    TargetManager.Target(World.Player);
+                    World.TargetManager.Target(World.Player);
                     Mouse.LastLeftButtonClickTime = 0;
                 }
                 else if (x >= _point.X && x <= Width + 16 && y >= _point.Y && y <= Height + 16)
@@ -116,11 +117,11 @@ namespace ClassicUO.Game.UI.Gumps
 
                         if (ProfileManager.CurrentProfile.CustomBarsToggled)
                         {
-                            UIManager.Add(new HealthBarGumpCustom(World.Player) { X = ScreenCoordinateX, Y = ScreenCoordinateY });
+                            UIManager.Add(new HealthBarGumpCustom(World, World.Player) { X = ScreenCoordinateX, Y = ScreenCoordinateY });
                         }
                         else
                         {
-                            UIManager.Add(new HealthBarGump(World.Player) { X = ScreenCoordinateX, Y = ScreenCoordinateY });
+                            UIManager.Add(new HealthBarGump(World, World.Player) { X = ScreenCoordinateX, Y = ScreenCoordinateY });
                         }
 
                         Dispose();
@@ -132,9 +133,9 @@ namespace ClassicUO.Game.UI.Gumps
 
         protected override void OnMouseDown(int x, int y, MouseButtonType button)
         {
-            if (TargetManager.IsTargeting)
+            if (World.TargetManager.IsTargeting)
             {
-                TargetManager.Target(World.Player);
+                World.TargetManager.Target(World.Player);
                 Mouse.LastLeftButtonClickTime = 0;
             }
         }
@@ -165,24 +166,24 @@ namespace ClassicUO.Game.UI.Gumps
             return gump;
         }
 
-        public static StatusGumpBase AddStatusGump(int x, int y)
+        public static StatusGumpBase AddStatusGump(World world, int x, int y)
         {
             StatusGumpBase gump;
 
             if (!CUOEnviroment.IsOutlands)
             {
-                if (Client.Version < ClientVersion.CV_308Z || ProfileManager.CurrentProfile.UseOldStatusGump)
+                if (Client.Game.UO.Version < ClientVersion.CV_308Z || ProfileManager.CurrentProfile.UseOldStatusGump)
                 {
-                    gump = new StatusGumpOld();
+                    gump = new StatusGumpOld(world);
                 }
                 else
                 {
-                    gump = new StatusGumpModern();
+                    gump = new StatusGumpModern(world);
                 }
             }
             else
             {
-                gump = new StatusGumpOutlands();
+                gump = new StatusGumpOutlands(world);
             }
 
             gump.X = x;
@@ -234,10 +235,10 @@ namespace ClassicUO.Game.UI.Gumps
 
     internal class StatusGumpOld : StatusGumpBase
     {
-        public StatusGumpOld()
+        public StatusGumpOld(World world) : base(world)
         {
             Point p = Point.Zero;
-            _labels = new Label[(int) MobileStats.NumStats];            
+            _labels = new Label[(int) MobileStats.NumStats];
 
             Add(new GumpPic(0, 0, 0x0802, 0));
             p.X = 244;
@@ -254,7 +255,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             int xOffset = 0;
 
-            if (Client.Version >= ClientVersion.CV_5020)
+            if (Client.Game.UO.Version >= ClientVersion.CV_5020)
             {
                 Add
                 (
@@ -265,8 +266,8 @@ namespace ClassicUO.Game.UI.Gumps
                         ButtonAction = ButtonAction.Activate
                     }
                 );
-            }           
-            
+            }
+
             Lock status = World.Player.StrLock;
             xOffset = GumpsLoader.Instance.UseUOPGumps ? 28 : 40;
             ushort gumpID = GetStatLockGraphic(status);
@@ -593,7 +594,7 @@ namespace ClassicUO.Game.UI.Gumps
 
     internal class StatusGumpModern : StatusGumpBase
     {
-        public StatusGumpModern()
+        public StatusGumpModern(World world) : base(world)
         {
             Point p = Point.Zero;
             int xOffset = 0;
@@ -601,7 +602,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             Add(new GumpPic(0, 0, 0x2A6C, 0));
 
-            if (Client.Version >= ClientVersion.CV_308Z)
+            if (Client.Game.UO.Version >= ClientVersion.CV_308Z)
             {
                 p.X = 389;
                 p.Y = 152;
@@ -619,7 +620,7 @@ namespace ClassicUO.Game.UI.Gumps
                 );
 
 
-                if (Client.Version >= ClientVersion.CV_5020)
+                if (Client.Game.UO.Version >= ClientVersion.CV_5020)
                 {
                     Add
                     (
@@ -1315,7 +1316,7 @@ namespace ClassicUO.Game.UI.Gumps
             }
             else
             {
-                if (Client.Version == ClientVersion.CV_308D)
+                if (Client.Game.UO.Version == ClientVersion.CV_308D)
                 {
                     AddStatTextLabel(World.Player.StatsCap.ToString(), MobileStats.StatCap, 171, 124);
 
@@ -1332,7 +1333,7 @@ namespace ClassicUO.Game.UI.Gumps
                         ) { CanMove = true }
                     );
                 }
-                else if (Client.Version == ClientVersion.CV_308J)
+                else if (Client.Game.UO.Version == ClientVersion.CV_308J)
                 {
                     AddStatTextLabel(World.Player.StatsCap.ToString(), MobileStats.StatCap, 180, 131);
 
@@ -1566,7 +1567,7 @@ namespace ClassicUO.Game.UI.Gumps
     {
         private readonly GumpPicWithWidth[] _fillBars = new GumpPicWithWidth[3];
 
-        public StatusGumpOutlands()
+        public StatusGumpOutlands(World world) : base(world)
         {
             Point pos = Point.Zero;
             _labels = new Label[(int) MobileStats.Max];
@@ -1576,7 +1577,7 @@ namespace ClassicUO.Game.UI.Gumps
             Add(new GumpPic(34, 25, 0x0805, 0)); // Mana bar
             Add(new GumpPic(34, 38, 0x0805, 0)); // Stamina bar
 
-            if (Client.Version >= ClientVersion.CV_5020)
+            if (Client.Game.UO.Version >= ClientVersion.CV_5020)
             {
                 Add
                 (
@@ -1980,9 +1981,9 @@ namespace ClassicUO.Game.UI.Gumps
         {
             if (button == MouseButtonType.Left)
             {
-                if (TargetManager.IsTargeting)
+                if (World.TargetManager.IsTargeting)
                 {
-                    TargetManager.Target(World.Player);
+                    World.TargetManager.Target(World.Player);
                     Mouse.LastLeftButtonClickTime = 0;
                 }
                 else
@@ -1997,11 +1998,11 @@ namespace ClassicUO.Game.UI.Gumps
                         //TCH whole if else
                         if (ProfileManager.CurrentProfile.CustomBarsToggled)
                         {
-                            UIManager.Add(new HealthBarGumpCustom(World.Player) { X = ScreenCoordinateX, Y = ScreenCoordinateY });
+                            UIManager.Add(new HealthBarGumpCustom(World,World.Player) { X = ScreenCoordinateX, Y = ScreenCoordinateY });
                         }
                         else
                         {
-                            UIManager.Add(new HealthBarGump(World.Player) { X = ScreenCoordinateX, Y = ScreenCoordinateY });
+                            UIManager.Add(new HealthBarGump(World, World.Player) { X = ScreenCoordinateX, Y = ScreenCoordinateY });
                         }
 
                         Dispose();
