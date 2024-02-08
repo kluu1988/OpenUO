@@ -516,7 +516,7 @@ namespace ClassicUO.Game.GameObjects
         }
 
 
-        public static byte GetGroupForAnimation(Mobile mobile, ushort checkGraphic = 0, bool isParent = false)
+        public static byte GetGroupForAnimation(Mobile mobile, ushort checkGraphic = 0, bool isParent = false, bool isMount = false)
         {
             ushort graphic = checkGraphic;
 
@@ -529,6 +529,15 @@ namespace ClassicUO.Game.GameObjects
             {
                 return 0;
             }
+            
+            
+
+            var group = mobile._animationGroup;
+
+            if (isMount)
+            {
+                group = 255;
+            }
 
 
             ANIMATION_GROUPS_TYPE originalType = AnimationsLoader.Instance.GetAnimType(graphic);
@@ -538,9 +547,9 @@ namespace ClassicUO.Game.GameObjects
 
             bool uop = (flags & ANIMATION_FLAGS.AF_USE_UOP_ANIMATION) != 0;
 
-            if (mobile.AnimationFromServer && mobile._animationGroup != 0xFF)
+            if (mobile.AnimationFromServer && group != 0xFF)
             {
-                ushort v13 = mobile._animationGroup;
+                ushort v13 = group;
 
                 if (v13 == 12)
                 {
@@ -1003,7 +1012,7 @@ namespace ClassicUO.Game.GameObjects
             }
 
 
-            byte result = mobile._animationGroup;
+            byte result = group;
 
 
             bool isWalking = mobile.IsWalking;

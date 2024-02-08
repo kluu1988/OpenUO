@@ -59,6 +59,7 @@ namespace ClassicUO.Assets
         private const int UOFONT_EXTRAHEIGHT = 0x0100;
         private const int UOFONT_CROPTEXTURE = 0x0200;
         private const int UOFONT_FIXEDHEIGHT = 0x0400;
+        public const int UOFONT_NEEDREDRAW1PERSECOND = 0x0800;
         private const int UNICODE_SPACE_WIDTH = 8;
         private const int MAX_HTML_TEXT_HEIGHT = 18;
         private const byte NOPRINT_CHARS = 32;
@@ -488,11 +489,11 @@ namespace ClassicUO.Assets
             {
                 unsafe
                 {
-                    HTMLChar* chars = stackalloc HTMLChar[strLen];
+                    Span<HTMLChar> chars = stackalloc HTMLChar[strLen];
 
                     GetHTMLData
                     (
-                        chars,
+                        ref chars,
                         font,
                         str.AsSpan(),
                         ref strLen,
@@ -1154,11 +1155,11 @@ namespace ClassicUO.Assets
             {
                 unsafe
                 {
-                    HTMLChar* data = stackalloc HTMLChar[strLen];
+                    Span<HTMLChar> data = stackalloc HTMLChar[strLen];
 
                     GetHTMLData
                     (
-                        data,
+                        ref data,
                         font,
                         str,
                         ref strLen,
@@ -2290,11 +2291,11 @@ namespace ClassicUO.Assets
                 return null;
             }
 
-            HTMLChar* htmlData = stackalloc HTMLChar[len];
+            Span<HTMLChar> htmlData = stackalloc HTMLChar[len];
 
             GetHTMLData
             (
-                htmlData,
+                ref htmlData,
                 font,
                 str.AsSpan(),
                 ref len,
@@ -2520,8 +2521,10 @@ namespace ClassicUO.Assets
 
             return info;
         }
+        
+        public DateTime RefreshCreateTime;
 
-        private unsafe void GetHTMLData(HTMLChar* data, byte font, ReadOnlySpan<char> str, ref int len, TEXT_ALIGN_TYPE align, ushort flags)
+        private unsafe void GetHTMLData(ref Span<HTMLChar> data, byte font, ReadOnlySpan<char> str, ref int len, TEXT_ALIGN_TYPE align, ushort flags)
         {
             int newlen = 0;
 
@@ -2542,6 +2545,49 @@ namespace ClassicUO.Assets
             for (int i = 0; i < len; i++)
             {
                 char si = str[i];
+
+                if (si == '&')
+                {
+                    if (str[i + 1].Equals('l') || str[i + 1].Equals('L'))
+                    {
+                        if (str[i + 2].Equals('t') || str[i + 2].Equals('T'))
+                        {
+                            if (str[i + 3].Equals(';'))
+                            {
+                                ref HTMLChar c = ref data[newlen];
+                                c.Char = '<';
+                                c.Font = currentInfo.Font;
+                                c.Align = currentInfo.Align;
+                                c.Flags = 0;
+                                c.Color = currentInfo.Color;
+                                c.LinkID = currentInfo.Link;
+                                ++newlen;
+                                i += 3;
+                                continue;
+                            }
+                        }
+                    }
+                    else if (str[i + 1].Equals('g') || str[i + 1].Equals('G'))
+                    {
+                        if (str[i + 2].Equals('t') || str[i + 2].Equals('T'))
+                        {
+                            if (str[i + 3].Equals(';'))
+                            {
+                                ref HTMLChar c = ref data[newlen];
+                                c.Char = '>';
+                                c.Font = currentInfo.Font;
+                                c.Align = currentInfo.Align;
+                                c.Flags = 0;
+                                c.Color = currentInfo.Color;
+                                c.LinkID = currentInfo.Link;
+                                ++newlen;
+                                i += 3;
+
+                                continue;
+                            }
+                        }
+                    }
+                }
 
                 if (si == '<')
                 {
@@ -2614,6 +2660,52 @@ namespace ClassicUO.Assets
 
                     switch (tag)
                     {
+                        case HTML_TAG_TYPE.HTT_COUNTDOWN:
+                        {
+                            if (endTag)
+                                 goto default;
+                            string num = "";
+                            i++;
+                            while (i < str.Length && str[i] != '<')
+                            {
+                                num += str[i];
+                                i++;
+                            }
+
+                            i--;
+
+                            if (int.TryParse(num, out int timeRemaining))
+                            {
+                                int prec = 1;
+
+                                if (newInfo.Arguments is ushort val)
+                                    prec = val;
+                                string add = StringHelper.GetTimeRemaining(TimeSpan.FromSeconds(timeRemaining - (int)(DateTime.UtcNow - RefreshCreateTime).TotalSeconds), prec);
+                                Span<HTMLChar> chars = new HTMLChar[len + add.Length];
+
+                                for (int j = 0; j < newlen; j++)
+                                {
+                                    chars[j] = data[j];
+                                }
+
+                                //data = new HTMLChar[len + add.Length];
+                                data = chars;
+
+                                for (int j = 0; j < add.Length; j++)
+                                {
+                                    ref HTMLChar c = ref data[newlen];
+                                    c.Char = add[j];
+                                    c.Font = currentInfo.Font;
+                                    c.Align = currentInfo.Align;
+                                    c.Flags = UOFONT_NEEDREDRAW1PERSECOND;
+                                    c.Color = currentInfo.Color;
+                                    c.LinkID = currentInfo.Link;
+                                    ++newlen;
+                                }
+                            }
+
+                            goto default;
+                        }
                         case HTML_TAG_TYPE.HTT_LEFT:
                         case HTML_TAG_TYPE.HTT_CENTER:
                         case HTML_TAG_TYPE.HTT_RIGHT:
@@ -2689,7 +2781,9 @@ namespace ClassicUO.Assets
                         info = current;
 
                         break;
-
+                    case HTML_TAG_TYPE.HTT_COUNTDOWN: 
+                        //info = current;
+                        break;
                     case HTML_TAG_TYPE.HTT_B:
                     case HTML_TAG_TYPE.HTT_I:
                     case HTML_TAG_TYPE.HTT_U:
@@ -2829,6 +2923,8 @@ namespace ClassicUO.Assets
                 {
                     tag = HTML_TAG_TYPE.HTT_A;
                 }
+                else if (span.Equals("countdown".AsSpan(), StringComparison.InvariantCultureIgnoreCase))
+                    tag = HTML_TAG_TYPE.HTT_COUNTDOWN;
                 else if (span.Equals("u".AsSpan(), StringComparison.InvariantCultureIgnoreCase))
                 {
                     tag = HTML_TAG_TYPE.HTT_U;
@@ -2935,6 +3031,7 @@ namespace ClassicUO.Assets
                     {
                         switch (tag)
                         {
+                            case HTML_TAG_TYPE.HTT_COUNTDOWN:
                             case HTML_TAG_TYPE.HTT_BODYBGCOLOR:
                             case HTML_TAG_TYPE.HTT_BODY:
                             case HTML_TAG_TYPE.HTT_BASEFONT:
@@ -3077,6 +3174,16 @@ namespace ClassicUO.Assets
                                 }
 
                                 break;
+                            
+                            case HTML_TAG_TYPE.HTT_COUNTDOWN:
+                            {
+                                if (StringHelper.UnsafeCompare(bufferCmd, "precision", cmdLenght))
+                                {
+                                    info.Arguments = GetUShortValue(bufferValue, valueLength);
+                                }
+
+                                break;
+                            }
 
                             case HTML_TAG_TYPE.HTT_A:
 
@@ -3146,6 +3253,14 @@ namespace ClassicUO.Assets
             return linkID;
         }
 
+        private unsafe ushort GetUShortValue(char* numStr, int len)
+        {
+            var val = new string(numStr, 0, len);
+            if (ushort.TryParse(val, out ushort ret))
+                return ret;
+            return 0;
+        }
+        
         public bool GetWebLink(ushort link, out WebLink result)
         {
             if (!_webLinks.TryGetValue(link, out result))
@@ -3284,6 +3399,10 @@ namespace ClassicUO.Assets
                 case HTML_TAG_TYPE.HTT_U:
                     info.Flags = UOFONT_UNDERLINE;
 
+                    break;
+                
+                case HTML_TAG_TYPE.HTT_COUNTDOWN:
+                    info.Flags = UOFONT_NEEDREDRAW1PERSECOND;
                     break;
 
                 case HTML_TAG_TYPE.HTT_P:
@@ -3696,7 +3815,8 @@ namespace ClassicUO.Assets
         HTT_RIGHT,
         HTT_DIV,
 
-        HTT_BODYBGCOLOR
+        HTT_BODYBGCOLOR,
+        HTT_COUNTDOWN
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -3791,5 +3911,6 @@ namespace ClassicUO.Assets
         public byte Font;
         public uint Color;
         public ushort Link;
+        public object Arguments;
     }
 }

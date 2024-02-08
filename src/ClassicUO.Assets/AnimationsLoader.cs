@@ -49,7 +49,7 @@ namespace ClassicUO.Assets
     {
         public const int MAX_ACTIONS = 80; // gargoyle is like 78
         public const int MAX_DIRECTIONS = 5;
-        const int MAX_ANIMATIONS_DATA_INDEX_COUNT = 2048;
+        const int MAX_ANIMATIONS_DATA_INDEX_COUNT = 3072;
 
         private static AnimationsLoader _instance;
         private static BodyConvFlags _lastFlags = (BodyConvFlags)(-1);
@@ -222,6 +222,8 @@ namespace ClassicUO.Assets
                     }
                 }
             }
+            
+            LoadMountData();
 
             for (ushort i = 0; i < _dataIndex.Length; i++)
             {
@@ -333,6 +335,80 @@ namespace ClassicUO.Assets
             ProcessEquipConvDef();
             ProcessBodyDef();
             ProcessCorpseDef();
+        }
+        
+        internal enum Direction : byte
+        {
+            North = 0x00,
+            Right = 0x01,
+            East = 0x02,
+            Down = 0x03,
+            South = 0x04,
+            Left = 0x05,
+            West = 0x06,
+            Up = 0x07,
+            Mask = 0x7,
+            Running = 0x80,
+            NONE = 0xED
+        }
+
+        public void LoadMountData()
+        {
+            string pathMountData = UOFileManager.GetUOFilePath("datafiles\\mountdata.def");
+
+            if (File.Exists(pathMountData))
+            {
+
+                using (StreamReader reader = new StreamReader(File.OpenRead(pathMountData)))
+                {
+                    string line;
+
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        line = line.Trim();
+
+                        if (line.Length == 0 || line[0] == '#' || !char.IsNumber(line[0]))
+                        {
+                            continue;
+                        }
+
+                        string[] parts = line.Split(new[] { '\t', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                        if (parts.Length < 3)
+                        {
+                            continue;
+                        }
+
+                        sbyte direction = -1;
+
+                        if (parts[0].Contains("."))
+                        {
+                            var split = parts[0].Split('.');
+                            parts[0] = split[0];
+                            Direction d = Direction.Down;
+                            Enum.TryParse<Direction>(split[1], out d);
+                            direction = (sbyte)d;
+                        }
+
+                        int id = int.Parse(parts[0]);
+                        short xOffset = short.Parse(parts[1]);
+                        short yOffset = short.Parse(parts[2]);
+
+
+                        ref IndexAnimation index = ref _dataIndex[id];
+
+                        if (index == null)
+                        {
+                            index = new IndexAnimation();
+                        }
+
+                        if (!index.MountedOffsets.ContainsKey(direction))
+                            index.MountedOffsets.Add(direction, new Tuple<short, short>(xOffset, yOffset));
+                        else
+                            index.MountedOffsets[direction] = new Tuple<short, short>(xOffset, yOffset);
+                    }
+                }
+            }
         }
 
         public override unsafe Task Load()
@@ -527,9 +603,9 @@ namespace ClassicUO.Assets
                                 _dataIndex[index].Graphic = (ushort)body;
                                 _dataIndex[index].Type = realType;
 
-                                if (_dataIndex[index].MountedHeightOffset == 0)
+                                if (!_dataIndex[index].MountedOffsets.ContainsKey(-1))
                                 {
-                                    _dataIndex[index].MountedHeightOffset = mountedHeightOffset;
+                                    _dataIndex[index].MountedOffsets.Add(-1, new Tuple<short, short>(0, mountedHeightOffset));
                                 }
 
                                 _dataIndex[index].FileIndex = (byte)i;
@@ -842,11 +918,15 @@ namespace ClassicUO.Assets
                         {
                             if (animID == 0x04E7 || animID == 0x042D || animID == 0x04E6 || animID == 0x05F7 || animID == 0x05A1)
                             {
-                                _dataIndex[animID].MountedHeightOffset = 18;
+                                if (!_dataIndex[animID].MountedOffsets.ContainsKey(-1))
+                                    _dataIndex[animID].MountedOffsets.Add(-1, new Tuple<short, short>(0, 18));
+                                //_dataIndex[animID].MountedHeightOffset = 18;
                             }
                             else if (animID == 0x01B0 || animID == 0x0579 || animID == 0x05F6 || animID == 0x05A0)
                             {
-                                _dataIndex[animID].MountedHeightOffset = 9;
+                                if (!_dataIndex[animID].MountedOffsets.ContainsKey(-1))
+                                    _dataIndex[animID].MountedOffsets.Add(-1, new Tuple<short, short>(0, 9));
+                                //_dataIndex[animID].MountedHeightOffset = 9;
                             }
                         }
                     }
@@ -872,7 +952,7 @@ namespace ClassicUO.Assets
         public ANIMATION_FLAGS GetAnimFlags(ushort graphic) => _dataIndex[graphic]?.Flags ?? 0;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public sbyte GetMountedHeightOffset(ushort graphic) => _dataIndex[graphic]?.MountedHeightOffset ?? 0;
+        public Tuple<short,short> GetMountedOffset(ushort graphic, sbyte direction) => _dataIndex[graphic] == null ? null : _dataIndex[graphic].MountedOffsets.ContainsKey(direction) ? _dataIndex[graphic]?.MountedOffsets[direction] : _dataIndex[graphic]?.MountedOffsets[-1];
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe uint CalculatePeopleGroupOffset(ushort graphic)
@@ -1889,6 +1969,7 @@ namespace ClassicUO.Assets
 
     public class IndexAnimation
     {
+        private static Tuple<short, short> _OffsetZero = new Tuple<short, short>(0,0);
         private byte[] _uopReplaceGroupIndex;
 
         public bool IsUOP => (Flags & ANIMATION_FLAGS.AF_USE_UOP_ANIMATION) != 0;
@@ -1903,7 +1984,7 @@ namespace ClassicUO.Assets
         public AnimationGroup[] Groups;
         public AnimationGroupUop[] UopGroups;
         public bool IsValidMUL;
-        public sbyte MountedHeightOffset;
+        public Dictionary<sbyte, Tuple<short, short>> MountedOffsets = new Dictionary<sbyte, Tuple<short, short>>() {[-1] = _OffsetZero};
         public ANIMATION_GROUPS_TYPE Type = ANIMATION_GROUPS_TYPE.UNKNOWN;
 
         public AnimationGroupUop GetUopGroup(ref byte group)
