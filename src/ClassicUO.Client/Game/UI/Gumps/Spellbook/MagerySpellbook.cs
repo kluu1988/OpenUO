@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ClassicUO.Assets;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
@@ -43,9 +44,9 @@ internal class MagerySpellbookGump : BaseSpellbookGump
         bookGraphic = 0x08AC;
         minimizedGraphic = 0x08BA;
         iconStartGraphic = 0x08C0;
-        
-        spellsOnPage = Math.Min(maxSpellsCount >> 1, 8);
-        dictionaryPagesCount = (int)Math.Ceiling(maxSpellsCount / 8.0f);
+
+        spellsOnPage = SpellsMagery.GetAllCircles.Values.Max((c) => c.Count);
+        dictionaryPagesCount = SpellsMagery.GetAllCircles.Count;
 
         if (dictionaryPagesCount % 2 != 0)
         {
@@ -75,10 +76,24 @@ internal class MagerySpellbookGump : BaseSpellbookGump
             out int dictionaryPagesCount
         );
 
-        //_picBase.MouseDoubleClick += _picBase_MouseDoubleClick;
-        Add(new GumpPicInPic(0, 120, bookGraphic, 0, 140, 380, 40) { });
-        Add(new GumpPicInPic(0, 180, bookGraphic, 0, 140, 380, 90) { });
-        Add(new GumpPicInPic(0, 0, bookGraphic, 0,0,380,180));
+        //Add(new GumpPicInPic(0, 140, bookGraphic, 0, 140, 380, 40) { });
+        if (spellsOnPage == 8)
+        {
+            Add(new GumpPic(0, 0, bookGraphic, 0) { });
+            Add(_picBase = new GumpPic(0, 0, bookGraphic, 0) { IsVisible = false });
+        }
+        else {
+            Add(new GumpPicInPic(0, 0, bookGraphic, 0,0,380,180));
+            int fillers = (spellsOnPage - 8) / 2;
+
+            for (int i = 0; i < fillers; i++)
+            {
+                Add(new GumpPicInPic(0, 140 + (30 * i), bookGraphic, 0, 140, 380, 30) { });
+            }
+            Add(new GumpPicInPic(0, 140 + ((spellsOnPage - 8) * 15), bookGraphic, 0, 140, 380, 90) { });
+            Add(_picBase = new GumpPic(0, 0, bookGraphic, 0) { IsVisible = false });
+        }
+        _picBase.MouseDoubleClick += _picBase_MouseDoubleClick;
         //_picBase.MouseDoubleClick += _picBase_MouseDoubleClick;
 
         _dataBox = new DataBox(0, 0, 0, 0)
@@ -156,7 +171,7 @@ internal class MagerySpellbookGump : BaseSpellbookGump
             new Button((int)ButtonCircle.Circle_1_2, 0x08B1, 0x08B1)
             {
                 X = 58,
-                Y = 175,
+                Y = 175 + ((spellsOnPage - 8) * 15),
                 ButtonAction = ButtonAction.Activate,
                 ToPage = 1
             }
@@ -166,7 +181,7 @@ internal class MagerySpellbookGump : BaseSpellbookGump
             new Button((int)ButtonCircle.Circle_1_2, 0x08B2, 0x08B2)
             {
                 X = 93,
-                Y = 175,
+                Y = 175 + ((spellsOnPage - 8) * 15),
                 ButtonAction = ButtonAction.Activate,
                 ToPage = 1
             }
@@ -176,7 +191,7 @@ internal class MagerySpellbookGump : BaseSpellbookGump
             new Button((int)ButtonCircle.Circle_3_4, 0x08B3, 0x08B3)
             {
                 X = 130,
-                Y = 175,
+                Y = 175 + ((spellsOnPage - 8) * 15),
                 ButtonAction = ButtonAction.Activate,
                 ToPage = 2
             }
@@ -186,7 +201,7 @@ internal class MagerySpellbookGump : BaseSpellbookGump
             new Button((int)ButtonCircle.Circle_3_4, 0x08B4, 0x08B4)
             {
                 X = 164,
-                Y = 175,
+                Y = 175 + ((spellsOnPage - 8) * 15),
                 ButtonAction = ButtonAction.Activate,
                 ToPage = 2
             }
@@ -196,7 +211,7 @@ internal class MagerySpellbookGump : BaseSpellbookGump
             new Button((int)ButtonCircle.Circle_5_6, 0x08B5, 0x08B5)
             {
                 X = 227,
-                Y = 175,
+                Y = 175 + ((spellsOnPage - 8) * 15),
                 ButtonAction = ButtonAction.Activate,
                 ToPage = 3
             }
@@ -206,7 +221,7 @@ internal class MagerySpellbookGump : BaseSpellbookGump
             new Button((int)ButtonCircle.Circle_5_6, 0x08B6, 0x08B6)
             {
                 X = 260,
-                Y = 175,
+                Y = 175 + ((spellsOnPage - 8) * 15),
                 ButtonAction = ButtonAction.Activate,
                 ToPage = 3
             }
@@ -216,7 +231,7 @@ internal class MagerySpellbookGump : BaseSpellbookGump
             new Button((int)ButtonCircle.Circle_7_8, 0x08B7, 0x08B7)
             {
                 X = 297,
-                Y = 175,
+                Y = 175 + ((spellsOnPage - 8) * 15),
                 ButtonAction = ButtonAction.Activate,
                 ToPage = 4
             }
@@ -226,7 +241,7 @@ internal class MagerySpellbookGump : BaseSpellbookGump
             new Button((int)ButtonCircle.Circle_7_8, 0x08B8, 0x08B8)
             {
                 X = 332,
-                Y = 175,
+                Y = 175 + ((spellsOnPage - 8) * 15),
                 ButtonAction = ButtonAction.Activate,
                 ToPage = 4
             }
@@ -272,12 +287,17 @@ internal class MagerySpellbookGump : BaseSpellbookGump
 
                 int topage = pagesToFill + ((spellDone + 1) >> 1);
 
-                for (int k = 0; k < spellsOnPage; k++, currentSpellIndex++)
+                //for (int k = 0; k < spellsOnPage; k++, currentSpellIndex++)
+                foreach (var spell in SpellsMagery.GetAllCircles[((page - 1) * 2 + j % 2) + 1])
                 {
-                    if (_spells[currentSpellIndex])
+                    bool[] spells = _spells;
+
+                    if ((spell.ID - 1) >= 64)
+                        spells = _extraspells;
+                    if (spells[(spell.ID - 1) % 64])
                     {
                         GetSpellNames(
-                            currentSpellIndex,
+                            spell.ID - 1,
                             out string name,
                             out string abbreviature,
                             out string reagents
@@ -305,7 +325,7 @@ internal class MagerySpellbookGump : BaseSpellbookGump
                             Y = 52 + y,
                             LocalSerial = (uint)topage,
                             AcceptMouseInput = true,
-                            Tag = currentSpellIndex + 1,
+                            Tag = spell.ID + 1,
                             CanMove = true
                         };
 
@@ -324,7 +344,11 @@ internal class MagerySpellbookGump : BaseSpellbookGump
 
         for (int i = 0, spellsDone = 0; i < maxSpellsCount; i++)
         {
-            if (!_spells[i])
+            var spells = _spells;
+
+            if (i >= 64)
+                spells = _extraspells;
+            if (!_spells[i % 64])
             {
                 continue;
             }
@@ -351,10 +375,11 @@ internal class MagerySpellbookGump : BaseSpellbookGump
 
             spellsDone++;
 
+            var spellDef = GetSpellDefinition(iconSerial);
             GetSpellNames(i, out string name, out string abbreviature, out string reagents);
 
             Label text = new Label(
-                SpellsMagery.CircleNames[i >> 3],
+                SpellsMagery.CircleNames[spellDef.SpellCircle - 1],
                 false,
                 0x0288,
                 font: 6
@@ -392,7 +417,6 @@ internal class MagerySpellbookGump : BaseSpellbookGump
             iconGraphic = (ushort)(iconStartGraphic + i);
             GetSpellToolTip(out toolTipCliloc);
 
-            var spellDef = GetSpellDefinition(iconSerial);
             HueGumpPic icon = new HueGumpPic(
                 this,
                 iconX,

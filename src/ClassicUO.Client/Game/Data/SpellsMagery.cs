@@ -39,7 +39,8 @@ namespace ClassicUO.Game.Data
 {
     internal static class SpellsMagery
     {
-        private static readonly Dictionary<int, SpellDefinition> _spellsDict;
+        private static Dictionary<int, SpellDefinition> _spellsDict;
+        private static Dictionary<int, List<SpellDefinition>> _spellsCircleDictionary;
 
         private static string[] _spRegsChars;
 
@@ -999,13 +1000,138 @@ namespace ClassicUO.Game.Data
                         Reagents.MandrakeRoot,
                         Reagents.SpidersSilk
                     )
+                },
+                {
+                    65,
+                    new SpellDefinition
+                    (
+                        "Big Lightning",
+                        4,
+                        65,
+                        0x1B97,
+                        "Kal Vas Xen An Flam",
+                        TargetType.Neutral,
+                        Reagents.Bloodmoss,
+                        Reagents.MandrakeRoot,
+                        Reagents.SpidersSilk
+                    )
+                },
+                {
+                    66,
+                    new SpellDefinition
+                    (
+                        "Big Lightning TWO",
+                        4,
+                        66,
+                        0x1B97,
+                        "Kal Vas Xen An Flam",
+                        TargetType.Neutral,
+                        Reagents.Bloodmoss,
+                        Reagents.MandrakeRoot,
+                        Reagents.SpidersSilk
+                    )
+                },
+                {
+                    67,
+                    new SpellDefinition
+                    (
+                        "Big Lightning THREE",
+                        4,
+                        67,
+                        0x1B97,
+                        "Kal Vas Xen An Flam",
+                        TargetType.Neutral,
+                        Reagents.Bloodmoss,
+                        Reagents.MandrakeRoot,
+                        Reagents.SpidersSilk
+                    )
+                },
+                {
+                    68,
+                    new SpellDefinition
+                    (
+                        "Big Lightning FOUR",
+                        4,
+                        68,
+                        0x1B97,
+                        "Kal Vas Xen An Flam",
+                        TargetType.Neutral,
+                        Reagents.Bloodmoss,
+                        Reagents.MandrakeRoot,
+                        Reagents.SpidersSilk
+                    )
+                },
+                {
+                    69,
+                    new SpellDefinition
+                    (
+                        "Big Lightning FIVE",
+                        4,
+                        69,
+                        0x1B97,
+                        "Kal Vas Xen An Flam",
+                        TargetType.Neutral,
+                        Reagents.Bloodmoss,
+                        Reagents.MandrakeRoot,
+                        Reagents.SpidersSilk
+                    )
+                },
+                {
+                    70,
+                    new SpellDefinition
+                    (
+                        "Big Lightning SIX",
+                        4,
+                        70,
+                        0x1B97,
+                        "Kal Vas Xen An Flam",
+                        TargetType.Neutral,
+                        Reagents.Bloodmoss,
+                        Reagents.MandrakeRoot,
+                        Reagents.SpidersSilk
+                    )
+                },
+                {
+                    71,
+                    new SpellDefinition
+                    (
+                        "Big Lightning SEVEN",
+                        4,
+                        71,
+                        0x1B97,
+                        "Kal Vas Xen An Flam",
+                        TargetType.Neutral,
+                        Reagents.Bloodmoss,
+                        Reagents.MandrakeRoot,
+                        Reagents.SpidersSilk
+                    )
+                },
+                {
+                    72,
+                    new SpellDefinition
+                    (
+                        "Big Lightning EIGHT",
+                        4,
+                        72,
+                        0x1B97,
+                        "Kal Vas Xen An Flam",
+                        TargetType.Neutral,
+                        Reagents.Bloodmoss,
+                        Reagents.MandrakeRoot,
+                        Reagents.SpidersSilk
+                    )
                 }
             };
+
+            _spellsCircleDictionary = new Dictionary<int, List<SpellDefinition>>();
+            RebuildCircleDict();
         }
 
         public static string SpellBookName { get; set; } = SpellBookType.Magery.ToString();
 
-        public static IReadOnlyDictionary<int, SpellDefinition> GetAllSpells => _spellsDict;
+        public static Dictionary<int, SpellDefinition> GetAllSpells => _spellsDict;
+        
+        public static Dictionary<int, List<SpellDefinition>> GetAllCircles => _spellsCircleDictionary;
         internal static int MaxSpellCount => _spellsDict.Count;
 
         public static string[] CircleNames { get; } =
@@ -1053,6 +1179,18 @@ namespace ClassicUO.Game.Data
         internal static void Clear()
         {
             _spellsDict.Clear();
+        }
+
+        internal static void RebuildCircleDict()
+        {
+            _spellsCircleDictionary.Clear();
+
+            foreach (var spell in _spellsDict.Values)
+            {
+                if (!_spellsCircleDictionary.ContainsKey(spell.SpellCircle))
+                    _spellsCircleDictionary.Add(spell.SpellCircle, new List<SpellDefinition>());
+                _spellsCircleDictionary[spell.SpellCircle].Add(spell);
+            }
         }
     }
 }

@@ -19,10 +19,29 @@ internal abstract class BaseSpellbookGump : Gump
     protected HitBox _hitBox;
     protected bool _isMinimized;
     protected int _maxPage;
-    protected GumpPic _pageCornerLeft,
+    protected GumpPicBase _pageCornerLeft,
                     _pageCornerRight,
                     _picBase;
     protected readonly bool[] _spells = new bool[64];
+    protected readonly bool[] _extraspells = new bool[64]
+    {
+        true, true, true, true,
+        true, true, true, true,
+        false, false, false, false,
+        false, false, false, false,
+        false, false, false, false,
+        false, false, false, false,
+        false, false, false, false,
+        false, false, false, false,
+        false, false, false, false,
+        false, false, false, false,
+        false, false, false, false,
+        false, false, false, false,
+        false, false, false, false,
+        false, false, false, false,
+        false, false, false, false,
+        false, false, false, false,
+    };
     protected int _enqueuePage = -1;
     protected abstract void GetSpellNames(int offset, out string name, out string abbreviature, out string reagents);
     protected abstract void GetSpellToolTip(out int offset);
@@ -67,8 +86,9 @@ internal abstract class BaseSpellbookGump : Gump
                 {
                     c.IsVisible = !value;
                 }
+                _picBase.IsVisible = value;
 
-                _picBase.IsVisible = true;
+                //_picBase.IsVisible = true;
                 WantUpdateSize = true;
             }
         }
@@ -142,7 +162,7 @@ internal abstract class BaseSpellbookGump : Gump
     }
     
 
-    private void _picBase_MouseDoubleClick(object sender, MouseDoubleClickEventArgs e)
+    protected void _picBase_MouseDoubleClick(object sender, MouseDoubleClickEventArgs e)
     {
         if (e.Button == MouseButtonType.Left && IsMinimized)
         {
