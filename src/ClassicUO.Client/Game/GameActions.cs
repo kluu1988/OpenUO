@@ -202,13 +202,13 @@ namespace ClassicUO.Game
             }
         }
         
-        public static void OpenCooldowns()
+        public static void OpenCooldowns(World world)
         {
             CooldownTimersGump cooldownTimersGump = UIManager.GetGump<CooldownTimersGump>();
 
             if (cooldownTimersGump == null || cooldownTimersGump.IsDisposed)
             {
-                cooldownTimersGump = new CooldownTimersGump(50, 50);
+                cooldownTimersGump = new CooldownTimersGump(world, 50, 50);
                 UIManager.Add(cooldownTimersGump);
             }
             else

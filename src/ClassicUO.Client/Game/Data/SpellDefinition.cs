@@ -110,6 +110,7 @@ namespace ClassicUO.Game.Data
         public SpellDefinition
         (
             string name,
+            int spellCircle,
             int index,
             int gumpIconID,
             string powerwords,
@@ -118,6 +119,7 @@ namespace ClassicUO.Game.Data
         )
         {
             Name = name;
+            SpellCircle = spellCircle;
             ID = index;
             GumpIconID = gumpIconID;
             GumpIconSmallID = gumpIconID - 0x1298;
@@ -135,6 +137,7 @@ namespace ClassicUO.Game.Data
             return ID.Equals(other.ID);
         }
 
+        public readonly int SpellCircle;
         public readonly int GumpIconID;
         public readonly int GumpIconSmallID;
         public readonly int ID;

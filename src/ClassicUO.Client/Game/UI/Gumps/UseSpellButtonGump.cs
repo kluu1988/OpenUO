@@ -209,7 +209,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             if (button == MouseButtonType.Left && ShowEdit)
             {
-                Macro mCast = Macro.CreateFastMacro(_spell.Name, MacroType.CastSpell, (MacroSubType)GetSpellsId() + SpellBookDefinition.GetSpellsGroup(_spell.ID), (MacroSubType)0);
+                Macro mCast = Macro.CreateFastMacro(World, _spell.Name, MacroType.CastSpell, (MacroSubType)GetSpellsId() + SpellBookDefinition.GetSpellsGroup(_spell.ID), (MacroSubType)0);
                 if (_mm.FindMacro(_spell.Name) == null)
                 {
                     _mm.MoveToBack(mCast);
