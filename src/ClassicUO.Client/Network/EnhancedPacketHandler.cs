@@ -27,6 +27,7 @@ internal class EnhancedPacketHandler
         Handler.Add(2, DefaultMovementSpeedPacket);
         Handler.Add(3, EnhancedPotionMacrosPacket);
         Handler.Add(4, GeneralSettings);
+        Handler.Add(5, EnhancedSpellbookSettings);
 
         
         
@@ -59,153 +60,230 @@ internal class EnhancedPacketHandler
             default: InvalidVersionReceived( ref p ); break;
         }
     }
-    
-        private static void EnhancedGraphicEffect(World world, ref StackDataReader p, int version)
-        {
-            switch (version)
-            {
-                case 0:
-                {
-                    //if (world.PlayableArea == null)
-                    //{
-                    //    return;
-                    //}
-                    GraphicEffectType type = (GraphicEffectType)p.ReadUInt8();
 
-                    uint source = p.ReadUInt32BE();
-                    uint target = p.ReadUInt32BE();
-                    ushort graphic = p.ReadUInt16BE();
-                    ushort srcX = p.ReadUInt16BE();
-                    ushort srcY = p.ReadUInt16BE();
-                    sbyte srcZ = p.ReadInt8();
+    private static void EnhancedSpellbookSettings(World world, ref StackDataReader p, int version)
+    {
+        SpellsMagery.Clear();
+        switch (version)
+        {
+            case 0:
+            {
+                int count = p.ReadInt32BE();
+
+                for (int i = 0; i < count; i++)
+                {
+                    ushort id = p.ReadUInt16BE();
+                    byte circle = p.ReadUInt8();
+                    ushort gumpid = p.ReadUInt16BE();
+                    string name;
+                    string tooltips;
+                    string powerwords;
+
+                    if (p.ReadBool())
+                    {
+                        name = ClilocLoader.Instance.GetString(p.ReadInt32BE());
+                    }
+                    else
+                    {
+                        ushort len = p.ReadUInt16BE();
+                        name = p.ReadASCII(len);
+                    }
+                    
+                    if (p.ReadBool())
+                    {
+                        tooltips = ClilocLoader.Instance.GetString(p.ReadInt32BE());
+                    }
+                    else
+                    {
+                        ushort len = p.ReadUInt16BE();
+                        tooltips = p.ReadASCII(len);
+                    }
+                    
+                    if (p.ReadBool())
+                    {
+                        powerwords = ClilocLoader.Instance.GetString(p.ReadInt32BE());
+                    }
+                    else
+                    {
+                        ushort len = p.ReadUInt16BE();
+                        powerwords = p.ReadASCII(len);
+                    }
+
+                    List<Reagents> regs = new List<Reagents>();
+                    string[] reags = new string[p.ReadUInt8()];
+                    for (int j = 0; j < reags.Length; j++)
+                    {
+                        int cliloc = p.ReadInt32BE();
+                        reags[j] = ClilocLoader.Instance.GetString(cliloc);//reag;
+
+                        switch (cliloc)
+                        {
+                            case 1015004: regs.Add(Reagents.Bloodmoss); break;
+                            case 1015016: regs.Add(Reagents.Nightshade); break; 
+                            case 1015021: regs.Add(Reagents.Garlic); break;
+                            case 1015009: regs.Add(Reagents.Ginseng); break;
+                            case 1015013: regs.Add(Reagents.MandrakeRoot); break;
+                            case 1015007: regs.Add(Reagents.SpidersSilk); break;
+                            case 1044359: regs.Add(Reagents.SulfurousAsh); break;
+                            case 1015001: regs.Add(Reagents.BlackPearl); break;
+                        }
+                    }
+
+                    TargetType targetFlags = (TargetType) p.ReadUInt8();
+                    SpellsMagery.SetSpell(id, new SpellDefinition(name, circle, id, gumpid, tooltips, powerwords, targetFlags, reags, regs.ToArray() ));
+                }
+                break;
+            }
+            default: InvalidVersionReceived( ref p ); break;
+        }
+    }
+
+    private static void EnhancedGraphicEffect(World world, ref StackDataReader p, int version)
+    {
+        switch (version)
+        {
+            case 0:
+            {
+                //if (world.PlayableArea == null)
+                //{
+                //    return;
+                //}
+                GraphicEffectType type = (GraphicEffectType)p.ReadUInt8();
+
+                uint source = p.ReadUInt32BE();
+                uint target = p.ReadUInt32BE();
+                ushort graphic = p.ReadUInt16BE();
+                ushort srcX = p.ReadUInt16BE();
+                ushort srcY = p.ReadUInt16BE();
+                sbyte srcZ = p.ReadInt8();
+                ushort targetX = p.ReadUInt16BE();
+                ushort targetY = p.ReadUInt16BE();
+                sbyte targetZ = p.ReadInt8();
+                byte speed = p.ReadUInt8();
+                ushort duration = p.ReadUInt8();
+                short fixedDirection = p.ReadInt16BE();
+                bool doesExplode = p.ReadBool();
+                ushort hue = 0;
+                GraphicEffectBlendMode blendmode = 0;
+                hue = (ushort)p.ReadUInt32BE();
+                blendmode = (GraphicEffectBlendMode)(p.ReadUInt32BE() % 7);
+                ushort effect = p.ReadUInt16BE();
+                ushort explodeEffect = p.ReadUInt16BE();
+                ushort explodeSound = p.ReadUInt16BE();
+                uint serial = p.ReadUInt32BE();
+                byte layer = p.ReadUInt8();
+                ushort unknown = p.ReadUInt16BE();
+                TimeSpan durationTimeSpan = TimeSpan.FromMilliseconds(p.ReadUInt32BE());
+                short spinning = p.ReadInt16BE();
+
+                /*if (speed > 7)
+                {
+                    speed = 7;
+                }*/
+
+                world.SpawnEffect
+                (
+                    type,
+                    source,
+                    target,
+                    graphic,
+                    hue,
+                    srcX,
+                    srcY,
+                    srcZ,
+                    targetX,
+                    targetY,
+                    targetZ,
+                    speed,
+                    duration,
+                    fixedDirection,
+                    doesExplode,
+                    false,
+                    blendmode, durationTimeSpan, spinning, null
+                );
+                break;
+            }
+            default: InvalidVersionReceived( ref p ); break;
+        }
+    }
+    
+    private static void EnhancedEffectMultiPoint(World world, ref StackDataReader p, int version)
+    {
+        switch (version)
+        {
+            case 0:
+            {
+                if (world.Player == null)
+                {
+                    return;
+                }
+                GraphicEffectType type = (GraphicEffectType)p.ReadUInt8();
+
+                uint source = p.ReadUInt32BE();
+                ushort graphic = p.ReadUInt16BE();
+                ushort srcX = p.ReadUInt16BE();
+                ushort srcY = p.ReadUInt16BE();
+                sbyte srcZ = p.ReadInt8();
+                byte speed = p.ReadUInt8();
+                ushort duration = p.ReadUInt8();
+                short fixedDirection = p.ReadInt16BE();
+                bool doesExplode = p.ReadBool();
+                ushort hue = 0;
+                GraphicEffectBlendMode blendmode = 0;
+                hue = (ushort)p.ReadUInt32BE();
+                blendmode = (GraphicEffectBlendMode)(p.ReadUInt32BE() % 7);
+                ushort effect = p.ReadUInt16BE();
+                ushort explodeEffect = p.ReadUInt16BE();
+                ushort explodeSound = p.ReadUInt16BE();
+                uint serial = p.ReadUInt32BE();
+                byte layer = p.ReadUInt8();
+                ushort unknown = p.ReadUInt16BE();
+                short spinning = p.ReadInt16BE();
+                ushort pointCount = p.ReadUInt16BE();
+
+                List<Tuple<TimeSpan, Vector3>> points = new List<Tuple<TimeSpan, Vector3>>();
+
+                for (int i = 0; i < pointCount; i++)
+                {
+                    TimeSpan durationTimeSpan = TimeSpan.FromMilliseconds(p.ReadUInt32BE());
                     ushort targetX = p.ReadUInt16BE();
                     ushort targetY = p.ReadUInt16BE();
                     sbyte targetZ = p.ReadInt8();
-                    byte speed = p.ReadUInt8();
-                    ushort duration = p.ReadUInt8();
-                    short fixedDirection = p.ReadInt16BE();
-                    bool doesExplode = p.ReadBool();
-                    ushort hue = 0;
-                    GraphicEffectBlendMode blendmode = 0;
-                    hue = (ushort)p.ReadUInt32BE();
-                    blendmode = (GraphicEffectBlendMode)(p.ReadUInt32BE() % 7);
-                    ushort effect = p.ReadUInt16BE();
-                    ushort explodeEffect = p.ReadUInt16BE();
-                    ushort explodeSound = p.ReadUInt16BE();
-                    uint serial = p.ReadUInt32BE();
-                    byte layer = p.ReadUInt8();
-                    ushort unknown = p.ReadUInt16BE();
-                    TimeSpan durationTimeSpan = TimeSpan.FromMilliseconds(p.ReadUInt32BE());
-                    short spinning = p.ReadInt16BE();
-
-                    /*if (speed > 7)
-                    {
-                        speed = 7;
-                    }*/
-
-                    world.SpawnEffect
-                    (
-                        type,
-                        source,
-                        target,
-                        graphic,
-                        hue,
-                        srcX,
-                        srcY,
-                        srcZ,
-                        targetX,
-                        targetY,
-                        targetZ,
-                        speed,
-                        duration,
-                        fixedDirection,
-                        doesExplode,
-                        false,
-                        blendmode, durationTimeSpan, spinning, null
-                    );
-                    break;
+                    points.Add(new Tuple<TimeSpan, Vector3>(durationTimeSpan, new Vector3(targetX, targetY, targetZ)));
                 }
-                default: InvalidVersionReceived( ref p ); break;
-            }
-        }
-        
-        private static void EnhancedEffectMultiPoint(World world, ref StackDataReader p, int version)
-        {
-            switch (version)
-            {
-                case 0:
+                /*
+                 
+                
+                 if (speed > 7)
                 {
-                    if (world.Player == null)
-                    {
-                        return;
-                    }
-                    GraphicEffectType type = (GraphicEffectType)p.ReadUInt8();
+                    speed = 7;
+                }*/
 
-                    uint source = p.ReadUInt32BE();
-                    ushort graphic = p.ReadUInt16BE();
-                    ushort srcX = p.ReadUInt16BE();
-                    ushort srcY = p.ReadUInt16BE();
-                    sbyte srcZ = p.ReadInt8();
-                    byte speed = p.ReadUInt8();
-                    ushort duration = p.ReadUInt8();
-                    short fixedDirection = p.ReadInt16BE();
-                    bool doesExplode = p.ReadBool();
-                    ushort hue = 0;
-                    GraphicEffectBlendMode blendmode = 0;
-                    hue = (ushort)p.ReadUInt32BE();
-                    blendmode = (GraphicEffectBlendMode)(p.ReadUInt32BE() % 7);
-                    ushort effect = p.ReadUInt16BE();
-                    ushort explodeEffect = p.ReadUInt16BE();
-                    ushort explodeSound = p.ReadUInt16BE();
-                    uint serial = p.ReadUInt32BE();
-                    byte layer = p.ReadUInt8();
-                    ushort unknown = p.ReadUInt16BE();
-                    short spinning = p.ReadInt16BE();
-                    ushort pointCount = p.ReadUInt16BE();
-
-                    List<Tuple<TimeSpan, Vector3>> points = new List<Tuple<TimeSpan, Vector3>>();
-
-                    for (int i = 0; i < pointCount; i++)
-                    {
-                        TimeSpan durationTimeSpan = TimeSpan.FromMilliseconds(p.ReadUInt32BE());
-                        ushort targetX = p.ReadUInt16BE();
-                        ushort targetY = p.ReadUInt16BE();
-                        sbyte targetZ = p.ReadInt8();
-                        points.Add(new Tuple<TimeSpan, Vector3>(durationTimeSpan, new Vector3(targetX, targetY, targetZ)));
-                    }
-                    /*
-                     
-                    
-                     if (speed > 7)
-                    {
-                        speed = 7;
-                    }*/
-
-                    world.SpawnEffect
-                    (
-                        type,
-                        source,
-                        0,
-                        graphic,
-                        hue,
-                        srcX,
-                        srcY,
-                        srcZ,
-                        0,
-                        0,
-                        0,
-                        speed,
-                        duration,
-                        fixedDirection,
-                        doesExplode,
-                        false,
-                        blendmode, TimeSpan.Zero, spinning, points
-                    );
-                    break;
-                }
-                default: InvalidVersionReceived( ref p ); break;
+                world.SpawnEffect
+                (
+                    type,
+                    source,
+                    0,
+                    graphic,
+                    hue,
+                    srcX,
+                    srcY,
+                    srcZ,
+                    0,
+                    0,
+                    0,
+                    speed,
+                    duration,
+                    fixedDirection,
+                    doesExplode,
+                    false,
+                    blendmode, TimeSpan.Zero, spinning, points
+                );
+                break;
             }
+            default: InvalidVersionReceived( ref p ); break;
         }
+    }
 
     private static void SetProfileOption(World world, ref StackDataReader p, int version)
     {

@@ -203,7 +203,7 @@ internal abstract class BaseSpellbookGump : Gump
         CreateBook();
     }
     
-    protected void OnIconDoubleClick(object sender, MouseDoubleClickEventArgs e)
+    protected virtual void OnIconDoubleClick(object sender, MouseDoubleClickEventArgs e)
     {
         if (e.Button == MouseButtonType.Left)
         {
