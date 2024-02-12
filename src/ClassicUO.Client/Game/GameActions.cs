@@ -701,6 +701,11 @@ namespace ClassicUO.Game
         {
             Socket.Send_UseActiveBySlot(slot, ability);
         }
+        
+        public static void SendOpenUOHello()
+        {
+            Socket.Send_OpenUOHello();
+        }
 
         public static void StunToggle()
         {

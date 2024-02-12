@@ -23,6 +23,7 @@ internal class EnhancedPacketHandler
 {
     static EnhancedPacketHandler()
     {
+        Handler.Add(0, FeaturePacket);
         Handler.Add(1, SettingsPacket);
         Handler.Add(2, DefaultMovementSpeedPacket);
         Handler.Add(3, EnhancedPotionMacrosPacket);
@@ -49,12 +50,26 @@ internal class EnhancedPacketHandler
         Handler.Add(200, EnhancedGraphicEffect);
     }
     
+    
     private static void PacketTemplate(World world, ref StackDataReader p, int version)
     {
         switch (version)
         {
             case 0:
             {
+                break;
+            }
+            default: InvalidVersionReceived( ref p ); break;
+        }
+    }
+    
+    private static void FeaturePacket(World world, ref StackDataReader p, int version)
+    {
+        switch (version)
+        {
+            case 0:
+            {
+                GameActions.SendOpenUOHello();
                 break;
             }
             default: InvalidVersionReceived( ref p ); break;
