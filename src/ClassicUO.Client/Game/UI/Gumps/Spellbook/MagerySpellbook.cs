@@ -156,7 +156,15 @@ internal class MagerySpellbookGump : BaseSpellbookGump
 
             if (currentCount > 0 && currentCount <= maxSpellsCount)
             {
-                _spells[currentCount - 1] = true;
+                if (currentCount > 64)
+                {
+                    _extraspells[currentCount - 65] = true;
+                }
+                else
+                {
+                    _spells[currentCount - 1] = true;
+                }
+
                 totalSpells++;
             }
         }

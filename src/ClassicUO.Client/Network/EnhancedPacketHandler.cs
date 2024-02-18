@@ -48,9 +48,10 @@ internal class EnhancedPacketHandler
         //Handler.Add(200, EnhancedGraphicEffect);
         Handler.Add(201, EnhancedEffectMultiPoint);
         Handler.Add(200, EnhancedGraphicEffect);
+        Handler.Add(205, EnhancedSpellbookContent);
+        Handler.Add(206, CloseContainer);
     }
-    
-    
+
     private static void PacketTemplate(World world, ref StackDataReader p, int version)
     {
         switch (version)
@@ -63,6 +64,90 @@ internal class EnhancedPacketHandler
         }
     }
     
+    private static void CloseContainer(World world, ref StackDataReader p, int version)
+    {
+        switch (version)
+        {
+            case 0:
+            {
+                break;
+            }
+            default: InvalidVersionReceived( ref p ); break;
+        }
+    }
+
+    private static void EnhancedSpellbookContent(World world, ref StackDataReader p, int version)
+    {
+        switch (version)
+        {
+            case 0:
+            {
+                Item spellbook = world.GetOrCreateItem(p.ReadUInt32BE());
+                spellbook.Graphic = p.ReadUInt16BE();
+                spellbook.Clear();
+                ushort type = p.ReadUInt16BE();
+
+                for (int j = 0; j < 2; j++)
+                {
+                    uint spells = 0;
+
+                    for (int i = 0; i < 4; i++)
+                    {
+                        spells |= (uint)(p.ReadUInt8() << (i * 8));
+                    }
+
+                    for (int i = 0; i < 32; i++)
+                    {
+                        if ((spells & (1 << i)) != 0)
+                        {
+                            ushort cc = (ushort)(j * 32 + i + 1);
+                            // FIXME: should i call Item.Create ?
+                            Item spellItem = Item.Create(world, cc); // new Item()
+                            spellItem.Serial = cc;
+                            spellItem.Graphic = 0x1F2E;
+                            spellItem.Amount = cc;
+                            spellItem.Container = spellbook;
+                            spellbook.PushToBack(spellItem);
+                        }
+                    }
+                }
+                
+                for (int j = 0; j < 2; j++)
+                {
+                    uint spells = 0;
+
+                    for (int i = 0; i < 4; i++)
+                    {
+                        spells |= (uint)(p.ReadUInt8() << (i * 8));
+                    }
+
+                    for (int i = 0; i < 32; i++)
+                    {
+                        if ((spells & (1 << i)) != 0)
+                        {
+                            ushort cc = (ushort)(j * 32 + i + 1);
+                            cc += 64;
+                            // FIXME: should i call Item.Create ?
+                            Item spellItem = Item.Create(world, cc); // new Item()
+                            spellItem.Serial = cc;
+                            spellItem.Graphic = 0x1F2E;
+                            spellItem.Amount = cc;
+                            spellItem.Container = spellbook;
+                            spellbook.PushToBack(spellItem);
+                        }
+                    }
+                }
+
+                //spellbook.
+
+                UIManager.GetGump<BaseSpellbookGump>(spellbook)?.RequestUpdateContents();
+
+                break;
+            }
+            default: InvalidVersionReceived( ref p ); break;
+        }
+    }
+
     private static void FeaturePacket(World world, ref StackDataReader p, int version)
     {
         switch (version)

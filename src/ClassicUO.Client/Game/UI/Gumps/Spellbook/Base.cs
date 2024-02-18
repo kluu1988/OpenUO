@@ -23,8 +23,8 @@ internal abstract class BaseSpellbookGump : Gump
                     _pageCornerRight,
                     _picBase;
     protected readonly bool[] _spells = new bool[64];
-    protected readonly bool[] _extraspells = new bool[64]
-    {
+    protected readonly bool[] _extraspells = new bool[64];
+    /*{
         true, true, true, true,
         true, true, true, true,
         false, false, false, false,
@@ -41,7 +41,7 @@ internal abstract class BaseSpellbookGump : Gump
         false, false, false, false,
         false, false, false, false,
         false, false, false, false,
-    };
+    };*/
     protected int _enqueuePage = -1;
     protected abstract void GetSpellNames(int offset, out string name, out string abbreviature, out string reagents);
     protected abstract void GetSpellToolTip(out int offset);

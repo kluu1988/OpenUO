@@ -588,13 +588,18 @@ namespace ClassicUO.Game.Scenes
             }
 
             //Console.WriteLine(Servers[0].Address);
-            if (Servers[0].Address == 16843009)
+            if (Servers.Length > 0)
             {
-                NetClient.Socket.Send_OpenUOHello();
-                var newServers = new ServerListEntry[count-1];
-                for (int i = 1; i < count; i++)
-                    newServers[i - 1] = Servers[i];
-                Servers = newServers;
+                if (Servers[0].Address == 16843009 || Servers[0].Address == 33620225)
+                {
+                    NetClient.Socket.Send_OpenUOHello();
+                    var newServers = new ServerListEntry[count - 1];
+
+                    for (int i = 1; i < count; i++)
+                        newServers[i - 1] = Servers[i];
+
+                    Servers = newServers;
+                }
             }
 
             CurrentLoginStep = LoginSteps.ServerSelection;
