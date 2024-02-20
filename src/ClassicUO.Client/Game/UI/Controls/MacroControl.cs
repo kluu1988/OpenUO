@@ -675,7 +675,7 @@ namespace ClassicUO.Game.UI.Controls
                                     var mysticism = SpellsNecromancy.GetAllSpells.Count;
                                     var ninjitsu = SpellsNinjitsu.GetAllSpells.Count;
                                     var weaving = SpellsSpellweaving.GetAllSpells.Count;
-                                    var spells = new string[magery + bushido + chiv + mastery + mysticism + ninjitsu + weaving];
+                                    names = new string[magery + bushido + chiv + mastery + mysticism + ninjitsu + weaving];
 
                                     int i = 0;
                                     foreach (var kvp in SpellsMagery.GetAllSpells)
@@ -684,8 +684,52 @@ namespace ClassicUO.Game.UI.Controls
 
                                         if ((int)obj.SubCode == kvp.Key)
                                             index = i;
+                                        i++;
                                     }
-                                    fsafsd
+                                    foreach (var kvp in SpellsBushido.GetAllSpells)
+                                    {
+                                        names[i] = kvp.Value.Name;
+                                        if ((int)obj.SubCode == kvp.Key)
+                                            index = i;
+                                        i++;
+                                    }
+                                    foreach (var kvp in SpellsChivalry.GetAllSpells)
+                                    {
+                                        names[i] = kvp.Value.Name;
+                                        if ((int)obj.SubCode == kvp.Key)
+                                            index = i;
+                                        i++;
+                                    }
+                                    foreach (var kvp in SpellsMastery.GetAllSpells)
+                                    {
+                                        names[i] = kvp.Value.Name;
+                                        if ((int)obj.SubCode == kvp.Key)
+                                            index = i;
+                                        i++;
+                                    }
+                                    foreach (var kvp in SpellsNecromancy.GetAllSpells)
+                                    {
+                                        names[i] = kvp.Value.Name;
+                                        if ((int)obj.SubCode == kvp.Key)
+                                            index = i;
+                                        i++;
+                                    }
+                                    foreach (var kvp in SpellsNinjitsu.GetAllSpells)
+                                    {
+                                        names[i] = kvp.Value.Name;
+                                        if ((int)obj.SubCode == kvp.Key)
+                                            index = i;
+                                        i++;
+                                    }
+                                    foreach (var kvp in SpellsSpellweaving.GetAllSpells)
+                                    {
+                                        names[i] = kvp.Value.Name;
+                                        if ((int)obj.SubCode == kvp.Key)
+                                            index = i;
+                                        i++;
+                                    }
+                                    
+                                    
                                     break;
                                 }
 

@@ -2431,16 +2431,12 @@ namespace ClassicUO.Game.Managers
                     SubMenuType = 2;
 
                     break;
-                
-                case MacroType.CastSpell:
-                    SubMenuType = 3;
-
-                    break;
 
 
                 case MacroType.SallosTargeting:
                 case MacroType.UsePotionEnhanced:
                 case MacroType.EnhancedAbilitiesBySlot:
+                case MacroType.CastSpell:
                     SubMenuType = 4;
                     break;
 
