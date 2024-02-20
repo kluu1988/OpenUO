@@ -180,7 +180,7 @@ namespace ClassicUO.Game.Data
             SpellCircle = spellCircle;
             ID = index;
             GumpIconID = gumpIconID;
-            GumpIconSmallID = gumpIconID - 0x1298;
+            GumpIconSmallID = gumpIconID;
             Regs = regs;
             ManaCost = 0;
             MinSkill = 0;

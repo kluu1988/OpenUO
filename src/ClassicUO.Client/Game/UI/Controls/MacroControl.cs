@@ -38,6 +38,7 @@ using ClassicUO.Game.Scenes;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Input;
 using ClassicUO.Assets;
+using ClassicUO.Game.Data;
 using ClassicUO.Resources;
 using ClassicUO.Utility;
 using SDL2;
@@ -664,6 +665,29 @@ namespace ClassicUO.Game.UI.Controls
                                         }
                                         break;
                                     }
+                                
+                                case MacroType.CastSpell:
+                                {
+                                    var magery = SpellsMagery.GetAllSpells.Count;
+                                    var bushido = SpellsBushido.GetAllSpells.Count;
+                                    var chiv = SpellsChivalry.GetAllSpells.Count;
+                                    var mastery = SpellsMastery.GetAllSpells.Count;
+                                    var mysticism = SpellsNecromancy.GetAllSpells.Count;
+                                    var ninjitsu = SpellsNinjitsu.GetAllSpells.Count;
+                                    var weaving = SpellsSpellweaving.GetAllSpells.Count;
+                                    var spells = new string[magery + bushido + chiv + mastery + mysticism + ninjitsu + weaving];
+
+                                    int i = 0;
+                                    foreach (var kvp in SpellsMagery.GetAllSpells)
+                                    {
+                                        names[i] = kvp.Value.Name;
+
+                                        if ((int)obj.SubCode == kvp.Key)
+                                            index = i;
+                                    }
+                                    fsafsd
+                                    break;
+                                }
 
                                 case MacroType.SallosTargeting:
                                     {
@@ -674,6 +698,7 @@ namespace ClassicUO.Game.UI.Controls
                                         index = (int)obj.SubCode;
                                         break;
                                     }
+
 
                                 case MacroType.EnhancedAbilitiesBySlot:
                                 {

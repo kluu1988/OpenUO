@@ -977,14 +977,14 @@ namespace ClassicUO.Game.Managers
                     break;
 
                 case MacroType.CastSpell:
-                    int spell = macro.SubCode - MacroSubType.Clumsy + 1;
+                    int spellId = (int)macro.SubCode;
 
-                    if (spell > 0 && spell <= 151)
+                    //if ()
                     {
                         int totalCount = 0;
                         int spellType;
 
-                        for (spellType = 0; spellType < 7; spellType++)
+                        /*for (spellType = 0; spellType < 7; spellType++)
                         {
                             totalCount += _spellsCountTable[spellType];
 
@@ -1008,21 +1008,21 @@ namespace ClassicUO.Game.Managers
                                 {
                                     spell -= 23;
                                 }
-                            }
-                            if (!_world.Settings.MacroFlags.EnhancedSpellMacros || macro.SubSubCode <= MacroSubType.TargetNone)
-                                GameActions.CastSpell(spell);
-                            else if (macro.SubSubCode == MacroSubType.TargetLast)
-                            {
-                                if (ProfileManager.CurrentProfile != null && ProfileManager.CurrentProfile.SplitLastTarget)
-                                    GameActions.CastSpellWithTarget(spell, (uint)_world.TargetManager.LastTargetInfo.Serial, (uint)_world.TargetManager.LastBeneficialTargetInfo.Serial);
-                                else
-                                    GameActions.CastSpellWithTarget(spell, (uint)_world.TargetManager.LastTargetInfo.Serial);
-                            }
-                            else if (macro.SubSubCode == MacroSubType.TargetSelf)
-                                GameActions.CastSpellWithTarget(spell, _world.Player.Serial);
+                            }*/
+                        if (!_world.Settings.MacroFlags.EnhancedSpellMacros || macro.SubSubCode <= MacroSubType.TargetNone)
+                            GameActions.CastSpell(spellId);
+                        else if (macro.SubSubCode == MacroSubType.TargetLast)
+                        {
+                            if (ProfileManager.CurrentProfile != null && ProfileManager.CurrentProfile.SplitLastTarget)
+                                GameActions.CastSpellWithTarget(spellId, (uint)_world.TargetManager.LastTargetInfo.Serial, (uint)_world.TargetManager.LastBeneficialTargetInfo.Serial);
                             else
-                                GameActions.CastSpell(spell);
+                                GameActions.CastSpellWithTarget(spellId, (uint)_world.TargetManager.LastTargetInfo.Serial);
                         }
+                        else if (macro.SubSubCode == MacroSubType.TargetSelf)
+                            GameActions.CastSpellWithTarget(spellId, _world.Player.Serial);
+                        else
+                            GameActions.CastSpell(spellId);
+                        
                     }
 
                     break;
@@ -2317,15 +2317,17 @@ namespace ClassicUO.Game.Managers
 
                 case MacroType.InvokeVirtue:
                     offset = (int) MacroSubType.Honor;
-                    count = MacroSubType.Clumsy - MacroSubType.Honor;
+                    count = MacroSubType.Valor + 1 - MacroSubType.Honor;
 
                     break;
 
-                case MacroType.CastSpell:
-                    offset = (int) MacroSubType.Clumsy;
-                    count = MacroSubType.Hostile - MacroSubType.Clumsy;
-
-                    break;
+                //case MacroType.CastSpell:
+                //    offset = 0; //(int) MacroSubType.Clumsy;
+                //    count = SpellsMagery.GetAllSpells.Count + SpellsBushido.GetAllSpells.Count + SpellsChivalry.GetAllSpells.Count + SpellsMastery.GetAllSpells.Count +
+                //            SpellsMysticism.GetAllSpells.Count + SpellsNecromancy.GetAllSpells.Count + SpellsNinjitsu.GetAllSpells.Count + SpellsSpellweaving.GetAllSpells.Count;   
+                //    //MacroSubType.Hostile - MacroSubType.Clumsy;
+                //
+                //    break;
 
                 case MacroType.SelectNext:
                 case MacroType.SelectPrevious:
@@ -2396,7 +2398,7 @@ namespace ClassicUO.Game.Managers
                 case MacroType.UseSkill:
                 case MacroType.ArmDisarm:
                 case MacroType.InvokeVirtue:
-                case MacroType.CastSpell when !world.Settings.MacroFlags.EnhancedSpellMacros:
+                //case MacroType.CastSpell when !world.Settings.MacroFlags.EnhancedSpellMacros:
                 case MacroType.SelectNext:
                 case MacroType.SelectPrevious:
                 case MacroType.SelectNearest:
@@ -2430,7 +2432,7 @@ namespace ClassicUO.Game.Managers
 
                     break;
                 
-                case MacroType.CastSpell when world.Settings.MacroFlags.EnhancedSpellMacros:
+                case MacroType.CastSpell:
                     SubMenuType = 3;
 
                     break;
@@ -2633,150 +2635,7 @@ namespace ClassicUO.Game.Managers
         Honor, //Invoke Virture group
         Sacrifice,
         Valor,
-        Clumsy, //Cast Spell group
-        CreateFood,
-        Feeblemind,
-        Heal,
-        MagicArrow,
-        NightSight,
-        ReactiveArmor,
-        Weaken,
-        Agility,
-        Cunning,
-        Cure,
-        Harm,
-        MagicTrap,
-        MagicUntrap,
-        Protection,
-        Strength,
-        Bless,
-        Fireball,
-        MagicLock,
-        Poison,
-        Telekinesis,
-        Teleport,
-        Unlock,
-        WallOfStone,
-        ArchCure,
-        ArchProtection,
-        Curse,
-        FireField,
-        GreaterHeal,
-        Lightning,
-        ManaDrain,
-        Recall,
-        BladeSpirits,
-        DispellField,
-        Incognito,
-        MagicReflection,
-        MindBlast,
-        Paralyze,
-        PoisonField,
-        SummonCreature,
-        Dispel,
-        EnergyBolt,
-        Explosion,
-        Invisibility,
-        Mark,
-        MassCurse,
-        ParalyzeField,
-        Reveal,
-        ChainLightning,
-        EnergyField,
-        FlameStrike,
-        GateTravel,
-        ManaVampire,
-        MassDispel,
-        MeteorSwarm,
-        Polymorph,
-        Earthquake,
-        EnergyVortex,
-        Resurrection,
-        AirElemental,
-        SummonDaemon,
-        EarthElemental,
-        FireElemental,
-        WaterElemental,
-        AnimateDead,
-        BloodOath,
-        CorpseSkin,
-        CurseWeapon,
-        EvilOmen,
-        HorrificBeast,
-        LichForm,
-        MindRot,
-        PainSpike,
-        PoisonStrike,
-        Strangle,
-        SummonFamilar,
-        VampiricEmbrace,
-        VengefulSpirit,
-        Wither,
-        WraithForm,
-        Exorcism,
-        CleanceByFire,
-        CloseWounds,
-        ConsecrateWeapon,
-        DispelEvil,
-        DivineFury,
-        EnemyOfOne,
-        HolyLight,
-        NobleSacrifice,
-        RemoveCurse,
-        SacredJourney,
-        HonorableExecution,
-        Confidence,
-        Evasion,
-        CounterAttack,
-        LightingStrike,
-        MomentumStrike,
-        FocusAttack,
-        DeathStrike,
-        AnimalForm,
-        KiAttack,
-        SurpriceAttack,
-        Backstab,
-        Shadowjump,
-        MirrorImage,
-        ArcaneCircle,
-        GiftOfRenewal,
-        ImmolatingWeapon,
-        Attunement,
-        Thunderstorm,
-        NaturesFury,
-        SummonFey,
-        SummonFiend,
-        ReaperForm,
-        Wildfire,
-        EssenceOfWind,
-        DryadAllure,
-        EtherealVoyage,
-        WordOfDeath,
-        GiftOfLife,
-        ArcaneEmpowermen,
-        NetherBolt,
-        HealingStone,
-        PurgeMagic,
-        Enchant,
-        Sleep,
-        EagleStrike,
-        AnimatedWeapon,
-        StoneForm,
-        SpellTrigger,
-        MassSleep,
-        CleansingWinds,
-        Bombard,
-        SpellPlague,
-        HailStorm,
-        NetherCyclone,
-        RisingColossus,
-        Inspire,
-        Invigorate,
-        Resilience,
-        Perseverance,
-        Tribulation,
-        Despair,
-        Hostile, //Select Next/Preveous/Nearest group
+        Hostile = 205, //Select Next/Preveous/Nearest group
         Party,
         Follower,
         Object,
