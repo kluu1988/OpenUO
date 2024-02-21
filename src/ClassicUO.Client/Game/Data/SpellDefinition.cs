@@ -54,6 +54,7 @@ namespace ClassicUO.Game.Data
 
         internal static Dictionary<string, SpellDefinition> WordToTargettype = new Dictionary<string, SpellDefinition>();
 
+        public static int[] AllSpells;
 
         public SpellDefinition
         (

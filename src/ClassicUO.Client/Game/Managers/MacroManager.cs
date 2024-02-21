@@ -1009,16 +1009,16 @@ namespace ClassicUO.Game.Managers
                                     spell -= 23;
                                 }
                             }*/
-                        if (!_world.Settings.MacroFlags.EnhancedSpellMacros || macro.SubSubCode <= MacroSubType.TargetNone)
+                        if (!_world.Settings.MacroFlags.EnhancedSpellMacros || (int)macro.SubSubCode < 1)
                             GameActions.CastSpell(spellId);
-                        else if (macro.SubSubCode == MacroSubType.TargetLast)
+                        else if ((int)macro.SubSubCode == 1)
                         {
                             if (ProfileManager.CurrentProfile != null && ProfileManager.CurrentProfile.SplitLastTarget)
                                 GameActions.CastSpellWithTarget(spellId, (uint)_world.TargetManager.LastTargetInfo.Serial, (uint)_world.TargetManager.LastBeneficialTargetInfo.Serial);
                             else
                                 GameActions.CastSpellWithTarget(spellId, (uint)_world.TargetManager.LastTargetInfo.Serial);
                         }
-                        else if (macro.SubSubCode == MacroSubType.TargetSelf)
+                        else if ((int)macro.SubSubCode == 2)
                             GameActions.CastSpellWithTarget(spellId, _world.Player.Serial);
                         else
                             GameActions.CastSpell(spellId);
@@ -2363,7 +2363,7 @@ namespace ClassicUO.Game.Managers
                     break;
             }
         }
-        public static void GetSecondaryBoundByCode(MacroType code, ref int count, ref int offset)
+        /*public static void GetSecondaryBoundByCode(MacroType code, ref int count, ref int offset)
         {
             switch (code)
             {
@@ -2374,7 +2374,7 @@ namespace ClassicUO.Game.Managers
                     break;
 
             }
-        }
+        }*/
     }
 
 
@@ -2678,8 +2678,8 @@ namespace ClassicUO.Game.Managers
         
         
         
-        TargetNone = 5000, // OUO starts here
+        /*TargetNone = 5000, // OUO starts here
         TargetLast,
-        TargetSelf,
+        TargetSelf,*/
     }
 }

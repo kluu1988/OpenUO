@@ -565,7 +565,7 @@ namespace ClassicUO.Game.UI.Controls
 
                         break;
                     }
-                    case 3:
+                    /*case 3:
                         {
                             int count = 0;
                             int offset = 0;
@@ -629,7 +629,7 @@ namespace ClassicUO.Game.UI.Controls
 
 
                             break;
-                        }
+                        }*/
 
                     case 4:
                         {
@@ -653,18 +653,18 @@ namespace ClassicUO.Game.UI.Controls
                             switch (obj.Code)
                             {
                                 case MacroType.UsePotionEnhanced:
+                                {
+                                    names = new string[_world.Settings.Potions.Count];
+
+                                    for (int i = 0; i < _world.Settings.Potions.Count; i++)
                                     {
-                                        names = new string[_world.Settings.Potions.Count];
+                                        names[i] = _world.Settings.Potions[i].Name;
 
-                                        for (int i = 0; i < _world.Settings.Potions.Count; i++)
-                                        {
-                                            names[i] = _world.Settings.Potions[i].Name;
-
-                                            if (_world.Settings.Potions[i].ID == (int)obj.SubCode)
-                                                index = i;
-                                        }
-                                        break;
+                                        if (_world.Settings.Potions[i].ID == (int)obj.SubCode)
+                                            index = i;
                                     }
+                                    break;
+                                }
                                 
                                 case MacroType.CastSpell:
                                 {
@@ -676,59 +676,70 @@ namespace ClassicUO.Game.UI.Controls
                                     var ninjitsu = SpellsNinjitsu.GetAllSpells.Count;
                                     var weaving = SpellsSpellweaving.GetAllSpells.Count;
                                     names = new string[magery + bushido + chiv + mastery + mysticism + ninjitsu + weaving];
-
+                                    SpellDefinition.AllSpells = new int[magery + bushido + chiv + mastery + mysticism + ninjitsu + weaving];
                                     int i = 0;
                                     foreach (var kvp in SpellsMagery.GetAllSpells)
                                     {
                                         names[i] = kvp.Value.Name;
+                                        SpellDefinition.AllSpells[i] = kvp.Value.ID;
 
-                                        if ((int)obj.SubCode == kvp.Key)
+                                        if ((int)obj.SubCode == kvp.Value.ID)
                                             index = i;
                                         i++;
                                     }
                                     foreach (var kvp in SpellsBushido.GetAllSpells)
                                     {
                                         names[i] = kvp.Value.Name;
-                                        if ((int)obj.SubCode == kvp.Key)
+                                        SpellDefinition.AllSpells[i] = kvp.Value.ID;
+                                        if ((int)obj.SubCode == kvp.Value.ID)
                                             index = i;
                                         i++;
                                     }
                                     foreach (var kvp in SpellsChivalry.GetAllSpells)
                                     {
                                         names[i] = kvp.Value.Name;
-                                        if ((int)obj.SubCode == kvp.Key)
+                                        SpellDefinition.AllSpells[i] = kvp.Value.ID;
+                                        if ((int)obj.SubCode == kvp.Value.ID)
                                             index = i;
                                         i++;
                                     }
                                     foreach (var kvp in SpellsMastery.GetAllSpells)
                                     {
                                         names[i] = kvp.Value.Name;
-                                        if ((int)obj.SubCode == kvp.Key)
+                                        SpellDefinition.AllSpells[i] = kvp.Value.ID;
+                                        if ((int)obj.SubCode == kvp.Value.ID)
                                             index = i;
                                         i++;
                                     }
                                     foreach (var kvp in SpellsNecromancy.GetAllSpells)
                                     {
                                         names[i] = kvp.Value.Name;
-                                        if ((int)obj.SubCode == kvp.Key)
+                                        SpellDefinition.AllSpells[i] = kvp.Value.ID;
+                                        if ((int)obj.SubCode == kvp.Value.ID)
                                             index = i;
                                         i++;
                                     }
                                     foreach (var kvp in SpellsNinjitsu.GetAllSpells)
                                     {
                                         names[i] = kvp.Value.Name;
-                                        if ((int)obj.SubCode == kvp.Key)
+                                        SpellDefinition.AllSpells[i] = kvp.Value.ID;
+                                        if ((int)obj.SubCode == kvp.Value.ID)
                                             index = i;
                                         i++;
                                     }
                                     foreach (var kvp in SpellsSpellweaving.GetAllSpells)
                                     {
                                         names[i] = kvp.Value.Name;
-                                        if ((int)obj.SubCode == kvp.Key)
+                                        SpellDefinition.AllSpells[i] = kvp.Value.ID;
+                                        if ((int)obj.SubCode == kvp.Value.ID)
                                             index = i;
                                         i++;
                                     }
-                                    
+
+                                    if (_world.Settings.MacroFlags.EnhancedSpellMacros)
+                                    {
+                                        subNames = new string[] { "None", "Target Last", "Target Self", };
+                                    }
                                     
                                     break;
                                 }
@@ -785,6 +796,10 @@ namespace ClassicUO.Game.UI.Controls
                             {
                                 sub.OnOptionSelected += (senderr, ee) => { obj.SubCode = (MacroSubType)_world.Settings.Potions[ee].ID; };
                             }
+                            else if (obj.Code == MacroType.CastSpell)
+                            {
+                                sub.OnOptionSelected += (senderr, ee) => { obj.SubCode = (MacroSubType)SpellDefinition.AllSpells[ee]; };
+                            }
                             else
                             {
                                 sub.OnOptionSelected += (senderr, ee) => { obj.SubCode = (MacroSubType)ee; };
@@ -809,7 +824,7 @@ namespace ClassicUO.Game.UI.Controls
 
                                 sub.OnOptionSelected += (senderr, ee) =>
                                 {
-                                    Macro.GetSecondaryBoundByCode(obj.Code, ref count, ref offset);
+                                    //Macro.GetSecondaryBoundByCode(obj.Code, ref count, ref offset);
                                     MacroSubType subType = (MacroSubType)(offset + ee);
                                     obj.SubSubCode = subType;
                                 };

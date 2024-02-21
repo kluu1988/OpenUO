@@ -1304,7 +1304,7 @@ namespace ClassicUO.Network
             #if DEBUG
             writer.WriteBool(true);
             #else
-            writer.Writebool(false);
+            writer.WriteBool(false);
             #endif
             //writer.WriteUInt32BE(int.MaxValue);
             writer.WriteInt16BE(major);
