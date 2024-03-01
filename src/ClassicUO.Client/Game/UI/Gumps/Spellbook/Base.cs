@@ -337,7 +337,7 @@ internal abstract class BaseSpellbookGump : Gump
     {
         if (e.Button == MouseButtonType.Left && sender is HoveredLabel l)
         {
-            SpellDefinition def = GetSpellDefinition((int)l.Tag);
+            SpellDefinition def = GetSpellDefinition((int)l.Tag - 1);
 
             if (def != null)
             {
