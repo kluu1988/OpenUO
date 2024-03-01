@@ -232,6 +232,10 @@ internal class EnhancedPacketHandler
                     TargetType targetFlags = (TargetType) p.ReadUInt8();
                     SpellsMagery.SetSpell(id, new SpellDefinition(name, circle, id, gumpid, tooltips, powerwords, targetFlags, reags, regs.ToArray() ));
                 }
+
+                var buttons = UIManager.Gumps.OfType<UseSpellButtonGump>().ToList();
+                foreach (var gump in buttons)
+                    gump.Rebuild();
                 break;
             }
             default: InvalidVersionReceived( ref p ); break;

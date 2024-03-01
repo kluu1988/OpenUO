@@ -428,12 +428,28 @@ internal class MagerySpellbookGump : BaseSpellbookGump
                 //iconGraphic = (ushort)(iconStartGraphic + spell.ID);
                 //GetSpellToolTip(out toolTipCliloc);
 
-                HueGumpPic icon = new HueGumpPic(this, iconX, 40, (ushort)spell.GumpIconSmallID, 0, (ushort)spell.ID, spell.Name)
+                Control icon = null;
+
+                if (spell.GumpIconSmallID == 0)
                 {
-                    X = iconX,
-                    Y = 40,
-                    LocalSerial = iconSerial
-                };
+                    icon = new AlphaBlendControl()
+                    {
+                        X = iconX,
+                        Y = 40,
+                        Width = 44,
+                        Height = 44,
+                        AcceptMouseInput = true,
+                    };
+                }
+                else
+                {
+                    icon = new HueGumpPic(this, iconX, 40, (ushort)spell.GumpIconSmallID, 0, (ushort)spell.ID, spell.Name)
+                    {
+                        X = iconX,
+                        Y = 40,
+                        LocalSerial = iconSerial
+                    };
+                }
 
                 if (spell.TooltipCliloc > 0)
                 {

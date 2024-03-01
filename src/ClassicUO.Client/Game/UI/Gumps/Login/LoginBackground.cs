@@ -90,13 +90,13 @@ namespace ClassicUO.Game.UI.Gumps.Login
                 );
             }
             
-            Add
-            (
-                Animated = new AnimatedGumpPic
-                (
-                    "loginscreen", 5, 5, 0,
-                    true, false, 1.0f)
-            );
+            //Add
+            //(
+            //    Animated = new AnimatedGumpPic
+            //    (
+            //        "loginscreen", 5, 5, 0,
+            //        true, false, 1.0f)
+            //);
 
             CanCloseWithEsc = false;
             CanCloseWithRightClick = false;
