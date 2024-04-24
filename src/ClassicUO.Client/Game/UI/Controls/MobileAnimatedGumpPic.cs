@@ -54,20 +54,22 @@ namespace ClassicUO.Game.UI.Controls
         {
             Forward = true;
             Loop = true;
-            X = int.Parse(parts[1]);
-            Y = int.Parse(parts[2]);
-            Width = int.Parse(parts[3]);
-            Height = int.Parse(parts[4]);
-            Scale = float.Parse(parts[5]);
-            Centered = bool.Parse(parts[6]);
+            int version = int.Parse(parts[1]);
 
-            int remaining = (parts.Count - 7) / 4;
+            X = int.Parse(parts[2]);
+            Y = int.Parse(parts[3]);
+            Width = int.Parse(parts[4]);
+            Height = int.Parse(parts[5]);
+            Scale = float.Parse(parts[6]);
+            Centered = bool.Parse(parts[7]);
+            IsPartialHue = bool.Parse(parts[8]);
+            int remaining = (parts.Count - 9) / 4;
 
             Animations = new List<AnimationInfo>();
 
             for (int i = 0; i < remaining; i++)
             {
-                int offset = 7 + (i * 4);
+                int offset = 9 + (i * 4);
                 ushort bodyValue = UInt16.Parse(parts[offset]);
                 byte animationGroup = byte.Parse(parts[offset + 1]);
                 byte direction = byte.Parse(parts[offset + 2]);
@@ -90,7 +92,7 @@ namespace ClassicUO.Game.UI.Controls
 
         }
 
-        public MobileAnimatedGumpPic(List<AnimationInfo> animations, int x, int y, int width, int height, bool loop, float scale = 1, int delay = 0, bool centered = false)
+        public MobileAnimatedGumpPic(List<AnimationInfo> animations, int x, int y, int width, int height, bool loop, float scale = 1, int delay = 0, bool centered = false, bool isPartialHue = false)
         {
             LastChanged = Time.Ticks;
             Delay = delay;
@@ -100,6 +102,7 @@ namespace ClassicUO.Game.UI.Controls
             Loop = loop;
             Scale = scale;
             Centered = centered;
+            IsPartialHue = isPartialHue;
 
             Width = width;
             Height = height;

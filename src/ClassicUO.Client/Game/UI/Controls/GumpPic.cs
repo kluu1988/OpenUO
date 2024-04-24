@@ -101,6 +101,32 @@ namespace ClassicUO.Game.UI.Controls
         }
     }
 
+
+    internal class GumpPicPartialHue : GumpPic
+    {
+        public GumpPicPartialHue(int x, int y, ushort graphic, ushort hue) : base( x, y, graphic, hue)
+        {
+            IsPartialHue = true;
+        }
+        public GumpPicPartialHue(List<string> parts)
+            : this(
+                int.Parse(parts[1]),
+                int.Parse(parts[2]),
+                UInt16Converter.Parse(parts[3]),
+                (ushort)(
+                    parts.Count > 4
+                        ? TransformHue(
+                            (ushort)(
+                                UInt16Converter.Parse(parts[4].Substring(parts[4].IndexOf('=') + 1))
+                                + 1
+                            )
+                        )
+                        : 0
+                )
+            )
+        { }
+    }
+
     internal class GumpPic : GumpPicBase
     {
         public GumpPic(int x, int y, ushort graphic, ushort hue)
@@ -138,7 +164,7 @@ namespace ClassicUO.Game.UI.Controls
             return ContainsByBounds || base.Contains(x, y);
         }
 
-        private static ushort TransformHue(ushort hue)
+        protected static ushort TransformHue(ushort hue)
         {
             if (hue <= 2)
             {
