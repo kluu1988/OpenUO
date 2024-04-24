@@ -6719,6 +6719,11 @@ namespace ClassicUO.Network
                 {
                     gump.Add(new CroppedText(gparams, lines), page);
                 }
+                else if (string.Equals(entry, "partialhuegumppic", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    var pic = new GumpPicPartialHue(gparams);
+                    gump.Add(pic, page);
+                }
                 else if (
                     string.Equals(entry, "gumppic", StringComparison.InvariantCultureIgnoreCase)
                 )
