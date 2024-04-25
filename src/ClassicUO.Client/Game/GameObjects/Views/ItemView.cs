@@ -220,7 +220,7 @@ namespace ClassicUO.Game.GameObjects
             byte animIndex = (byte)AnimIndex;
             ushort graphic = GetGraphicForAnimation();
 
-            Client.Game.UO.Animations.ConvertBodyIfNeeded(ref graphic);
+            Client.Game.UO.Animations.ConvertBodyIfNeeded(ref graphic, isCorpse: IsCorpse);
             var animGroup = Client.Game.UO.Animations.GetAnimType(graphic);
             var animFlags = Client.Game.UO.Animations.GetAnimFlags(graphic);
             byte group = AnimationsLoader.Instance.GetDeathAction(
@@ -631,7 +631,7 @@ namespace ClassicUO.Game.GameObjects
                         continue;
                     }
 
-                    Client.Game.UO.Animations.ConvertBodyIfNeeded(ref graphic);
+                    Client.Game.UO.Animations.ConvertBodyIfNeeded(ref graphic, isCorpse: IsCorpse);
                     var animGroup = Client.Game.UO.Animations.GetAnimType(graphic);
                     var animFlags = Client.Game.UO.Animations.GetAnimFlags(graphic);
                     byte group = AnimationsLoader.Instance.GetDeathAction(
@@ -645,9 +645,11 @@ namespace ClassicUO.Game.GameObjects
                         group,
                         direction,
                         out _,
-                        out var isUOP
+                        out var isUOP,
+                        false,
+                        IsCorpse
                     );
-
+                    
                     if (frames.IsEmpty)
                     {
                         continue;
