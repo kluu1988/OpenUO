@@ -31,26 +31,35 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
+using ClassicUO;
+using ClassicUO.Assets;
+using ClassicUO.Configuration;
 using ClassicUO.Configuration.Json;
+using ClassicUO.Utility.Logging;
 using Microsoft.Xna.Framework;
 
 namespace ClassicUO.Configuration
 {
     [JsonSourceGenerationOptions(WriteIndented = true, GenerationMode = JsonSourceGenerationMode.Metadata)]
     [JsonSerializable(typeof(Settings), GenerationMode = JsonSourceGenerationMode.Metadata)]
-    sealed partial class SettingsJsonContext : JsonSerializerContext 
+    sealed partial class SettingsJsonContext : JsonSerializerContext
     {
         // horrible fix: https://github.com/ClassicUO/ClassicUO/issues/1663
-        public static SettingsJsonContext RealDefault { get; } = new SettingsJsonContext(
+        public static SettingsJsonContext RealDefault { get; } = new SettingsJsonContext
+        (
             new JsonSerializerOptions()
             {
                 WriteIndented = true,
                 Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-            });
+            }
+        );
     }
+
 
     internal sealed class Settings
     {
