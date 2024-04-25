@@ -546,6 +546,12 @@ namespace ClassicUO.Game.GameObjects
                 {
                     FixGargoyleEquipments(ref graphic);
                 }
+                
+                // Override animation drawn
+                if (!isGargoyle)
+                {
+                    FixHumanEquipments(ref graphic);
+                }
 
                 if (
                     AnimationsLoader.Instance.EquipConversions.TryGetValue(
@@ -561,10 +567,88 @@ namespace ClassicUO.Game.GameObjects
                     }
                 }
 
+                FixHumanEquipments(ref graphic);
+                // Check if the item has a UOP animation and force the non-UOP animation
+                /*if (AnimationsLoader.Instance.IsUopAnimation(graphic))
+                {
+                    graphic = AnimationsLoader.Instance.GetEquivalentMulGraphic(graphic);
+                }*/
+
                 return graphic;
             }
 
             return 0xFFFF;
+        }
+        
+        private static void FixHumanEquipments(ref ushort graphic)
+        {
+            switch (graphic)
+            {
+                /* into the mobtypes.txt file of 7.0.90+ client version we have:
+                 *
+                 *   1529 	EQUIPMENT	0		# EQUIP_Shield_Pirate_Male_H
+                 *   1530 	EQUIPMENT	0		# EQUIP_Shield_Pirate_Female_H
+                 *   1531 	EQUIPMENT	10000	# Equip_Shield_Pirate_Male_G
+                 *   1532 	EQUIPMENT	10000	# Equip_Shield_Pirate_Female_G
+                 *
+                 *   This means that graphic 0xA649 [pirate shield] has 4 tiledata infos.
+                 *   Standard client handles it automatically without any issue.
+                 *   Maybe it's hardcoded into the client
+                 */
+
+                // EQUIP Barbarian Sword => dragon turtle
+                case 1288:
+                    graphic = 643;
+                    break;
+                // custom sword => phoenix 1246
+                case 832:
+                    graphic = 1202;
+                    break;
+                // yumi => fire dragon 1289
+                case 1246:
+                    graphic = 575;
+                    break;
+                // whip => snake
+                case 1289:
+                    graphic = 0;
+                    break;
+                // boots => necromancer
+                case 1031:
+                    graphic = 477;
+                    break;
+                // cloak => doggo
+                case 1546:
+                    graphic = 468;
+                    break;
+                // royaltunic => giant bunny
+                case 1541:
+                    graphic = 527;
+                    break;
+                // yumi => dragon
+                case 1247:
+                    graphic = 575;
+                    break;
+                // bow hard code
+                case 1508:
+                    graphic = 649;
+                    break;
+                // bow hard code
+                case 1249:
+                    graphic = 649;
+                    break;
+                // bow hard code
+                case 1250:
+                    graphic = 649;
+                    break;
+                // bow hard code
+                case 1251:
+                    graphic = 649;
+                    break;
+                // ankh necklace
+                case 865: 
+                    graphic = 0;
+                    break;
+            }
         }
 
         private static void FixGargoyleEquipments(ref ushort graphic)
@@ -724,7 +808,7 @@ namespace ClassicUO.Game.GameObjects
                 out _,
                 isEquip,
                 false,
-                forceUOP
+                false
             );
 
             if (hueFromFile == 0)
@@ -1054,7 +1138,7 @@ namespace ClassicUO.Game.GameObjects
             byte animIndexBackup = animIndex;
 
             SpriteInfo spriteInfo;
-            bool isUop;
+            bool isUop = false;
 
             if (isHuman)
             {
@@ -1112,7 +1196,7 @@ namespace ClassicUO.Game.GameObjects
                 }
             }
 
-            if (GetTexture(graphic, animGroup, ref animIndex, dir, out spriteInfo, out isUop))
+            if (GetTexture(graphic, animGroup, ref animIndex, dir, out spriteInfo, out _))
             {
                 int x =
                     position.X

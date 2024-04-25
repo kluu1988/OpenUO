@@ -56,7 +56,7 @@ namespace ClassicUO.Game.Managers
         private static bool _needSort;
 
 
-        public static float ContainerScale { get; set; } = 1f;
+        public static float ContainerScale { get; set; } = 1.3f;
 
         public static AnchorManager AnchorManager { get; } = new AnchorManager();
 

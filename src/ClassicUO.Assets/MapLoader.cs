@@ -51,7 +51,7 @@ namespace ClassicUO.Assets
         private UOFileMul[] _staDifl;
 
         // cannot be a const, due to UOLive implementation
-        public static int MAPS_COUNT = 6;
+        public static int MAPS_COUNT = 11;
 
         protected MapLoader()
         {
