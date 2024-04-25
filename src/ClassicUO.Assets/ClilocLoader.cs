@@ -40,6 +40,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -73,72 +74,9 @@ namespace ClassicUO.Assets
 
                 _cliloc = "Cliloc.enu";
             }
-//#if DEBUG TODO: Create a cliloc file for OUO
-            LoadClientClilocs();
-//#endif
             return Load();
         }
-        
-//#if DEBUG
-        /// <summary>
-        /// Temporary Solution until custom cliloc solution is made
-        /// </summary>
-        public void LoadClientClilocs()
-        {
-            var toLoad = ConfigurationResolver.Load<DebugClilocs>("Clilocs.json");
-
-            foreach (var cliloc in toLoad.clilocs)
-            {
-                if (_entries.ContainsKey(cliloc.id))
-                {
-                    _entries[cliloc.id] = cliloc.data;
-                }
-                else
-                {
-                    _entries.Add(cliloc.id,cliloc.data);
-                }
-            }
-        }
-        
-        
-        private static class ConfigurationResolver
-        {
-            public static T Load<T>(string file) where T : class
-            {
-                if (!File.Exists(file))
-                {
-                    Log.Warn(file + " not found.");
-
-                    return null;
-                }
-
-                var text = File.ReadAllText(file);
-
-                text = Regex.Replace
-                (
-                    text,
-                    @"(?<!\\)  # lookbehind: Check that previous character isn't a \
-                                                \\         # match a \
-                                                (?!\\)     # lookahead: Check that the following character isn't a \",
-                    @"\\",
-                    RegexOptions.IgnorePatternWhitespace
-                );
-
-                return JsonSerializer.Deserialize(text, typeof(T)) as T;
-            }
-        }
-
-        private class DebugClilocs
-        {
-            public List<ClilocEntries> clilocs { get; set; }
-        }
-
-        private class ClilocEntries
-        {
-            public int id { get; set; }
-            public string data { get; set; }
-        }
-//#endif        
+       
         public override Task Load()
         {
             return Task.Run
@@ -239,6 +177,19 @@ namespace ClassicUO.Assets
         public override void ClearResources()
         {
             _entries.Clear();
+        }
+
+        public void SetString(int number, string data)
+        {
+            
+            if (_entries.ContainsKey(number))
+            {
+                _entries[number] = data;
+            }
+            else
+            {
+                _entries.Add(number, data);
+            }
         }
 
         public string GetString(int number)

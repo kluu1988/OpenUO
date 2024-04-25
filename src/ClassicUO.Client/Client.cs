@@ -238,6 +238,7 @@ namespace ClassicUO
             
             // ok now load uo files
             UOFileManager.Load(Version, Settings.GlobalSettings.UltimaOnlineDirectory, Settings.GlobalSettings.UseVerdata, Settings.GlobalSettings.Language);
+            ClientClilocs.LoadClientClilocs();
             StaticFilters.Load();
 
             BuffTable.Load();
